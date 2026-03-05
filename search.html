@@ -1,0 +1,1482 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results - Siza</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS VARIABLES - Same warm palette */
+        :root {
+            --primary-orange: #FF6B6B;
+            --primary-coral: #FF8E53;
+            --pastel-orange: #FFD4C4;
+            --navy-blue: #2C3E50;
+            --teal: #4ECDC4;
+            --warm-cream: #FFF8F0;
+            --cool-gray: #8B8B8B;
+            --light-gray: #F7F7F7;
+            --white: #FFFFFF;
+            --dark-gray: #2D3436;
+            --border-gray: #E0E0E0;
+            --hover-gray: #EBEBEB;
+            --soft-shadow: rgba(0, 0, 0, 0.08);
+            --warm-shadow: rgba(255, 107, 107, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark-gray);
+            background-color: var(--white);
+            line-height: 1.6;
+        }
+
+        /* FLOATING NAVIGATION - Pastel orange, rounded, centered, with blur effect */
+        .navbar {
+            padding: 16px 40px;
+            position: fixed;
+            top: 16px;
+            left: 40px;
+            right: 40px;
+            z-index: 1000;
+            border-radius: 24px;
+            background: rgba(255, 212, 196, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 212, 196, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--navy-blue);
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .logo i {
+            font-size: 28px;
+            color: var(--primary-orange);
+        }
+
+        /* CENTERED SEARCH BAR */
+        .mini-search {
+            flex: 1;
+            max-width: 500px;
+        }
+
+        .mini-search-bar {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid transparent;
+            border-radius: 40px;
+            padding: 10px 10px 10px 24px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .mini-search-bar:focus-within {
+            border-color: var(--primary-orange);
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.2);
+            background: var(--white);
+        }
+
+        .mini-search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: var(--dark-gray);
+            font-family: inherit;
+            background: transparent;
+        }
+
+        .mini-search-input::placeholder {
+            color: var(--cool-gray);
+        }
+
+        .mini-search-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .mini-search-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 4px 16px var(--warm-shadow);
+        }
+
+        /* BLUR LAYER for content passing under navbar */
+        .content-blur-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, rgba(255, 212, 196, 0.3) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            backdrop-filter: blur(5px);
+        }
+
+        .content-blur-layer.active {
+            opacity: 1;
+        }
+
+        /* MAIN SEARCH LAYOUT - Adjusted for fixed navbar */
+        .search-layout {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 140px 40px 40px;
+        }
+
+        /* RESULTS HEADER */
+        .results-header {
+            margin-bottom: 24px;
+        }
+
+        .results-header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 8px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .results-header p {
+            color: var(--cool-gray);
+            font-size: 15px;
+        }
+
+        /* FILTER CHIPS */
+        .filter-chips {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            padding-bottom: 8px;
+        }
+
+        .filter-chip {
+            padding: 12px 24px;
+            border: 2px solid var(--border-gray);
+            background: var(--white);
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark-gray);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .filter-chip:hover {
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px var(--soft-shadow);
+        }
+
+        .filter-chip.active {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            border-color: transparent;
+            color: var(--white);
+            box-shadow: 0 6px 20px var(--warm-shadow);
+            transform: translateY(-3px);
+        }
+
+        .filter-chip i {
+            font-size: 14px;
+        }
+
+        /* VENUES GRID */
+        .venues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        /* VENUE CARD */
+        .venue-card {
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--white);
+            border: 1px solid var(--border-gray);
+            position: relative;
+        }
+
+        .venue-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .venue-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 24px 48px rgba(0, 0, 0, 0.12);
+            border-color: transparent;
+        }
+
+        .venue-card:hover::before {
+            opacity: 1;
+        }
+
+        .venue-image {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+        }
+
+        .venue-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .venue-card:hover .venue-image img {
+            transform: scale(1.1);
+        }
+
+        .venue-badge {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            padding: 8px 16px;
+            background: var(--primary-orange);
+            color: var(--white);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .venue-favorite {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cool-gray);
+            font-size: 18px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: scale(0.8);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .venue-card:hover .venue-favorite {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .venue-favorite:hover {
+            background: var(--white);
+            color: var(--primary-orange);
+            transform: scale(1.15) rotate(10deg);
+        }
+
+        .venue-favorite.saved {
+            opacity: 1;
+            transform: scale(1);
+            color: var(--primary-orange);
+        }
+
+        .venue-info {
+            padding: 20px;
+        }
+
+        .venue-info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .venue-info h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            line-height: 1.4;
+        }
+
+        .venue-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            color: var(--dark-gray);
+            font-weight: 600;
+            background: rgba(255, 107, 107, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .venue-rating i {
+            color: var(--primary-orange);
+            font-size: 12px;
+        }
+
+        .venue-location {
+            color: var(--cool-gray);
+            font-size: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .venue-location::before {
+            content: '\f3c5';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 12px;
+        }
+
+        .venue-details {
+            display: flex;
+            gap: 12px;
+            color: var(--cool-gray);
+            font-size: 13px;
+            margin-bottom: 16px;
+        }
+
+        .venue-price {
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-gray);
+        }
+
+        .venue-price .amount {
+            font-weight: 700;
+            color: var(--dark-gray);
+            font-size: 20px;
+        }
+
+        .venue-price .period {
+            color: var(--cool-gray);
+            font-size: 14px;
+        }
+
+        /* NO RESULTS */
+        .no-results {
+            text-align: center;
+            padding: 80px 20px;
+            grid-column: 1 / -1;
+        }
+
+        .no-results i {
+            font-size: 80px;
+            color: var(--pastel-orange);
+            margin-bottom: 24px;
+        }
+
+        .no-results h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--dark-gray);
+        }
+
+        .no-results p {
+            color: var(--cool-gray);
+            margin-bottom: 32px;
+            font-size: 16px;
+        }
+
+        .no-results .btn-primary {
+            display: inline-block;
+            padding: 16px 32px;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: var(--white);
+            text-decoration: none;
+            border-radius: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px var(--warm-shadow);
+        }
+
+        .no-results .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px var(--warm-shadow);
+        }
+
+        /* REDUCED HEIGHT PASTEL ORANGE FOOTER */
+        .footer {
+            background: linear-gradient(135deg, #FFD4C4 0%, #FFE4D6 50%, #FFD4C4 100%);
+            border-top: none;
+            padding: 40px 40px 24px;
+            margin-top: 64px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 24px 24px 0 0;
+            margin-left: 40px;
+            margin-right: 40px;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 100%, rgba(255, 142, 83, 0.15) 0%, transparent 50%);
+            animation: float 15s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.05);
+            }
+        }
+
+        .footer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255, 107, 107, 0.03) 35px, rgba(255, 107, 107, 0.03) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(78, 205, 196, 0.03) 35px, rgba(78, 205, 196, 0.03) 70px);
+            opacity: 0.5;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-bottom: 32px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-section h3 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--navy-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-section a {
+            display: block;
+            color: var(--navy-blue);
+            text-decoration: none;
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            opacity: 0.8;
+        }
+
+        .footer-section a:hover {
+            opacity: 1;
+            color: var(--primary-orange);
+            transform: translateX(8px);
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 2px solid rgba(44, 62, 80, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-bottom p {
+            color: var(--navy-blue);
+            font-size: 13px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .footer-decoration {
+            position: absolute;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .footer-decoration-1 {
+            top: 10px;
+            left: 10%;
+            background: var(--primary-orange);
+            animation-delay: 0s;
+        }
+
+        .footer-decoration-2 {
+            bottom: 10px;
+            right: 10%;
+            background: var(--teal);
+            animation-delay: 2s;
+        }
+
+        /* USER MENU DROPDOWN */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-gray);
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 240px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-gray);
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .user-dropdown.active {
+            display: flex;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--light-gray);
+            color: var(--primary-orange);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-gray);
+            margin: 8px 0;
+        }
+
+        /* PROFILE MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 24px;
+            padding: 32px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            font-size: 24px;
+            color: var(--dark-gray);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--cool-gray);
+            cursor: pointer;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--dark-gray);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 4px rgba(255, 90, 95, 0.1);
+        }
+
+        .btn-primary {
+            background: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            border: 1px solid var(--border-gray);
+            color: var(--dark-gray);
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .navbar {
+                left: 20px;
+                right: 20px;
+                top: 12px;
+                padding: 12px 20px;
+                border-radius: 20px;
+            }
+
+            .nav-container {
+                gap: 12px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .logo i {
+                font-size: 24px;
+            }
+
+            .mini-search {
+                max-width: none;
+            }
+
+            .search-layout {
+                padding: 120px 20px 20px;
+            }
+
+            .filter-chips {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 16px;
+                -webkit-overflow-scrolling: touch;
+                gap: 10px;
+            }
+
+            .filter-chip {
+                flex-shrink: 0;
+                padding: 10px 18px;
+                font-size: 13px;
+            }
+
+            .venues-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .footer {
+                margin-left: 20px;
+                margin-right: 20px;
+                padding: 32px 20px 20px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+        }
+
+        /* NOTIFICATION TOAST */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--navy-blue);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 11000;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .notification.active {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .notification i {
+            color: var(--primary-orange);
+            font-size: 18px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BLUR LAYER for content passing under navbar -->
+    <div class="content-blur-layer" id="blurLayer"></div>
+
+    <!-- FLOATING NAVIGATION - Pastel orange, centered, rounded -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-gem"></i>
+                <span>Siza</span>
+            </a>
+
+            <div class="mini-search">
+                <div class="mini-search-bar">
+                    <input type="text" class="mini-search-input" id="searchInput" placeholder="Where are you going?">
+                    <button class="mini-search-btn" onclick="performSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="navAuth" style="display: flex; gap: 16px; align-items: center; margin-left: 16px;">
+                <a href="login.html" style="text-decoration: none; color: var(--dark-gray); font-weight: 600;">Log
+                    In</a>
+                <a href="register.html"
+                    style="text-decoration: none; background: var(--primary-orange); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 600;">Sign
+                    Up</a>
+            </div>
+
+            <div id="navUserMenu" style="display: none; margin-left: 16px;">
+                <div class="user-menu">
+                    <button class="user-btn" onclick="toggleUserDropdown()">
+                        <div class="user-avatar" id="navUserAvatar">U</div>
+                        <span id="navUserName">User</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="user-dropdown" id="userDropdown">
+                        <div id="ownerDashboardLink" style="display: none;">
+                            <a href="dashboard.html" class="dropdown-item">
+                                <i class="fas fa-chart-line"></i> Dashboard
+                            </a>
+                            <div class="dropdown-divider"></div>
+                        </div>
+                        <button class="dropdown-item" onclick="openProfileModal()">
+                            <i class="fas fa-user-edit"></i> Edit Profile
+                        </button>
+                        <a href="dashboard.html?tab=favorites" class="dropdown-item" id="renterFavoritesLink"
+                            style="display: none;">
+                            <i class="fas fa-heart"></i> My Favorites
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <button class="dropdown-item" onclick="logout()" style="color: #FF5A5F;">
+                            <i class="fas fa-sign-out-alt"></i> Log Out
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PROFILE MODAL -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>My Profile</h2>
+                <button class="modal-close" onclick="closeModal('profileModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div id="profileModalAvatar"
+                    style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-orange), var(--primary-coral)); color: white; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 600; margin: 0 auto; overflow: hidden;">
+                    <span id="profileModalInitials">U</span>
+                    <img id="profileModalImg" src=""
+                        style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <h3 id="profileModalNameDisplay" style="margin-top: 16px; font-size: 20px; color: var(--dark-gray);">
+                    User Name</h3>
+            </div>
+
+            <form id="profileForm" onsubmit="saveProfile(event)">
+                <div class="form-group">
+                    <label>Profile Picture</label>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input type="file" id="profileImageInput" accept="image/*" style="display: none;"
+                            onchange="handleProfileImage(this)">
+                        <button type="button" class="btn-secondary" style="flex: 1; font-size: 13px;"
+                            onclick="document.getElementById('profileImageInput').click()">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </button>
+                        <button type="button" id="removePicBtn" class="btn-secondary"
+                            style="display: none; color: #FF5A5F;" onclick="removeProfilePicture()">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="profileName">Full Name</label>
+                    <input type="text" id="profileName" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="profileEmail">Email Address</label>
+                    <input type="email" id="profileEmail" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="profilePhone">Phone Number</label>
+                    <input type="tel" id="profilePhone" placeholder="+254 ...">
+                </div>
+
+                <div class="modal-actions" style="display: flex; flex-direction: column; gap: 12px; margin-top: 24px;">
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN SEARCH LAYOUT -->
+    <div class="search-layout">
+
+        <div class="results-header">
+            <h1 id="resultsTitle">Stays in New York</h1>
+            <p id="resultsCount">300+ venues available</p>
+        </div>
+
+        <!-- FILTER CHIPS -->
+        <div class="filter-chips">
+            <button class="filter-chip active" onclick="toggleFilter(this, 'all')">
+                <i class="fas fa-star"></i>
+                All
+            </button>
+            <button class="filter-chip" onclick="toggleFilter(this, 'Gardens')">
+                <i class="fas fa-leaf"></i>
+                Gardens
+            </button>
+            <button class="filter-chip" onclick="toggleFilter(this, 'Indoor')">
+                <i class="fas fa-home"></i>
+                Indoor
+            </button>
+            <button class="filter-chip" onclick="toggleFilter(this, 'Schools')">
+                <i class="fas fa-graduation-cap"></i>
+                Schools
+            </button>
+            <button class="filter-chip" onclick="toggleFilter(this, 'Hotels')">
+                <i class="fas fa-hotel"></i>
+                Hotels
+            </button>
+            <button class="filter-chip" onclick="toggleFilter(this, 'Unique')">
+                <i class="fas fa-magic"></i>
+                Unique
+            </button>
+            <button class="filter-chip" onclick="toggleFilter(this, 'Home')">
+                <i class="fas fa-house-user"></i>
+                Home
+            </button>
+            <button class="filter-chip" onclick="toggleFilter(this, 'Rooftops')">
+                <i class="fas fa-city"></i>
+                Rooftops
+            </button>
+        </div>
+
+        <!-- VENUES GRID -->
+        <div class="venues-grid" id="venuesGrid">
+            <!-- Venues populated by JS -->
+        </div>
+
+    </div>
+
+    <!-- PASTEL ORANGE FOOTER -->
+    <footer class="footer">
+        <div class="footer-decoration footer-decoration-1"></div>
+        <div class="footer-decoration footer-decoration-2"></div>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="#">Help Center</a>
+                <a href="#">Safety Information</a>
+                <a href="#">Cancellation Options</a>
+            </div>
+            <div class="footer-section">
+                <h3>About</h3>
+                <a href="#">How Siza Works</a>
+                <a href="#">Careers</a>
+                <a href="#">Investors</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Siza, Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notificationMessage">Message goes here</span>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        let allVenues = [];
+
+        let currentFilter = 'all';
+        let searchQuery = '';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Get search params from URL
+            const params = new URLSearchParams(window.location.search);
+            searchQuery = params.get('location') || '';
+            const guestsQuery = params.get('guests') || '';
+
+            // Update header
+            if (searchQuery) {
+                document.getElementById('resultsTitle').textContent = `Venues in ${searchQuery}`;
+                document.getElementById('searchInput').value = searchQuery;
+            } else {
+                document.getElementById('resultsTitle').textContent = `All Venues`;
+            }
+
+            await fetchVenues(); // Call the new fetchVenues function
+
+            // Check saved favorites
+            checkSavedFavorites();
+
+            // Setup scroll listener for blur effect
+            setupScrollBlur();
+        });
+
+        async function fetchVenues() {
+            // Get search params from URL (needed for API call)
+            const params = new URLSearchParams(window.location.search);
+            const currentSearchQuery = params.get('location') || '';
+            const currentGuestsQuery = params.get('guests') || '';
+
+            // Build API URL
+            let apiUrl = '/api/venues?';
+            if (currentSearchQuery) apiUrl += `location=${encodeURIComponent(currentSearchQuery)}&`;
+            if (currentGuestsQuery) apiUrl += `guests=${encodeURIComponent(currentGuestsQuery)}`;
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                allVenues = data.venues;
+
+                // Robust image parser
+                function parseVenueImages(imageStr) {
+                    if (!imageStr) return [];
+                    if (Array.isArray(imageStr)) return imageStr;
+                    if (typeof imageStr === 'string') {
+                        if (imageStr.startsWith('[') || imageStr.startsWith('{')) {
+                            try {
+                                const parsed = JSON.parse(imageStr);
+                                return Array.isArray(parsed) ? parsed : [parsed];
+                            } catch (e) { return [imageStr]; }
+                        }
+                        return [imageStr];
+                    }
+                    return [];
+                }
+
+                // Parse amenities and image from JSON string if needed
+                allVenues.forEach(v => {
+                    if (typeof v.amenities === 'string') {
+                        try { v.amenities = JSON.parse(v.amenities); } catch (e) { /* ignore parse error */ }
+                    }
+                    const imgs = parseVenueImages(v.image).filter(img => typeof img === 'string' && img !== '[object Object]');
+                    v.displayImage = imgs.length > 0 ? imgs[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available';
+                });
+
+                renderVenues();
+            } catch (error) {
+                console.error("Error fetching venues:", error);
+                document.getElementById('venuesGrid').innerHTML = '<p>Error loading venues.</p>';
+            }
+        }
+
+        // Setup scroll blur effect
+        function setupScrollBlur() {
+            const navbar = document.getElementById('navbar');
+            const blurLayer = document.getElementById('blurLayer');
+
+            window.addEventListener('scroll', () => {
+                const scrollY = window.scrollY;
+
+                if (scrollY > 50) {
+                    navbar.classList.add('scrolled');
+                    blurLayer.classList.add('active');
+                } else {
+                    navbar.classList.remove('scrolled');
+                    blurLayer.classList.remove('active');
+                }
+            });
+        }
+
+        // Render venues
+        function renderVenues() {
+            const grid = document.getElementById('venuesGrid');
+
+            // Filter venues
+            let filtered = allVenues;
+            if (currentFilter !== 'all') {
+                filtered = allVenues.filter(v => v.type === currentFilter);
+            }
+
+            // Update count
+            document.getElementById('resultsCount').textContent = `${filtered.length} venues available`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-results">
+                        <i class="fas fa-search"></i>
+                        <h3>No venues found</h3>
+                        <p>Try adjusting your filters or search for a different location.</p>
+                        <a href="index.html" class="btn-primary">Back to home</a>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(venue => `
+                <a href="venue.html?id=${venue.id}" class="venue-card">
+                    <div class="venue-image">
+                        <img src="${venue.displayImage}" alt="${venue.title}" loading="lazy">
+                        ${venue.views >= 100 ? '<span class="venue-badge">Hot</span>' : (venue.badge ? `<span class="venue-badge">${venue.badge}</span>` : '')}
+                        <button class="venue-favorite" onclick="event.preventDefault(); toggleFavorite(${venue.id}, this)" ${currentUser && currentUser.role === 'owner' ? 'style="display: none;"' : ''}>
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="venue-info">
+                        <div class="venue-info-header">
+                            <h3>${venue.title}</h3>
+                            <div class="venue-rating">
+                                <i class="fas fa-star"></i>
+                                <span>${venue.rating}</span>
+                            </div>
+                        </div>
+                        <p class="venue-location">${venue.location}</p>
+                        <p class="venue-details">Up to ${venue.guests} guests • ${venue.type}</p>
+                        <div class="venue-price">
+                            <span class="amount">KES ${venue.price}</span>
+                            <span class="period">/event</span>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+
+            checkSavedFavorites();
+        }
+
+        // Toggle filter
+        function toggleFilter(button, filter) {
+            // Update active state
+            document.querySelectorAll('.filter-chip').forEach(chip => {
+                chip.classList.remove('active');
+            });
+            button.classList.add('active');
+
+            // Update filter and render
+            currentFilter = filter;
+            renderVenues();
+        }
+
+        // Perform search
+        function performSearch() {
+            const query = document.getElementById('searchInput').value;
+            if (query) {
+                window.location.href = `search.html?location=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Toggle favorite (renters only)
+        function toggleFavorite(venueId, button) {
+            if (currentUser && currentUser.role === 'owner') {
+                return;
+            }
+            const icon = button.querySelector('i');
+            const isSaved = button.classList.contains('saved');
+
+            // Check if logged in
+            if (!currentUser) {
+                if (confirm('Please log in to save favorites. Go to login page?')) {
+                    window.location.href = 'login.html';
+                }
+                return;
+            }
+
+            let favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
+
+            if (isSaved) {
+                button.classList.remove('saved');
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                favorites = favorites.filter(id => id !== venueId);
+            } else {
+                button.classList.add('saved');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                if (!favorites.includes(venueId)) {
+                    favorites.push(venueId);
+                }
+            }
+
+            localStorage.setItem('siza_favorites', JSON.stringify(favorites));
+            showNotification(isSaved ? 'Removed from favorites' : 'Venue added to favorites!');
+        }
+
+        // Check saved favorites on load
+        function checkSavedFavorites() {
+            const user = localStorage.getItem('siza_user');
+            if (!user) return;
+
+            const favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
+            document.querySelectorAll('.venue-favorite').forEach((btn, index) => {
+                const venueId = allVenues[index]?.id;
+                if (favorites.includes(venueId)) {
+                    btn.classList.add('saved');
+                    btn.querySelector('i').classList.remove('far');
+                    btn.querySelector('i').classList.add('fas');
+                }
+            });
+        }
+
+        // Enter key for search
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+
+        // Show notification toast
+        function showNotification(message) {
+            const toast = document.getElementById('notification');
+            const msgSpan = document.getElementById('notificationMessage');
+            if (!toast || !msgSpan) return;
+            msgSpan.textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+
+        // Check authentication for Nav
+        let currentUser = null;
+        let pendingProfileBase64 = null;
+
+        function checkAuthNav() {
+            const userStr = localStorage.getItem('siza_user');
+            if (userStr) {
+                currentUser = JSON.parse(userStr);
+                document.getElementById('navAuth').style.display = 'none';
+                document.getElementById('navUserMenu').style.display = 'block';
+
+                document.getElementById('navUserName').textContent = currentUser.name.split(' ')[0];
+                const navAvatar = document.getElementById('navUserAvatar');
+                if (currentUser.profile_image) {
+                    navAvatar.innerHTML = `<img src="${currentUser.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                } else {
+                    navAvatar.innerHTML = (currentUser.name || 'U').charAt(0).toUpperCase();
+                }
+
+                if (currentUser.role === 'owner') {
+                    document.getElementById('ownerDashboardLink').style.display = 'block';
+                } else {
+                    document.getElementById('renterFavoritesLink').style.display = 'flex';
+                }
+            } else {
+                document.getElementById('navAuth').style.display = 'flex';
+                document.getElementById('navUserMenu').style.display = 'none';
+            }
+        }
+
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                document.getElementById('userDropdown').classList.remove('active');
+            }
+        });
+
+        function openProfileModal() {
+            if (!currentUser) return;
+            document.getElementById('profileModalNameDisplay').textContent = currentUser.name;
+            document.getElementById('profileName').value = currentUser.name || '';
+            document.getElementById('profileEmail').value = currentUser.email || '';
+            document.getElementById('profilePhone').value = currentUser.phone || '';
+
+            const initialsEl = document.getElementById('profileModalInitials');
+            const imgEl = document.getElementById('profileModalImg');
+            const removeBtn = document.getElementById('removePicBtn');
+
+            if (currentUser.profile_image) {
+                imgEl.src = currentUser.profile_image;
+                imgEl.style.display = 'block';
+                initialsEl.style.display = 'none';
+                removeBtn.style.display = 'block';
+            } else {
+                initialsEl.textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
+                imgEl.style.display = 'none';
+                initialsEl.style.display = 'block';
+                removeBtn.style.display = 'none';
+            }
+
+            document.getElementById('profileModal').classList.add('active');
+            document.getElementById('userDropdown').classList.remove('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function handleProfileImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('profileModalImg').src = e.target.result;
+                    document.getElementById('profileModalImg').style.display = 'block';
+                    document.getElementById('profileModalInitials').style.display = 'none';
+                    document.getElementById('removePicBtn').style.display = 'block';
+                    pendingProfileBase64 = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removeProfilePicture() {
+            pendingProfileBase64 = "";
+            document.getElementById('profileModalImg').style.display = 'none';
+            document.getElementById('profileModalInitials').style.display = 'block';
+            document.getElementById('removePicBtn').style.display = 'none';
+        }
+
+        async function saveProfile(event) {
+            event.preventDefault();
+            const name = document.getElementById('profileName').value;
+            const email = document.getElementById('profileEmail').value;
+            const phone = document.getElementById('profilePhone').value;
+
+            const payload = { name, email, phone };
+            if (pendingProfileBase64 !== null) payload.profile_image = pendingProfileBase64;
+
+            try {
+                const response = await fetch(`/api/users/${currentUser.id}/profile`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    alert('Profile updated successfully!');
+                    pendingProfileBase64 = null;
+                    closeModal('profileModal');
+                    const syncResp = await fetch(`/api/users/${currentUser.id}`);
+                    const syncData = await syncResp.json();
+                    if (syncData.user) {
+                        localStorage.setItem('siza_user', JSON.stringify(syncData.user));
+                        checkAuthNav();
+                    }
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to update profile');
+                }
+            } catch (err) {
+                alert('Connection error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('siza_user');
+            window.location.href = 'index.html';
+        }
+
+        checkAuthNav();
+        checkSavedFavorites();
+    </script>
+
+</body>
+
+</html>

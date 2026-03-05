@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Siza - Find Your Perfect Event Venue</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS VARIABLES - Your Color Palette */
+        :root {
+            --primary-orange: #FF5A5F;
+            --navy-blue: #0A192F;
+            --teal: #008080;
+            --cool-gray: #717171;
+            --light-gray: #F7F7F7;
+            --white: #FFFFFF;
+            --dark-gray: #222222;
+            --border-gray: #DDDDDD;
+            --hover-gray: #EBEBEB;
+        }
+
+        /* RESET AND BASE STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark-gray);
+            background-color: var(--white);
+            line-height: 1.6;
+        }
+
+        /* NAVIGATION BAR */
+        .navbar {
+            border-bottom: 1px solid var(--border-gray);
+            padding: 0 24px;
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Logo */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: var(--primary-orange);
+            font-size: 32px;
+            font-weight: 700;
+        }
+
+        .logo i {
+            font-size: 40px;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            background: linear-gradient(135deg, var(--navy-blue) 0%, var(--teal) 100%);
+            padding: 80px 24px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Decorative dots pattern */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            opacity: 0.5;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            color: var(--white);
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 32px;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* SEARCH BAR */
+        .search-container {
+            background: var(--white);
+            border-radius: 50px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            display: inline-flex;
+            max-width: 850px;
+            width: 100%;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            background: var(--white);
+            border-radius: 50px;
+        }
+
+        .search-item {
+            flex: 1;
+            padding: 14px 24px;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: background 0.2s;
+            text-align: left;
+        }
+
+        .search-item:hover {
+            background-color: var(--light-gray);
+        }
+
+        .search-item label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 2px;
+        }
+
+        .search-item input {
+            border: none;
+            background: transparent;
+            font-size: 14px;
+            color: var(--cool-gray);
+            width: 100%;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .divider {
+            width: 1px;
+            height: 32px;
+            background-color: var(--border-gray);
+        }
+
+        .search-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--primary-orange);
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            margin-right: 8px;
+            transition: transform 0.2s, background 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-btn:hover {
+            transform: scale(1.05);
+            background: #E04850;
+        }
+
+        /* CATEGORIES SECTION */
+        .categories {
+            padding: 24px;
+            border-bottom: 1px solid var(--border-gray);
+            position: sticky;
+            top: 80px;
+            background: var(--white);
+            z-index: 100;
+        }
+
+        .categories-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            gap: 32px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .categories-container::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 0;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            color: var(--cool-gray);
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            min-width: 60px;
+        }
+
+        .category-item i {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .category-item:hover {
+            color: var(--dark-gray);
+            border-bottom-color: var(--border-gray);
+        }
+
+        .category-item.active {
+            color: var(--primary-orange);
+            border-bottom-color: var(--primary-orange);
+        }
+
+        /* VENUES GRID SECTION */
+        .venues-section {
+            padding: 48px 24px;
+            max-width: 1440px;
+            margin: 0 auto;
+        }
+
+        .venues-section h2 {
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--navy-blue);
+        }
+
+        .venues-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 32px;
+        }
+
+        /* VENUE CARD */
+        .venue-card {
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .venue-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .venue-image {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .venue-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+
+        .venue-card:hover .venue-image img {
+            transform: scale(1.05);
+        }
+
+        .venue-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--primary-orange);
+            color: var(--white);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .venue-favorite {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            color: var(--white);
+            font-size: 24px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s;
+        }
+
+        .venue-favorite:hover {
+            transform: scale(1.2);
+        }
+
+        .venue-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 4px;
+        }
+
+        .venue-location {
+            color: var(--cool-gray);
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .venue-details {
+            display: flex;
+            gap: 8px;
+            color: var(--cool-gray);
+            font-size: 15px;
+            margin-bottom: 8px;
+        }
+
+        .venue-price {
+            display: flex;
+            align-items: baseline;
+            gap: 4px;
+        }
+
+        .venue-price .price {
+            font-weight: 600;
+            color: var(--dark-gray);
+            font-size: 16px;
+        }
+
+        .venue-price .period {
+            color: var(--cool-gray);
+            font-size: 15px;
+        }
+
+        .venue-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .venue-rating i {
+            color: var(--primary-orange);
+            font-size: 12px;
+        }
+
+        /* FOOTER */
+        .footer {
+            background-color: var(--light-gray);
+            border-top: 1px solid var(--border-gray);
+            padding: 48px 24px 24px;
+            margin-top: 64px;
+        }
+
+        .footer-content {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 48px;
+            margin-bottom: 48px;
+        }
+
+        .footer-section h3 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--dark-gray);
+        }
+
+        .footer-section a {
+            display: block;
+            color: var(--cool-gray);
+            text-decoration: none;
+            margin-bottom: 12px;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+
+        .footer-section a:hover {
+            color: var(--dark-gray);
+            text-decoration: underline;
+        }
+
+        .footer-bottom {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-gray);
+            text-align: center;
+            color: var(--cool-gray);
+            font-size: 14px;
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .search-container {
+                border-radius: 16px;
+            }
+
+            .search-bar {
+                flex-direction: column;
+                border-radius: 16px;
+            }
+
+            .divider {
+                width: 100%;
+                height: 1px;
+            }
+
+            .venues-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVIGATION BAR -->
+    <nav class="navbar">
+        <div class="nav-container" style="justify-content: space-between;">
+            <a href="index.html" class="logo">
+                <i class="fas fa-gem"></i>
+                <span>Siza</span>
+            </a>
+
+            <div id="navAuth" style="display: flex; gap: 16px; align-items: center;">
+                <a href="login.html" style="text-decoration: none; color: var(--dark-gray); font-weight: 600;">Log
+                    In</a>
+                <a href="register.html"
+                    style="text-decoration: none; background: var(--primary-orange); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 600;">Sign
+                    Up</a>
+            </div>
+
+            <div id="navDashboard" style="display: none; gap: 16px; align-items: center;">
+                <a href="dashboard.html"
+                    style="text-decoration: none; background: var(--light-gray); color: var(--dark-gray); padding: 10px 20px; border-radius: 20px; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+                    <i class="fas fa-user-circle"></i> Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Find the perfect place to<br>host your next event</h1>
+
+            <!-- Search Bar -->
+            <div class="search-container">
+                <div class="search-bar">
+                    <div class="search-item location">
+                        <label>Where</label>
+                        <input type="text" placeholder="Search destinations" id="locationInput">
+                    </div>
+                    <div class="divider"></div>
+                    <div class="search-item date">
+                        <label>When</label>
+                        <input type="text" placeholder="Add dates" onfocus="(this.type='date')"
+                            onblur="if(!this.value)this.type='text'">
+                    </div>
+                    <div class="divider"></div>
+                    <div class="search-item guests">
+                        <label>Who</label>
+                        <input type="number" placeholder="Add guests" min="1" id="guestsInput">
+                    </div>
+                    <button class="search-btn" onclick="handleSearch()">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CATEGORIES - Updated filters -->
+    <section class="categories">
+        <div class="categories-container">
+            <button class="category-item active" onclick="filterCategory('all', this)">
+                <i class="fas fa-star"></i>
+                <span>All</span>
+            </button>
+            <button class="category-item" onclick="filterCategory('Gardens', this)">
+                <i class="fas fa-leaf"></i>
+                <span>Gardens</span>
+            </button>
+            <button class="category-item" onclick="filterCategory('Indoor', this)">
+                <i class="fas fa-home"></i>
+                <span>Indoor spaces</span>
+            </button>
+            <button class="category-item" onclick="filterCategory('Schools', this)">
+                <i class="fas fa-graduation-cap"></i>
+                <span>Schools</span>
+            </button>
+            <button class="category-item" onclick="filterCategory('Hotels', this)">
+                <i class="fas fa-hotel"></i>
+                <span>Hotels</span>
+            </button>
+            <button class="category-item" onclick="filterCategory('Unique', this)">
+                <i class="fas fa-magic"></i>
+                <span>Unique spots</span>
+            </button>
+            <button class="category-item" onclick="filterCategory('Home', this)">
+                <i class="fas fa-house-user"></i>
+                <span>Home</span>
+            </button>
+            <button class="category-item" onclick="filterCategory('Rooftops', this)">
+                <i class="fas fa-city"></i>
+                <span>Rooftops</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- VENUES GRID -->
+    <section class="venues-section">
+        <div class="venues-container">
+            <h2>Featured Venues</h2>
+            <div class="venues-grid" id="venuesGrid">
+                <!-- Venues will be inserted here by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER - Removed Hosting section -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="#">Help Center</a>
+                <a href="#">Safety Information</a>
+                <a href="#">Cancellation Options</a>
+            </div>
+            <div class="footer-section">
+                <h3>About</h3>
+                <a href="#">How Siza Works</a>
+                <a href="#">Careers</a>
+                <a href="#">Investors</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Siza, Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        let allVenues = [];
+
+        // Fetch venues from backend API
+        async function fetchVenues() {
+            try {
+                const response = await fetch('/api/venues');
+                const data = await response.json();
+                allVenues = data.venues;
+                // Parse amenities from JSON string if needed
+                allVenues.forEach(v => {
+                    if (typeof v.amenities === 'string') {
+                        try { v.amenities = JSON.parse(v.amenities); } catch (e) { }
+                    }
+                });
+                renderVenues(allVenues);
+            } catch (error) {
+                console.error("Error fetching venues:", error);
+                document.getElementById('venuesGrid').innerHTML = '<p>Error loading venues. Please try again later.</p>';
+            }
+        }
+
+        // Function to render venues on the page
+        function renderVenues(venuesToShow) {
+            const grid = document.getElementById('venuesGrid');
+
+            grid.innerHTML = venuesToShow.map(venue => `
+                <a href="venue.html?id=${venue.id}" class="venue-card">
+                    <div class="venue-image">
+                        <img src="${venue.image}" alt="${venue.title}" loading="lazy">
+                        <span class="venue-badge">Hot</span>
+                        <button class="venue-favorite" onclick="event.preventDefault(); toggleHeart(this)">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                    <div class="venue-info">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <h3>${venue.title}</h3>
+                            <div class="venue-rating">
+                                <i class="fas fa-star"></i>
+                                <span>${venue.rating}</span>
+                            </div>
+                        </div>
+                        <p class="venue-location">${venue.location}</p>
+                        <p class="venue-details">Up to ${venue.guests} guests • ${venue.type}</p>
+                        <div class="venue-price">
+                            <span class="price">$${venue.price}</span>
+                            <span class="period">/event</span>
+                        </div>
+                    </div>
+                </a>
+            `).join('');
+        }
+
+        // Toggle heart icon on favorite button
+        function toggleHeart(button) {
+            const icon = button.querySelector('i');
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                icon.style.color = '#FF5A5F';
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                icon.style.color = 'white';
+            }
+        }
+
+        // Filter venues by category
+        function filterCategory(category, button) {
+            // Update active state on buttons
+            document.querySelectorAll('.category-item').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+
+            // Filter the venues
+            if (category === 'all') {
+                renderVenues(allVenues);
+            } else {
+                const filtered = allVenues.filter(v => v.type === category);
+                renderVenues(filtered);
+            }
+        }
+
+        // Handle search button click
+        function handleSearch() {
+            const location = document.getElementById('locationInput').value;
+            const guests = document.getElementById('guestsInput').value;
+
+            // Build the URL with search parameters
+            let searchUrl = 'search.html?';
+            if (location) searchUrl += `location=${encodeURIComponent(location)}&`;
+            if (guests) searchUrl += `guests=${guests}`;
+
+            // Go to search results page
+            window.location.href = searchUrl;
+        }
+
+        // Load venues when page loads
+        fetchVenues();
+
+        // Check authentication for Nav
+        function checkAuthNav() {
+            const userStr = localStorage.getItem('siza_user');
+            if (userStr) {
+                const user = JSON.parse(userStr);
+                document.getElementById('navAuth').style.display = 'none';
+                if (user.role === 'owner') {
+                    document.getElementById('navDashboard').style.display = 'flex';
+                }
+            }
+        }
+        checkAuthNav();
+    </script>
+
+</body>
+
+</html>

@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Siza</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS VARIABLES - Warmer, More Playful Palette */
+        :root {
+            --primary-orange: #FF6B6B;
+            --primary-coral: #FF8E53;
+            --navy-blue: #2C3E50;
+            --teal: #4ECDC4;
+            --warm-cream: #FFF8F0;
+            --cool-gray: #8B8B8B;
+            --light-gray: #F7F7F7;
+            --white: #FFFFFF;
+            --dark-gray: #2D3436;
+            --border-gray: #E0E0E0;
+            --hover-gray: #EBEBEB;
+            --soft-shadow: rgba(0, 0, 0, 0.08);
+            --warm-shadow: rgba(255, 107, 107, 0.15);
+        }
+
+        /* RESET AND BASE STYLES */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark-gray);
+            background-color: var(--warm-cream);
+            line-height: 1.6;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* BACKGROUND IMAGE WITH BLUR */
+        .page-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: url('https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            filter: blur(8px) brightness(0.7);
+            transform: scale(1.1);
+        }
+
+        .page-background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.2) 0%, rgba(78, 205, 196, 0.2) 100%);
+        }
+
+        /* FLOATING NAVIGATION - With rounded corners and margins */
+        .navbar {
+            padding: 20px 40px;
+            position: relative;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 20px;
+            padding: 16px 32px;
+            box-shadow: 0 8px 32px var(--soft-shadow);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--primary-orange);
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .logo i {
+            font-size: 36px;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* MAIN AUTH CONTAINER */
+        .auth-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: calc(100vh - 120px);
+        }
+
+        /* FLOATING AUTH CARD - White rectangle with round corners */
+        .auth-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--white);
+            border-radius: 32px;
+            padding: 48px;
+            box-shadow:
+                0 20px 60px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            position: relative;
+            overflow: hidden;
+            animation: floatIn 0.6s ease-out;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-orange) 0%, var(--teal) 50%, var(--primary-coral) 100%);
+        }
+
+        @keyframes floatIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 12px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .auth-header p {
+            color: var(--cool-gray);
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        /* DECORATIVE ELEMENTS */
+        .auth-decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .auth-decoration-1 {
+            top: -50px;
+            right: -50px;
+            background: var(--primary-orange);
+        }
+
+        .auth-decoration-2 {
+            bottom: -30px;
+            left: -30px;
+            background: var(--teal);
+            width: 80px;
+            height: 80px;
+        }
+
+        /* TABS - More playful */
+        .auth-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 32px;
+            background: var(--light-gray);
+            padding: 6px;
+            border-radius: 16px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            background: transparent;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--cool-gray);
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-tab::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 107, 107, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .auth-tab:hover::before {
+            width: 200px;
+            height: 200px;
+        }
+
+        .auth-tab:hover {
+            color: var(--dark-gray);
+            transform: translateY(-2px);
+        }
+
+        .auth-tab.active {
+            background: var(--white);
+            color: var(--primary-orange);
+            box-shadow: 0 4px 12px var(--soft-shadow);
+            transform: translateY(-2px);
+        }
+
+        /* FORMS */
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            margin-bottom: 8px;
+            transition: color 0.2s;
+        }
+
+        .form-group:focus-within label {
+            color: var(--primary-orange);
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid var(--border-gray);
+            border-radius: 16px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            background: var(--white);
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 4px var(--warm-shadow);
+            transform: translateY(-2px);
+        }
+
+        .form-group input::placeholder {
+            color: var(--cool-gray);
+        }
+
+        /* USER TYPE SELECTOR - More playful */
+        .user-type-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .user-type-option {
+            flex: 1;
+            padding: 20px 16px;
+            border: 2px solid var(--border-gray);
+            border-radius: 20px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: var(--white);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .user-type-option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .user-type-option:hover {
+            border-color: var(--primary-orange);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--warm-shadow);
+        }
+
+        .user-type-option.selected {
+            border-color: var(--primary-orange);
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(255, 142, 83, 0.05) 100%);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px var(--warm-shadow);
+        }
+
+        .user-type-option.selected::before {
+            opacity: 0.05;
+        }
+
+        .user-type-option i {
+            font-size: 28px;
+            margin-bottom: 12px;
+            display: block;
+            color: var(--cool-gray);
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-type-option:hover i,
+        .user-type-option.selected i {
+            color: var(--primary-orange);
+            transform: scale(1.1);
+        }
+
+        .user-type-option span {
+            font-size: 13px;
+            font-weight: 600;
+            display: block;
+            color: var(--dark-gray);
+            position: relative;
+            z-index: 1;
+        }
+
+        /* PRIMARY BUTTON - Gradient hover */
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: var(--white);
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-top: 8px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px var(--warm-shadow);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+            background: linear-gradient(135deg, #FF5252 0%, #FF7B43 100%);
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        /* DIVIDER - More playful */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: 28px 0;
+            color: var(--cool-gray);
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--border-gray), transparent);
+        }
+
+        .auth-divider span {
+            padding: 0 20px;
+            background: var(--white);
+            border-radius: 20px;
+        }
+
+        /* SOCIAL LOGIN - Warmer style */
+        .social-login {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .social-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px;
+            border: 2px solid var(--border-gray);
+            border-radius: 16px;
+            background: var(--white);
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: var(--dark-gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .social-btn:hover {
+            border-color: var(--primary-orange);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--soft-shadow);
+        }
+
+        .social-btn i {
+            font-size: 20px;
+            transition: transform 0.3s;
+        }
+
+        .social-btn:hover i {
+            transform: scale(1.1);
+        }
+
+        .social-btn.google i {
+            color: #DB4437;
+        }
+
+        .social-btn.apple i {
+            color: #000000;
+        }
+
+        /* LINKS - Warmer colors */
+        .auth-links {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: var(--cool-gray);
+        }
+
+        .auth-links a {
+            color: var(--primary-orange);
+            text-decoration: none;
+            font-weight: 600;
+            position: relative;
+            transition: color 0.2s;
+        }
+
+        .auth-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-orange);
+            transition: width 0.3s;
+        }
+
+        .auth-links a:hover {
+            color: var(--primary-coral);
+        }
+
+        .auth-links a:hover::after {
+            width: 100%;
+        }
+
+        /* FORGOT PASSWORD LINK */
+        .forgot-link {
+            text-align: right;
+            margin: -10px 0 20px;
+        }
+
+        .forgot-link a {
+            font-size: 13px;
+            color: var(--cool-gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .forgot-link a:hover {
+            color: var(--primary-orange);
+        }
+
+        /* FOOTER - Floating style */
+        .footer {
+            padding: 24px;
+            text-align: center;
+            position: relative;
+        }
+
+        .footer-content {
+            background: var(--white);
+            display: inline-block;
+            padding: 16px 32px;
+            border-radius: 20px;
+            box-shadow: 0 4px 16px var(--soft-shadow);
+        }
+
+        .footer p {
+            color: var(--cool-gray);
+            font-size: 14px;
+        }
+
+        .footer a {
+            color: var(--primary-orange);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .footer a:hover {
+            color: var(--primary-coral);
+        }
+
+        /* ERROR MESSAGE - Playful style */
+        .error-message {
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 142, 83, 0.1) 100%);
+            color: var(--primary-orange);
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid var(--primary-orange);
+            animation: shake 0.5s ease;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px);
+            }
+
+            75% {
+                transform: translateX(10px);
+            }
+        }
+
+        /* SUCCESS MESSAGE */
+        .success-message {
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(78, 205, 196, 0.2) 100%);
+            color: var(--teal);
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid var(--teal);
+        }
+
+        .success-message.show {
+            display: block;
+            animation: slideInRight 0.4s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 16px 20px;
+            }
+
+            .nav-container {
+                padding: 12px 24px;
+                border-radius: 16px;
+            }
+
+            .auth-container {
+                padding: 20px 16px 60px;
+            }
+
+            .auth-card {
+                padding: 32px 24px;
+                border-radius: 24px;
+            }
+
+            .auth-header h1 {
+                font-size: 26px;
+            }
+
+            .user-type-selector {
+                flex-direction: column;
+            }
+
+            .user-type-option {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BACKGROUND IMAGE -->
+    <div class="page-background"></div>
+
+    <!-- NAVIGATION - Floating with rounded corners -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">
+                <i class="fas fa-gem"></i>
+                <span>Siza</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- MAIN AUTH SECTION -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Decorative elements -->
+            <div class="auth-decoration auth-decoration-1"></div>
+            <div class="auth-decoration auth-decoration-2"></div>
+
+            <!-- Header -->
+            <div class="auth-header">
+                <h1>Welcome to Siza</h1>
+                <p>Find and book the perfect venue for your next unforgettable event</p>
+            </div>
+
+
+
+            <!-- Error/Success Messages -->
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <!-- SIGNUP FORM -->
+            <form id="signupForm" class="auth-form active" onsubmit="handleSignup(event)" style="display: block;">
+
+                <!-- User Type Selection -->
+                <div class="user-type-selector">
+                    <div class="user-type-option selected" onclick="selectUserType('renter', this)">
+                        <i class="fas fa-calendar-check"></i>
+                        <span>I want to book venues</span>
+                    </div>
+                    <div class="user-type-option" onclick="selectUserType('owner', this)">
+                        <i class="fas fa-building"></i>
+                        <span>I want to list my venue</span>
+                    </div>
+                </div>
+                <input type="hidden" id="userType" value="renter">
+
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" required placeholder="John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label for="signupEmail">Email address</label>
+                    <input type="email" id="signupEmail" required placeholder="name@example.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" required placeholder="Create a password" minlength="8">
+                    <small
+                        style="color: var(--cool-gray); font-size: 12px; display: block; margin-top: 6px; margin-left: 4px;">
+                        Must be at least 8 characters
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="signupPhone">Phone Number (optional)</label>
+                    <input type="tel" id="signupPhone" placeholder="+1 (555) 000-0000">
+                </div>
+
+                <button type="submit" class="btn-primary">Create Account</button>
+            </form>
+
+            <!-- Divider -->
+            <div class="auth-divider">
+                <span>or continue with</span>
+            </div>
+
+            <!-- Social Login -->
+            <div class="social-login">
+                <button class="social-btn google" onclick="socialLogin('google')">
+                    <i class="fab fa-google"></i>
+                    Continue with Google
+                </button>
+                <button class="social-btn apple" onclick="socialLogin('apple')">
+                    <i class="fab fa-apple"></i>
+                    Continue with Apple
+                </button>
+            </div>
+
+            <!-- Links -->
+            <div class="auth-links">
+                <p>Already have an account? <a href="login.html">Log In</a></p>
+                <br>
+                <p>By continuing, you agree to Siza's <a href="#">Terms of Service</a> and <a href="#">Privacy
+                        Policy</a></p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2026 Siza, Inc. All rights reserved. · <a href="index.html">Back to home</a></p>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // Select user type (Renter or Owner)
+        function selectUserType(type, element) {
+            // Update visual selection
+            document.querySelectorAll('.user-type-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+
+            // Update hidden input
+            document.getElementById('userType').value = type;
+        }
+
+        // selectUserType is preserved
+
+
+        // Handle Signup
+        async function handleSignup(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const role = document.getElementById('userType').value; // 'renter' or 'owner'
+
+            if (password.length < 8) {
+                showError('Password must be at least 8 characters');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password, role })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Account created successfully! Redirecting...');
+                    // Auto-login
+                    localStorage.setItem('siza_user', JSON.stringify(data.user));
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 1000);
+                } else {
+                    showError(data.error || 'Error creating account');
+                }
+            } catch (error) {
+                showError('Error connecting to server');
+            }
+        }
+
+        // Social Login
+        function socialLogin(provider) {
+            showSuccess(`Connecting to ${provider}...`);
+            // In real app, this would open OAuth popup
+            setTimeout(() => {
+                localStorage.setItem('siza_user', JSON.stringify({
+                    email: 'user@gmail.com',
+                    name: 'Social User',
+                    type: 'renter'
+                }));
+                window.location.href = 'index.html';
+            }, 2000);
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.classList.add('show');
+        }
+
+        // Hide all messages
+        function hideMessages() {
+            document.getElementById('errorMessage').classList.remove('show');
+            document.getElementById('successMessage').classList.remove('show');
+        }
+
+
+
+        // Check if already logged in
+        document.addEventListener('DOMContentLoaded', function () {
+            const user = localStorage.getItem('siza_user');
+            if (user) {
+                // Optional: Auto-redirect if already logged in
+                // window.location.href = 'index.html';
+            }
+        });
+    </script>
+
+</body>
+
+</html>

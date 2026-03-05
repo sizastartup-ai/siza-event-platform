@@ -1,0 +1,2355 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Venue Details - Siza</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* CSS VARIABLES - Warm, Playful Palette */
+        :root {
+            --primary-orange: #FF6B6B;
+            --primary-coral: #FF8E53;
+            --pastel-orange: #FFD4C4;
+            --navy-blue: #2C3E50;
+            --teal: #4ECDC4;
+            --warm-cream: #FFF8F0;
+            --cool-gray: #8B8B8B;
+            --light-gray: #F7F7F7;
+            --white: #FFFFFF;
+            --dark-gray: #2D3436;
+            --border-gray: #E0E0E0;
+            --hover-gray: #EBEBEB;
+            --soft-shadow: rgba(0, 0, 0, 0.08);
+            --warm-shadow: rgba(255, 107, 107, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark-gray);
+            background-color: var(--white);
+            line-height: 1.6;
+        }
+
+        /* FLOATING NAVIGATION */
+        .navbar {
+            padding: 20px 40px;
+            position: sticky;
+            top: 0;
+            background: var(--white);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--primary-orange);
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .logo i {
+            font-size: 36px;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 12px 20px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back:hover {
+            background: var(--light-gray);
+            transform: translateX(-4px);
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            padding: 12px 20px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark-gray);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            background: var(--light-gray);
+        }
+
+        .nav-btn i {
+            font-size: 16px;
+        }
+
+        /* USER MENU */
+        .user-menu {
+            position: relative;
+        }
+
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-gray);
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-avatar-nav {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            overflow: hidden;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 240px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-gray);
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .user-dropdown.active {
+            display: flex;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--light-gray);
+            color: var(--primary-orange);
+        }
+
+        .dropdown-divider {
+            height: 1px;
+            background: var(--border-gray);
+            margin: 8px 0;
+        }
+
+        /* PROFILE MODAL */
+        .profile-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(4px);
+        }
+
+        .profile-modal-overlay.active {
+            display: flex;
+        }
+
+        .profile-modal {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 24px;
+            padding: 32px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .profile-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .profile-modal-header h2 {
+            font-size: 24px;
+        }
+
+        .profile-modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            color: var(--cool-gray);
+            cursor: pointer;
+        }
+
+        .profile-form-group {
+            margin-bottom: 20px;
+        }
+
+        .profile-form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .profile-form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border-gray);
+            border-radius: 12px;
+            font-size: 15px;
+        }
+
+        .profile-form-group input:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 4px rgba(255, 90, 95, 0.1);
+        }
+
+        .btn-profile-primary {
+            background: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-profile-secondary {
+            background: white;
+            border: 1px solid var(--border-gray);
+            color: var(--dark-gray);
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* MAIN CONTENT */
+        .venue-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        /* VENUE HEADER */
+        .venue-header {
+            margin-bottom: 24px;
+        }
+
+        .venue-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--dark-gray);
+            margin-bottom: 12px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .venue-meta {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            font-size: 15px;
+            color: var(--cool-gray);
+        }
+
+        .venue-meta .rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: var(--dark-gray);
+            font-weight: 600;
+        }
+
+        .venue-meta .rating i {
+            color: var(--primary-orange);
+        }
+
+        .venue-meta a {
+            color: var(--dark-gray);
+            text-decoration: underline;
+            font-weight: 500;
+        }
+
+        .venue-meta a:hover {
+            color: var(--primary-orange);
+        }
+
+        /* CATEGORY TAGS */
+        .category-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+
+        .category-tag {
+            padding: 6px 14px;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 142, 83, 0.1) 100%);
+            color: var(--primary-orange);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1px solid rgba(255, 107, 107, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .category-tag:hover {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* IMAGE GALLERY */
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            grid-template-rows: 200px 200px;
+            gap: 8px;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 48px;
+        }
+
+        .gallery-main {
+            grid-row: 1 / 3;
+            position: relative;
+        }
+
+        .gallery-grid img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-grid>div:hover img {
+            transform: scale(1.05);
+        }
+
+        .gallery-grid>div {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .gallery-btn {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            padding: 12px 24px;
+            background: var(--white);
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px var(--soft-shadow);
+            transition: all 0.3s ease;
+        }
+
+        .gallery-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px var(--soft-shadow);
+        }
+
+        /* PHOTO CAROUSEL MODAL */
+        .carousel-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-modal.active {
+            display: flex;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            height: 80vh;
+        }
+
+        .carousel-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 16px;
+        }
+
+        .carousel-close {
+            position: absolute;
+            top: -60px;
+            right: 0;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .carousel-close:hover {
+            transform: rotate(90deg);
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .carousel-nav:hover {
+            background: var(--primary-orange);
+            border-color: var(--primary-orange);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-prev {
+            left: -100px;
+        }
+
+        .carousel-next {
+            right: -100px;
+        }
+
+        .carousel-counter {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* CONTENT LAYOUT */
+        .venue-content {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 48px;
+        }
+
+        /* LEFT COLUMN - INFO */
+        .venue-info-section h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: var(--dark-gray);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .host-info {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-gray);
+            margin-bottom: 32px;
+        }
+
+        .host-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .host-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .host-details p {
+            color: var(--cool-gray);
+            font-size: 14px;
+        }
+
+        .venue-description {
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-gray);
+            margin-bottom: 32px;
+        }
+
+        .venue-description p {
+            color: var(--cool-gray);
+            line-height: 1.8;
+            font-size: 16px;
+        }
+
+        /* AMENITIES */
+        .amenities-section {
+            padding-bottom: 32px;
+            border-bottom: 1px solid var(--border-gray);
+            margin-bottom: 32px;
+        }
+
+        .amenities-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .amenity-item:hover {
+            background: var(--light-gray);
+            transform: translateX(4px);
+        }
+
+        .amenity-item i {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 142, 83, 0.1) 100%);
+            color: var(--primary-orange);
+            border-radius: 12px;
+            font-size: 18px;
+        }
+
+        .amenity-item span {
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .show-all-btn {
+            margin-top: 24px;
+            padding: 12px 24px;
+            border: 2px solid var(--border-gray);
+            background: var(--white);
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .show-all-btn:hover {
+            border-color: var(--primary-orange);
+            color: var(--primary-orange);
+            transform: translateY(-2px);
+        }
+
+        /* AMENITIES MODAL */
+        .amenities-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .amenities-modal.active {
+            display: flex;
+        }
+
+        .amenities-modal-content {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: modalPop 0.3s ease;
+        }
+
+        @keyframes modalPop {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .amenities-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: var(--light-gray);
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .amenities-modal-close:hover {
+            background: var(--primary-orange);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .amenities-modal h2 {
+            margin-bottom: 24px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .amenities-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .amenities-list .amenity-item {
+            background: var(--light-gray);
+        }
+
+        /* RIGHT COLUMN - BOOKING CARD */
+        .booking-card {
+            position: sticky;
+            top: 100px;
+            border: 1px solid var(--border-gray);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 8px 32px var(--soft-shadow);
+            background: var(--white);
+        }
+
+        .booking-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .booking-price {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--dark-gray);
+        }
+
+        .booking-unit {
+            color: var(--cool-gray);
+            font-size: 16px;
+        }
+
+        /* BOOKING FORM */
+        .booking-form {
+            border: 2px solid var(--border-gray);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .booking-dates {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            border-bottom: 2px solid var(--border-gray);
+        }
+
+        .booking-input {
+            padding: 16px;
+        }
+
+        .booking-input:first-child {
+            border-right: 2px solid var(--border-gray);
+        }
+
+        .booking-input label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--dark-gray);
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .booking-input input {
+            width: 100%;
+            border: none;
+            font-size: 14px;
+            color: var(--dark-gray);
+            outline: none;
+            font-family: inherit;
+        }
+
+        .booking-guests {
+            padding: 16px;
+        }
+
+        .booking-guests label {
+            display: block;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--dark-gray);
+            margin-bottom: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        .booking-guests select {
+            width: 100%;
+            border: none;
+            font-size: 14px;
+            color: var(--dark-gray);
+            outline: none;
+            background: transparent;
+            font-family: inherit;
+            cursor: pointer;
+        }
+
+        /* BOOK BUTTON */
+        .book-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: var(--white);
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px var(--warm-shadow);
+            margin-bottom: 16px;
+        }
+
+        .book-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .book-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4);
+        }
+
+        .book-btn:hover::before {
+            left: 100%;
+        }
+
+        .book-btn:active {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        /* AVAILABILITY MESSAGE */
+        .availability-message {
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+
+        .availability-message.available {
+            display: block;
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.1) 0%, rgba(78, 205, 196, 0.2) 100%);
+            color: var(--teal);
+            border-left: 4px solid var(--teal);
+        }
+
+        .availability-message.unavailable {
+            display: block;
+            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 142, 83, 0.1) 100%);
+            color: var(--primary-orange);
+            border-left: 4px solid var(--primary-orange);
+        }
+
+        /* PRICE BREAKDOWN */
+        .price-breakdown {
+            padding-top: 24px;
+            border-top: 1px solid var(--border-gray);
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 15px;
+            color: var(--cool-gray);
+        }
+
+        .price-row.total {
+            font-weight: 700;
+            color: var(--dark-gray);
+            font-size: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-gray);
+            margin-top: 12px;
+        }
+
+        /* GUEST INFO MODAL */
+        .guest-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .guest-modal.active {
+            display: flex;
+        }
+
+        .guest-modal-content {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 48px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .guest-modal h2 {
+            margin-bottom: 12px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 26px;
+            color: var(--dark-gray);
+            text-align: center;
+        }
+
+        .guest-modal p {
+            color: var(--cool-gray);
+            margin-bottom: 32px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .guest-modal .form-group {
+            margin-bottom: 24px;
+        }
+
+        .guest-modal .form-group label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: var(--dark-gray);
+        }
+
+        .guest-modal input {
+            width: 100%;
+            padding: 14px 20px;
+            border: 1px solid var(--border-gray);
+            border-radius: 16px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fcfcfc;
+        }
+
+        .guest-modal input:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+            background: white;
+        }
+
+        .guest-modal .btn-primary {
+            width: 100%;
+            padding: 18px;
+            margin-top: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            border-radius: 16px;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 16px rgba(255, 107, 107, 0.2);
+        }
+
+        .guest-modal .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .guest-modal-close {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: var(--light-gray);
+            cursor: pointer;
+            font-size: 20px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cool-gray);
+        }
+
+        .guest-modal-close:hover {
+            background: #eee;
+            color: var(--dark-gray);
+            transform: scale(1.1);
+        }
+
+        /* LOGIN PROMPT MODAL */
+        .login-prompt-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .login-prompt-modal.active {
+            display: flex;
+        }
+
+        .login-prompt-content {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 48px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .login-prompt-content i.fa-heart {
+            font-size: 52px;
+            color: var(--primary-orange);
+            margin-bottom: 24px;
+            display: block;
+            animation: heartPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes heartPulse {
+            0% {
+                transform: scale(1);
+            }
+
+            15% {
+                transform: scale(1.15);
+            }
+
+            30% {
+                transform: scale(1);
+            }
+
+            45% {
+                transform: scale(1.15);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .login-prompt-content h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 26px;
+            margin-bottom: 12px;
+            color: var(--dark-gray);
+        }
+
+        .login-prompt-content p {
+            color: var(--cool-gray);
+            margin-bottom: 36px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .login-prompt-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .login-prompt-buttons a {
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-prompt-buttons .btn-primary {
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: white;
+            box-shadow: 0 8px 16px rgba(255, 107, 107, 0.2);
+        }
+
+        .login-prompt-buttons .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 20px rgba(255, 107, 107, 0.3);
+        }
+
+        .login-prompt-buttons .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark-gray);
+            border: 1px solid var(--border-gray);
+        }
+
+        .login-prompt-buttons .btn-secondary:hover {
+            background: #eee;
+            transform: translateY(-2px);
+            border-color: var(--cool-gray);
+        }
+
+        /* NOTIFICATION TOAST */
+        .notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: var(--navy-blue);
+            color: white;
+            padding: 14px 28px;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 11000;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .notification.active {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .notification i {
+            color: var(--primary-orange);
+            font-size: 18px;
+        }
+
+        /* PASTEL ORANGE FOOTER WITH PATTERNS */
+        .footer {
+            background: linear-gradient(135deg, #FFD4C4 0%, #FFE4D6 50%, #FFD4C4 100%);
+            border-top: none;
+            padding: 64px 24px 32px;
+            margin-top: 64px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Animated pattern overlay */
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(255, 107, 107, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(78, 205, 196, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 100%, rgba(255, 142, 83, 0.15) 0%, transparent 50%);
+            animation: float 15s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-20px) scale(1.05);
+            }
+        }
+
+        /* Geometric pattern */
+        .footer::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255, 107, 107, 0.03) 35px, rgba(255, 107, 107, 0.03) 70px),
+                repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(78, 205, 196, 0.03) 35px, rgba(78, 205, 196, 0.03) 70px);
+            opacity: 0.5;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 48px;
+            margin-bottom: 48px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-section h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--navy-blue);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .footer-section a {
+            display: block;
+            color: var(--navy-blue);
+            text-decoration: none;
+            margin-bottom: 14px;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.3s;
+            opacity: 0.8;
+        }
+
+        .footer-section a:hover {
+            opacity: 1;
+            color: var(--primary-orange);
+            transform: translateX(8px);
+        }
+
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding-top: 32px;
+            border-top: 2px solid rgba(44, 62, 80, 0.1);
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .footer-bottom p {
+            color: var(--navy-blue);
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        .footer-decoration {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0.1;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        .footer-decoration-1 {
+            top: 20px;
+            left: 10%;
+            background: var(--primary-orange);
+            animation-delay: 0s;
+        }
+
+        .footer-decoration-2 {
+            bottom: 20px;
+            right: 10%;
+            background: var(--teal);
+            animation-delay: 2s;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.1;
+            }
+
+            50% {
+                transform: scale(1.2);
+                opacity: 0.2;
+            }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 968px) {
+            .venue-content {
+                grid-template-columns: 1fr;
+            }
+
+            .booking-card {
+                position: static;
+                margin-bottom: 32px;
+            }
+
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                grid-template-rows: 300px;
+            }
+
+            .gallery-main {
+                grid-row: 1;
+            }
+
+            .gallery-grid>div:not(.gallery-main) {
+                display: none;
+            }
+
+            .carousel-prev {
+                left: 20px;
+            }
+
+            .carousel-next {
+                right: 20px;
+            }
+
+            .navbar {
+                padding: 16px 20px;
+            }
+
+            .amenities-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .venue-header h1 {
+                font-size: 28px;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+
+            .category-tags {
+                gap: 6px;
+            }
+
+            .category-tag {
+                font-size: 11px;
+                padding: 4px 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="nav-back">
+                <i class="fas fa-arrow-left"></i>
+                Back to venues
+            </a>
+
+            <a href="index.html" class="logo">
+                <i class="fas fa-gem"></i>
+                <span>Siza</span>
+            </a>
+
+            <div class="nav-actions">
+                <button class="nav-btn" onclick="shareVenue()">
+                    <i class="fas fa-share-alt"></i>
+                    Share
+                </button>
+                <button class="nav-btn" id="saveFavBtn" onclick="saveVenue()">
+                    <i class="far fa-heart" id="saveIcon"></i>
+                    Save
+                </button>
+
+                <!-- Auth buttons (shown when logged out) -->
+                <div id="venueNavAuth" style="display: flex; gap: 12px; align-items: center;">
+                    <a href="login.html" class="nav-btn" style="font-weight: 600;">Log In</a>
+                    <a href="register.html" class="nav-btn"
+                        style="background: var(--primary-orange); color: white; border-radius: 20px;">Sign Up</a>
+                </div>
+
+                <!-- User menu (shown when logged in) -->
+                <div id="venueNavUserMenu" style="display: none;">
+                    <div class="user-menu">
+                        <button class="user-btn" onclick="toggleUserDropdown()">
+                            <div class="user-avatar-nav" id="venueNavAvatar">U</div>
+                            <span id="venueNavUserName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="venueUserDropdown">
+                            <div id="venueOwnerDashLink" style="display: none;">
+                                <a href="dashboard.html" class="dropdown-item">
+                                    <i class="fas fa-chart-line"></i> Dashboard
+                                </a>
+                                <div class="dropdown-divider"></div>
+                            </div>
+                            <button class="dropdown-item" onclick="openVenueProfileModal()">
+                                <i class="fas fa-user-edit"></i> Edit Profile
+                            </button>
+                            <a href="dashboard.html?tab=favorites" class="dropdown-item" id="venueRenterFavLink"
+                                style="display: none;">
+                                <i class="fas fa-heart"></i> My Favorites
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="logoutVenue()" style="color: #FF5A5F;">
+                                <i class="fas fa-sign-out-alt"></i> Log Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- PROFILE MODAL (venue page) -->
+    <div class="profile-modal-overlay" id="venueProfileModal">
+        <div class="profile-modal">
+            <div class="profile-modal-header">
+                <h2>My Profile</h2>
+                <button class="profile-modal-close" onclick="closeVenueProfileModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div style="text-align: center; margin-bottom: 24px;">
+                <div
+                    style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-orange), var(--primary-coral)); color: white; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 600; margin: 0 auto; overflow: hidden;">
+                    <span id="vpModalInitials">U</span>
+                    <img id="vpModalImg" src="" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <h3 id="vpModalNameDisplay" style="margin-top: 16px; font-size: 20px;">User Name</h3>
+            </div>
+
+            <form onsubmit="saveVenueProfile(event)">
+                <div class="profile-form-group">
+                    <label>Profile Picture</label>
+                    <div style="display: flex; gap: 12px; align-items: center;">
+                        <input type="file" id="vpImageInput" accept="image/*" style="display: none;"
+                            onchange="handleVPImage(this)">
+                        <button type="button" class="btn-profile-secondary" style="flex: 1; font-size: 13px;"
+                            onclick="document.getElementById('vpImageInput').click()">
+                            <i class="fas fa-camera"></i> Change Photo
+                        </button>
+                        <button type="button" id="vpRemovePicBtn" class="btn-profile-secondary"
+                            style="display: none; color: #FF5A5F;" onclick="removeVPPicture()">
+                            Remove
+                        </button>
+                    </div>
+                </div>
+                <div class="profile-form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="vpName" required>
+                </div>
+                <div class="profile-form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="vpEmail" required>
+                </div>
+                <div class="profile-form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="vpPhone" placeholder="+254 ...">
+                </div>
+                <div style="margin-top: 24px;">
+                    <button type="submit" class="btn-profile-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- MAIN CONTENT -->
+    <div class="venue-container">
+
+        <!-- Header -->
+        <div class="venue-header" id="venueHeader">
+            <h1>Luxury Downtown Loft</h1>
+            <div class="venue-meta">
+                <span class="rating">
+                    <i class="fas fa-star"></i>
+                    <span id="venueRating">4.92</span>
+                </span>
+                <span>·</span>
+                <span id="venueLocation">New York, NY</span>
+            </div>
+            <!-- Category Tags -->
+            <div class="category-tags" id="categoryTags">
+                <span class="category-tag">Indoor spaces</span>
+                <span class="category-tag">Unique spots</span>
+                <span class="category-tag">Corporate</span>
+            </div>
+        </div>
+
+        <!-- Image Gallery -->
+        <div class="gallery-grid" id="galleryGrid">
+            <div class="gallery-main">
+                <div
+                    style="width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0; color:#999;">
+                    <i class="fas fa-image fa-3x"></i>
+                </div>
+            </div>
+            <!-- Grid is populated dynamically -->
+        </div>
+
+        <!-- Content Grid -->
+        <div class="venue-content">
+
+            <!-- Left Column - Info -->
+            <div class="venue-info-section">
+
+                <!-- Host Info -->
+                <div class="host-info">
+                    <div class="host-avatar" id="hostAvatar">-</div>
+                    <div class="host-details">
+                        <h3 id="hostName">Venue Host</h3>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="venue-description">
+                    <h2>About this venue</h2>
+                    <p id="venueDescription"></p>
+                </div>
+
+                <!-- Amenities -->
+                <div class="amenities-section">
+                    <h2>What this place offers</h2>
+                    <div class="amenities-grid" id="amenitiesGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                    <button class="show-all-btn" onclick="openAmenitiesModal()">
+                        Show all amenities
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Right Column - Booking Card -->
+            <div class="booking-card">
+                <div class="booking-header">
+                    <span class="booking-price" id="bookingPrice">KES 0</span>
+                    <span class="booking-unit">/event</span>
+                </div>
+
+                <div class="booking-form">
+                    <div class="booking-dates">
+                        <div class="booking-input">
+                            <label>Event Date</label>
+                            <input type="date" id="eventDate" onchange="checkAvailability()">
+                        </div>
+                        <div class="booking-input">
+                            <label>End Date</label>
+                            <input type="date" id="endDate" onchange="checkAvailability()">
+                        </div>
+                    </div>
+                    <div class="booking-guests">
+                        <label>Guests</label>
+                        <select id="guestCount" onchange="checkAvailability()">
+                            <option value="50">1-50 guests</option>
+                            <option value="100">51-100 guests</option>
+                            <option value="150" selected>101-150 guests</option>
+                            <option value="200">150+ guests</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="book-btn" onclick="checkAvailability()">
+                    Check availability
+                </button>
+
+                <!-- Availability Message -->
+                <div class="availability-message" id="availabilityMessage"></div>
+
+                <div class="price-breakdown" id="priceBreakdown" style="display: none;">
+                    <div class="price-row">
+                        <span>KES <span id="basePrice">450</span> x <span id="daysCount">1</span> day</span>
+                        <span>KES <span id="baseTotal">450</span></span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total before taxes</span>
+                        <span>KES <span id="grandTotal">450</span></span>
+                    </div>
+                </div>
+
+                <!-- Removed High demand box -->
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PHOTO CAROUSEL MODAL -->
+    <div class="carousel-modal" id="carouselModal">
+        <div class="carousel-container">
+            <button class="carousel-close" onclick="closeCarousel()">
+                <i class="fas fa-times"></i>
+            </button>
+            <button class="carousel-nav carousel-prev" onclick="prevImage()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <img src="" alt="Venue" class="carousel-image" id="carouselImage">
+            <button class="carousel-nav carousel-next" onclick="nextImage()">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            <div class="carousel-counter" id="carouselCounter">1 / 5</div>
+        </div>
+    </div>
+
+    <!-- AMENITIES MODAL -->
+    <div class="amenities-modal" id="amenitiesModal">
+        <div class="amenities-modal-content">
+            <button class="amenities-modal-close" onclick="closeAmenitiesModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>What this place offers</h2>
+            <div class="amenities-list" id="amenitiesList">
+                <!-- All amenities populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- GUEST INFO MODAL (for non-logged in users when checking availability) -->
+    <div class="guest-modal" id="guestModal">
+        <div class="guest-modal-content">
+            <button class="guest-modal-close" onclick="closeGuestModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2>Almost there!</h2>
+            <p>Please provide your contact information so we can reach you about this venue.</p>
+            <form onsubmit="submitGuestInfo(event)">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="guestName" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="guestEmail" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="tel" id="guestPhone" required placeholder="+1 (555) 000-0000">
+                </div>
+                <button type="submit" class="btn-primary">Continue</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- LOGIN PROMPT MODAL (for save feature) -->
+    <div class="login-prompt-modal" id="loginPromptModal">
+        <div class="login-prompt-content">
+            <button class="guest-modal-close" onclick="closeLoginPrompt()">
+                <i class="fas fa-times"></i>
+            </button>
+            <i class="fas fa-heart"></i>
+            <h2>Save your favorites</h2>
+            <p>Log in or sign up to save venues and access them anytime.</p>
+            <div class="login-prompt-buttons">
+                <a href="login.html" class="btn-primary"
+                    style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Log
+                    In</a>
+                <a href="login.html" class="btn-secondary"
+                    style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Sign
+                    Up</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PASTEL ORANGE FOOTER WITH PATTERNS -->
+    <footer class="footer">
+        <div class="footer-decoration footer-decoration-1"></div>
+        <div class="footer-decoration footer-decoration-2"></div>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="#">Help Center</a>
+                <a href="#">Safety Information</a>
+                <a href="#">Cancellation Options</a>
+            </div>
+            <div class="footer-section">
+                <h3>About</h3>
+                <a href="#">How Siza Works</a>
+                <a href="#">Careers</a>
+                <a href="#">Investors</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Siza, Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- NOTIFICATION TOAST -->
+    <div id="notification" class="notification">
+        <i class="fas fa-info-circle"></i>
+        <span id="notificationMessage">Message goes here</span>
+    </div>
+
+    <!-- JAVASCRIPT -->
+    <script>
+        // Venue data placeholder
+        let venueData = {};
+
+        let currentUser = null;
+        let currentImageIndex = 0;
+        let isVenueAvailable = true;
+
+        // Check if user is logged in and update navigation
+        let pendingVPBase64 = null;
+
+        function checkUser() {
+            const userStr = localStorage.getItem('siza_user');
+            if (userStr) {
+                currentUser = JSON.parse(userStr);
+                // Show user menu, hide auth buttons
+                document.getElementById('venueNavAuth').style.display = 'none';
+                document.getElementById('venueNavUserMenu').style.display = 'block';
+
+                document.getElementById('venueNavUserName').textContent = currentUser.name.split(' ')[0];
+                const navAvatar = document.getElementById('venueNavAvatar');
+                if (currentUser.profile_image) {
+                    navAvatar.innerHTML = `<img src="${currentUser.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                } else {
+                    navAvatar.innerHTML = (currentUser.name || 'U').charAt(0).toUpperCase();
+                }
+
+                if (currentUser.role === 'owner') {
+                    document.getElementById('venueOwnerDashLink').style.display = 'block';
+                    // Hide Save button for owners
+                    const saveBtn = document.getElementById('saveFavBtn');
+                    if (saveBtn) saveBtn.style.display = 'none';
+                } else {
+                    document.getElementById('venueRenterFavLink').style.display = 'flex';
+                }
+            } else {
+                // Show auth buttons, hide user menu
+                document.getElementById('venueNavAuth').style.display = 'flex';
+                document.getElementById('venueNavUserMenu').style.display = 'none';
+            }
+        }
+
+        // Toggle user dropdown
+        function toggleUserDropdown() {
+            document.getElementById('venueUserDropdown').classList.toggle('active');
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                const dd = document.getElementById('venueUserDropdown');
+                if (dd) dd.classList.remove('active');
+            }
+        });
+
+        // Profile modal functions
+        function openVenueProfileModal() {
+            if (!currentUser) return;
+            document.getElementById('vpModalNameDisplay').textContent = currentUser.name;
+            document.getElementById('vpName').value = currentUser.name || '';
+            document.getElementById('vpEmail').value = currentUser.email || '';
+            document.getElementById('vpPhone').value = currentUser.phone || '';
+
+            const initialsEl = document.getElementById('vpModalInitials');
+            const imgEl = document.getElementById('vpModalImg');
+            const removeBtn = document.getElementById('vpRemovePicBtn');
+
+            if (currentUser.profile_image) {
+                imgEl.src = currentUser.profile_image;
+                imgEl.style.display = 'block';
+                initialsEl.style.display = 'none';
+                removeBtn.style.display = 'block';
+            } else {
+                initialsEl.textContent = (currentUser.name || 'U').charAt(0).toUpperCase();
+                imgEl.style.display = 'none';
+                initialsEl.style.display = 'block';
+                removeBtn.style.display = 'none';
+            }
+
+            document.getElementById('venueProfileModal').classList.add('active');
+            document.getElementById('venueUserDropdown').classList.remove('active');
+        }
+
+        function closeVenueProfileModal() {
+            document.getElementById('venueProfileModal').classList.remove('active');
+        }
+
+        function handleVPImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('vpModalImg').src = e.target.result;
+                    document.getElementById('vpModalImg').style.display = 'block';
+                    document.getElementById('vpModalInitials').style.display = 'none';
+                    document.getElementById('vpRemovePicBtn').style.display = 'block';
+                    pendingVPBase64 = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function removeVPPicture() {
+            pendingVPBase64 = "";
+            document.getElementById('vpModalImg').style.display = 'none';
+            document.getElementById('vpModalInitials').style.display = 'block';
+            document.getElementById('vpRemovePicBtn').style.display = 'none';
+        }
+
+        async function saveVenueProfile(event) {
+            event.preventDefault();
+            const payload = {
+                name: document.getElementById('vpName').value,
+                email: document.getElementById('vpEmail').value,
+                phone: document.getElementById('vpPhone').value
+            };
+            if (pendingVPBase64 !== null) payload.profile_image = pendingVPBase64;
+
+            try {
+                const response = await fetch(`/api/users/${currentUser.id}/profile`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (response.ok) {
+                    showNotification('Profile updated!');
+                    pendingVPBase64 = null;
+                    closeVenueProfileModal();
+                    const syncResp = await fetch(`/api/users/${currentUser.id}`);
+                    const syncData = await syncResp.json();
+                    if (syncData.user) {
+                        localStorage.setItem('siza_user', JSON.stringify(syncData.user));
+                        checkUser();
+                    }
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error || 'Failed to update profile');
+                }
+            } catch (err) {
+                showNotification('Connection error');
+            }
+        }
+
+        function logoutVenue() {
+            localStorage.removeItem('siza_user');
+            window.location.href = 'index.html';
+        }
+
+        // Update navigation (kept for backward compat but checkUser now handles it)
+        function updateNav() {
+            // Already handled by checkUser
+        }
+
+        // Robust image parser
+        function parseVenueImages(imageStr) {
+            if (!imageStr) return [];
+            if (Array.isArray(imageStr)) return imageStr;
+            if (typeof imageStr === 'string') {
+                if (imageStr.startsWith('[') || imageStr.startsWith('{')) {
+                    try {
+                        const parsed = JSON.parse(imageStr);
+                        return Array.isArray(parsed) ? parsed : [parsed];
+                    } catch (e) { return [imageStr]; }
+                }
+                return [imageStr];
+            }
+            return [];
+        }
+
+        // Show notification toast
+        function showNotification(message) {
+            const toast = document.getElementById('notification');
+            const msgSpan = document.getElementById('notificationMessage');
+            msgSpan.textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 3000);
+        }
+
+        // Load venue data
+        async function loadVenue() {
+            checkUser();
+            updateNav();
+
+            // Hide Save button for owners
+            if (currentUser && currentUser.role === 'owner') {
+                const saveBtn = document.querySelector('.nav-btn[onclick="saveVenue()"]');
+                if (saveBtn) saveBtn.style.display = 'none';
+            }
+
+            // Get ID from URL
+            const params = new URLSearchParams(window.location.search);
+            const venueId = params.get('id');
+
+            if (!venueId) {
+                document.getElementById('venueHeader').innerHTML = "<h1>Venue not found</h1>";
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/venues/${venueId}`);
+                if (!response.ok) throw new Error("Venue not found");
+                const data = await response.json();
+
+                // Map backend data to frontend expected structure
+                venueData = data.venue;
+                venueData.categories = [venueData.type];
+                venueData.owner_name = data.venue.owner_name || "Siza Host";
+                venueData.owner_image = data.venue.owner_image;
+
+                // Use the description from the database if available; only fall back to template if empty
+                if (!venueData.description || venueData.description.trim() === '') {
+                    venueData.description = `${venueData.title} located in ${venueData.location}. Great for up to ${venueData.guests} guests.`;
+                }
+
+                // Parse amenities if it's a JSON string
+                if (typeof venueData.amenities === 'string') {
+                    try {
+                        const amens = JSON.parse(venueData.amenities);
+                        if (Array.isArray(amens)) {
+                            venueData.amenities = amens.map(a => {
+                                if (typeof a === 'string') return { icon: "fa-check", name: a };
+                                return a; // already an object
+                            });
+                        } else {
+                            venueData.amenities = [];
+                        }
+                    } catch (e) {
+                        venueData.amenities = [];
+                    }
+                } else if (!Array.isArray(venueData.amenities)) {
+                    venueData.amenities = [];
+                } else {
+                    // It's an array, ensure items are objects
+                    venueData.amenities = venueData.amenities.map(a => {
+                        if (typeof a === 'string') return { icon: "fa-check", name: a };
+                        return a;
+                    });
+                }
+
+                // Handle multiple images stored as JSON or single string
+                // Parse images
+                let venueImages = parseVenueImages(data.venue.image);
+
+                // Clean up any corrupt entries
+                venueImages = venueImages.filter(img => typeof img === 'string' && img !== '[object Object]');
+
+                // Final images for the gallery
+                venueData.images = venueImages;
+
+                // Get unavailable dates
+                if (typeof venueData.unavailable_dates === 'string') {
+                    try {
+                        venueData.unavailableDates = JSON.parse(venueData.unavailable_dates);
+                    } catch (e) {
+                        venueData.unavailableDates = [];
+                    }
+                } else if (Array.isArray(venueData.unavailable_dates)) {
+                    venueData.unavailableDates = venueData.unavailable_dates;
+                } else {
+                    venueData.unavailableDates = [];
+                }
+
+                // Fire off view analytics asynchronously
+                fetch('/api/venues/' + venueId + '/view', { method: 'POST' }).catch(e => console.error(e));
+
+            } catch (error) {
+                console.error("Error fetching venue:", error);
+                document.getElementById('venueHeader').innerHTML = "<h1>Error loading venue</h1>";
+                return;
+            }
+
+            // Update page content
+            document.title = `${venueData.title} - Siza`;
+            document.getElementById('venueHeader').querySelector('h1').textContent = venueData.title;
+            document.getElementById('venueRating').textContent = venueData.rating || "New";
+            document.getElementById('venueLocation').textContent = venueData.location;
+            document.getElementById('venueDescription').textContent = venueData.description;
+
+            // Set host info from real owner data
+            const hostAvatar = document.getElementById('hostAvatar');
+            const hostName = document.getElementById('hostName');
+
+            if (venueData.owner_image) {
+                hostAvatar.innerHTML = `<img src="${venueData.owner_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+            } else {
+                hostAvatar.textContent = (venueData.owner_name || 'H').charAt(0).toUpperCase();
+            }
+            hostName.textContent = `Venue by ${venueData.owner_name || 'Siza Host'}`;
+
+            // Render dynamic gallery
+            renderGallery();
+
+            // Update category tags
+            const tagsContainer = document.getElementById('categoryTags');
+            tagsContainer.innerHTML = venueData.categories.map(cat =>
+                `<span class="category-tag">${cat}</span>`
+            ).join('');
+
+            // Update booking card
+            document.getElementById('bookingPrice').textContent = `KES ${venueData.price}`;
+            document.getElementById('basePrice').textContent = venueData.price;
+
+            // Render amenities
+            renderAmenities();
+
+            // Set default date to tomorrow
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            document.getElementById('eventDate').valueAsDate = tomorrow;
+
+            // Trigger availability check to show initial price (without popup)
+            checkAvailability(false);
+        }
+
+        // Render dynamic gallery
+        function renderGallery() {
+            const grid = document.getElementById('galleryGrid');
+            const imgs = venueData.images || [];
+
+            if (imgs.length === 0) {
+                grid.innerHTML = `
+                    <div class="gallery-main" style="grid-column: 1 / -1;">
+                        <div style="width:100%; height:400px; display:flex; align-items:center; justify-content:center; background:#f0f0f0; color:#999; border-radius:24px;">
+                            <i class="fas fa-image fa-3x"></i>
+                            <span style="margin-left: 10px;">No photos available for this venue</span>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            let gridHtml = `
+                <div class="gallery-main">
+                    <img src="${imgs[0]}" alt="${venueData.title}" id="mainImage" onclick="openCarousel(0)">
+                    <button class="gallery-btn" onclick="openCarousel()">
+                        <i class="fas fa-th"></i>
+                        Show all ${imgs.length} photos
+                    </button>
+                </div>
+            `;
+
+            // Add up to 4 more images to the grid
+            for (let i = 1; i < Math.min(imgs.length, 5); i++) {
+                gridHtml += `<div><img src="${imgs[i]}" alt="Detail ${i}" onclick="openCarousel(${i})"></div>`;
+            }
+
+            // If fewer than 5 images, add some empty placeholders or styles if needed
+            // But usually, we just let the CSS grid handle it or adjust the layout
+            // For now, let's just populate what we have.
+
+            grid.innerHTML = gridHtml;
+        }
+
+
+        // Render amenities (first 6)
+        function renderAmenities() {
+            const grid = document.getElementById('amenitiesGrid');
+            if (!venueData.amenities || !Array.isArray(venueData.amenities)) {
+                grid.innerHTML = '<p>No amenities listed.</p>';
+                return;
+            }
+            grid.innerHTML = venueData.amenities.slice(0, 6).map(amenity => `
+                <div class="amenity-item">
+                    <i class="fas ${amenity.icon || 'fa-check'}"></i>
+                    <span>${amenity.name || amenity}</span>
+                </div>
+            `).join('');
+        }
+
+        // PHOTO CAROUSEL
+        function openCarousel(startIndex = 0) {
+            currentImageIndex = startIndex;
+            updateCarousel();
+            document.getElementById('carouselModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeCarousel() {
+            document.getElementById('carouselModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function updateCarousel() {
+            document.getElementById('carouselImage').src = venueData.images[currentImageIndex];
+            document.getElementById('carouselCounter').textContent = `${currentImageIndex + 1} / ${venueData.images.length}`;
+        }
+
+        function nextImage() {
+            currentImageIndex = (currentImageIndex + 1) % venueData.images.length;
+            updateCarousel();
+        }
+
+        function prevImage() {
+            currentImageIndex = (currentImageIndex - 1 + venueData.images.length) % venueData.images.length;
+            updateCarousel();
+        }
+
+        // Keyboard navigation for carousel
+        document.addEventListener('keydown', (e) => {
+            if (!document.getElementById('carouselModal').classList.contains('active')) return;
+            if (e.key === 'ArrowRight') nextImage();
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'Escape') closeCarousel();
+        });
+
+        // AMENITIES MODAL
+        function openAmenitiesModal() {
+            const list = document.getElementById('amenitiesList');
+            list.innerHTML = venueData.amenities.map(amenity => `
+                <div class="amenity-item">
+                    <i class="fas ${amenity.icon}"></i>
+                    <span>${amenity.name}</span>
+                </div>
+            `).join('');
+            document.getElementById('amenitiesModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeAmenitiesModal() {
+            document.getElementById('amenitiesModal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Check availability
+        function checkAvailability(showPrompt = true) {
+            const date = document.getElementById('eventDate').value;
+            if (!date) {
+                if (showPrompt) {
+                    alert('Please select an event date');
+                    document.getElementById('eventDate').focus();
+                }
+                return;
+            }
+
+            // Check if date is in unavailable dates
+            isVenueAvailable = !venueData.unavailableDates.includes(date);
+
+            const messageDiv = document.getElementById('availabilityMessage');
+            const btn = document.querySelector('.book-btn');
+
+            if (!isVenueAvailable) {
+                // Venue not available
+                messageDiv.textContent = 'Sorry, Venue is not available on selected date';
+                messageDiv.className = 'availability-message unavailable';
+                btn.textContent = 'Check availability';
+                btn.style.background = 'linear-gradient(135deg, var(--cool-gray) 0%, #999 100%)';
+                calculateTotal();
+                return;
+            }
+
+            // Venue available
+            messageDiv.className = 'availability-message available';
+            btn.textContent = 'Reserve now';
+            btn.style.background = 'linear-gradient(135deg, var(--teal) 0%, #44A08D 100%)';
+            calculateTotal();
+
+            // Only show prompt if explicitly requested (e.g. user clicked button)
+            if (showPrompt) {
+                // Check if user is logged in
+                if (!currentUser) {
+                    // Show guest info modal
+                    document.getElementById('guestModal').classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    // Show success message for logged in users
+                    messageDiv.textContent = 'A representative will get in touch with you shortly';
+                }
+            }
+        }
+
+        // Guest info modal
+        function closeGuestModal() {
+            document.getElementById('guestModal').classList.remove('active');
+        }
+
+        function submitGuestInfo(e) {
+            e.preventDefault();
+            const name = document.getElementById('guestName').value;
+            const email = document.getElementById('guestEmail').value;
+            const phone = document.getElementById('guestPhone').value;
+
+            // Store guest info and show success
+            closeGuestModal();
+            document.getElementById('availabilityMessage').textContent = 'A representative will get in touch with you shortly';
+            showNotification('Information submitted successfully!');
+        }
+
+        // Calculate total price
+        function calculateTotal() {
+            if (!isVenueAvailable) {
+                document.getElementById('priceBreakdown').style.display = 'none';
+                return;
+            }
+
+            const startDate = new Date(document.getElementById('eventDate').value);
+            const endDate = new Date(document.getElementById('endDate').value);
+            const price = venueData.price;
+
+            let days = 1;
+            if (endDate && startDate && endDate > startDate) {
+                const diffTime = Math.abs(endDate - startDate);
+                days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            }
+
+            const baseTotal = price * days;
+            const grandTotal = baseTotal;
+
+            document.getElementById('daysCount').textContent = days;
+            document.getElementById('baseTotal').textContent = baseTotal;
+            document.getElementById('grandTotal').textContent = grandTotal;
+            document.getElementById('priceBreakdown').style.display = 'block';
+        }
+
+        // Save venue to favorites (renters only)
+        function saveVenue() {
+            if (!currentUser) {
+                // Show login prompt
+                document.getElementById('loginPromptModal').classList.add('active');
+                return;
+            }
+
+            if (currentUser.role === 'owner') {
+                showNotification('Only renters can save venues to favorites');
+                return;
+            }
+
+            const icon = document.getElementById('saveIcon');
+            const btn = icon.closest('.nav-btn');
+
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                icon.style.color = '#FF6B6B';
+                btn.style.color = '#FF6B6B';
+
+                // Save to favorites
+                let favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
+                if (!favorites.includes(venueData.id)) {
+                    favorites.push(venueData.id);
+                    localStorage.setItem('siza_favorites', JSON.stringify(favorites));
+                }
+                showNotification('Saved to your favorites!');
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                icon.style.color = '';
+                btn.style.color = '';
+
+                // Remove from favorites
+                let favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
+                favorites = favorites.filter(id => id !== venueData.id);
+                localStorage.setItem('siza_favorites', JSON.stringify(favorites));
+                showNotification('Removed from favorites');
+            }
+        }
+
+        // Login prompt modal
+        function closeLoginPrompt() {
+            document.getElementById('loginPromptModal').classList.remove('active');
+        }
+
+        // Share venue
+        function shareVenue() {
+            if (navigator.share) {
+                navigator.share({
+                    title: venueData.title,
+                    text: `Check out this amazing venue: ${venueData.title}`,
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showNotification('Link copied to clipboard!');
+            }
+        }
+
+
+
+        // Close modals on outside click
+        document.querySelectorAll('.carousel-modal, .amenities-modal, .guest-modal, .login-prompt-modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+
+        // Check saved state on load
+        function checkSavedState() {
+            if (!currentUser) return;
+            const favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
+            if (favorites.includes(venueData.id)) {
+                const icon = document.getElementById('saveIcon');
+                const btn = icon.closest('.nav-btn');
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                icon.style.color = '#FF6B6B';
+                btn.style.color = '#FF6B6B';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadVenue();
+            checkSavedState();
+        });
+    </script>
+
+</body>
+
+</html>
