@@ -5,7 +5,8 @@
   "main": "database.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "npm rebuild sqlite3"
   },
   "keywords": [],
   "author": "",
@@ -15,12 +16,8 @@
     "@supabase/supabase-js": "^2.98.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "dotenv": "^16.0.0",
     "express": "^5.2.1",
-    "sqlite3": "^5.1.7"
-  }
-}
-{
-  "scripts": {
-    "build": "npm rebuild sqlite3"
+    "sqlite3": "^6.0.1"
   }
 }
