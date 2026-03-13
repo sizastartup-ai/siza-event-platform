@@ -830,6 +830,7 @@
             const email = document.getElementById('signupEmail').value;
             const password = document.getElementById('signupPassword').value;
             const role = document.getElementById('userType').value; // 'renter' or 'owner'
+            const phone = document.getElementById('signupPhone').value;
 
             if (password.length < 8) {
                 showError('Password must be at least 8 characters');
@@ -840,7 +841,7 @@
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ name, email, password, role })
+                    body: JSON.stringify({ name, email, password, role, phone })
                 });
 
                 const data = await response.json();

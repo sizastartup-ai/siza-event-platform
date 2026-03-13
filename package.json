@@ -19,3 +19,8 @@
     "sqlite3": "^5.1.7"
   }
 }
+{
+  "scripts": {
+    "build": "npm rebuild sqlite3"
+  }
+}

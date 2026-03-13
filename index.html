@@ -38,42 +38,63 @@
 
         /* NAVIGATION BAR */
         .navbar {
-            border-bottom: 1px solid var(--border-gray);
-            padding: 0 24px;
-            position: sticky;
-            top: 0;
-            background: var(--white);
+            padding: 16px 40px;
+            position: fixed;
+            top: 16px;
+            left: 40px;
+            right: 40px;
             z-index: 1000;
+            border-radius: 24px;
+            background: rgba(255, 212, 196, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 212, 196, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .nav-container {
-            max-width: 1440px;
+            width: 100%;
+            max-width: 1200px;
             margin: 0 auto;
-            height: 80px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
         }
 
         /* Logo */
         .logo {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
             text-decoration: none;
-            color: var(--primary-orange);
-            font-size: 32px;
+            color: var(--navy-blue);
+            font-size: 24px;
             font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.05) rotate(-2deg);
         }
 
         .logo i {
-            font-size: 40px;
+            font-size: 28px;
+            color: var(--primary-orange);
         }
 
         /* HERO SECTION */
         .hero {
             background: linear-gradient(135deg, var(--navy-blue) 0%, var(--teal) 100%);
-            padding: 80px 24px;
+            padding: 140px 24px 80px;
             text-align: center;
             position: relative;
             overflow: hidden;
@@ -893,8 +914,17 @@
 
 <body>
 
+    <script>
+        // Prevent layout shift/flicker by proactively setting auth display styles
+        const _uStr = localStorage.getItem('siza_user');
+        if (_uStr) {
+            document.write('<style>#navAuth { display: none !important; } #navUserMenu { display: block !important; }</style>');
+        } else {
+            document.write('<style>#navAuth { display: flex !important; } #navUserMenu { display: none !important; }</style>');
+        }
+    </script>
     <!-- NAVIGATION BAR -->
-    <nav class="navbar">
+    <nav class="navbar" id="mainNav">
         <div class="nav-container" style="justify-content: space-between;">
             <a href="index.html" class="logo">
                 <i class="fas fa-gem"></i>
@@ -913,8 +943,8 @@
                 </div>
             </div>
 
-            <div id="navAuth" style="display: flex; gap: 16px; align-items: center;">
-                <a href="login.html" style="text-decoration: none; color: var(--dark-gray); font-weight: 600;">Log
+            <div id="navAuth" style="display: none; gap: 16px; align-items: center;">
+                <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log
                     In</a>
                 <a href="register.html"
                     style="text-decoration: none; background: var(--primary-orange); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 600;">Sign
@@ -1242,23 +1272,37 @@
             renderNextChunk();
         }
 
+        let userFavorites = [];
+
         // Check saved favorites on load
-        function checkSavedFavorites() {
-            const favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
-            document.querySelectorAll('.venue-card').forEach(card => {
-                const href = card.getAttribute('href');
-                const venueId = parseInt(href.split('id=')[1]);
-                const icon = card.querySelector('.venue-favorite i');
-                if (favorites.includes(venueId)) {
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    icon.style.color = '#FF5A5F';
-                }
-            });
+        async function checkSavedFavorites() {
+            if (!currentUser) return;
+            try {
+                const response = await fetch(`/api/users/${currentUser.id}/favorites`);
+                const data = await response.json();
+                userFavorites = data.favorites || [];
+
+                document.querySelectorAll('.venue-card').forEach(card => {
+                    const href = card.getAttribute('href');
+                    const venueId = parseInt(href.split('id=')[1]);
+                    const icon = card.querySelector('.venue-favorite i');
+                    if (userFavorites.includes(venueId)) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#FF5A5F';
+                    } else {
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                        icon.style.color = 'white';
+                    }
+                });
+            } catch (err) {
+                console.error("Error fetching favorites:", err);
+            }
         }
 
         // Toggle heart icon on favorite button
-        function toggleHeart(button) {
+        async function toggleHeart(button) {
             if (currentUser && currentUser.role === 'owner') {
                 return;
             }
@@ -1274,27 +1318,31 @@
             const href = card.getAttribute('href');
             const venueId = parseInt(href.split('id=')[1]);
 
-            const icon = button.querySelector('i');
-            let favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
+            try {
+                const response = await fetch('/api/favorites/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, venue_id: venueId })
+                });
+                const data = await response.json();
 
-            if (icon.classList.contains('far')) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                icon.style.color = '#FF5A5F';
-
-                if (!favorites.includes(venueId)) {
-                    favorites.push(venueId);
-                    localStorage.setItem('siza_favorites', JSON.stringify(favorites));
+                const icon = button.querySelector('i');
+                if (data.status === 'added') {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.style.color = '#FF5A5F';
+                    userFavorites.push(venueId);
+                    showNotification('Venue added to favorites!');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    icon.style.color = 'white';
+                    userFavorites = userFavorites.filter(id => id !== venueId);
+                    showNotification('Removed from favorites');
                 }
-                showNotification('Venue added to favorites!');
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                icon.style.color = 'white';
-
-                favorites = favorites.filter(id => id !== venueId);
-                localStorage.setItem('siza_favorites', JSON.stringify(favorites));
-                showNotification('Removed from favorites');
+            } catch (err) {
+                console.error("Error toggling favorite:", err);
+                showNotification('Error saving favorite');
             }
         }
 
@@ -1316,14 +1364,15 @@
             });
             button.classList.add('active');
 
-            // Filter the venues (case-insensitive partial match)
+            // Filter the venues (exact case-insensitive match on type)
             if (category === 'all') {
                 renderVenues(allVenues);
             } else {
                 const catLower = category.toLowerCase();
                 const filtered = allVenues.filter(v => {
                     const typeLower = (v.type || '').toLowerCase();
-                    return typeLower.includes(catLower) || catLower.includes(typeLower);
+                    // Exact match OR type starts with category keyword
+                    return typeLower === catLower || typeLower.startsWith(catLower);
                 });
                 renderVenues(filtered);
             }
@@ -1362,17 +1411,28 @@
         let currentUser = null;
         let pendingProfileBase64 = null;
 
-        function checkAuthNav() {
+        async function checkAuthNav() {
             const userStr = localStorage.getItem('siza_user');
             if (userStr) {
                 currentUser = JSON.parse(userStr);
+
+                // Proactively sync profile data to get latest picture
+                try {
+                    const resp = await fetch(`/api/users/${currentUser.id}`);
+                    const data = await resp.json();
+                    if (data.user) {
+                        currentUser = data.user;
+                        localStorage.setItem('siza_user', JSON.stringify(currentUser));
+                    }
+                } catch (e) { console.error("Nav sync failed", e); }
+
                 document.getElementById('navAuth').style.display = 'none';
                 document.getElementById('navUserMenu').style.display = 'block';
 
                 document.getElementById('navUserName').textContent = currentUser.name.split(' ')[0];
                 const navAvatar = document.getElementById('navUserAvatar');
                 if (currentUser.profile_image) {
-                    navAvatar.innerHTML = `< img src = "${currentUser.profile_image}" style = "width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" > `;
+                    navAvatar.innerHTML = `<img src="${currentUser.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                 } else {
                     navAvatar.innerHTML = (currentUser.name || 'U').charAt(0).toUpperCase();
                 }
@@ -1430,18 +1490,52 @@
             document.getElementById(modalId).classList.remove('active');
         }
 
-        function handleProfileImage(input) {
+        async function handleProfileImage(input) {
             if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('profileModalImg').src = e.target.result;
+                const file = input.files[0];
+                try {
+                    const compressedBase64 = await compressImage(file);
+                    document.getElementById('profileModalImg').src = compressedBase64;
                     document.getElementById('profileModalImg').style.display = 'block';
                     document.getElementById('profileModalInitials').style.display = 'none';
                     document.getElementById('removePicBtn').style.display = 'block';
-                    pendingProfileBase64 = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
+                    pendingProfileBase64 = compressedBase64;
+                } catch (err) {
+                    console.error("Image compression failed", err);
+                    alert("Failed to process image. Try a different one.");
+                }
             }
+        }
+
+        // Quick image compressor
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_WIDTH = 800;
+                        const MAX_HEIGHT = 800;
+                        if (width > height) {
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        } else {
+                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.5));
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         }
 
         function removeProfilePicture() {
@@ -1461,7 +1555,7 @@
             if (pendingProfileBase64 !== null) payload.profile_image = pendingProfileBase64;
 
             try {
-                const response = await fetch(`/ api / users / ${currentUser.id}/profile`, {
+                const response = await fetch(`/api/users/${currentUser.id}/profile`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

@@ -43,15 +43,30 @@
 
         /* FLOATING NAVIGATION */
         .navbar {
-            padding: 20px 40px;
-            position: sticky;
-            top: 0;
-            background: var(--white);
+            padding: 16px 40px;
+            position: fixed;
+            top: 16px;
+            left: 40px;
+            right: 40px;
             z-index: 1000;
-            border-bottom: 1px solid var(--border-gray);
+            border-radius: 24px;
+            background: rgba(255, 212, 196, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 212, 196, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .nav-container {
+            width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             display: flex;
@@ -324,7 +339,7 @@
         .venue-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 32px 24px;
+            padding: 140px 24px 32px;
         }
 
         /* VENUE HEADER */
@@ -1400,11 +1415,11 @@
 <body>
 
     <!-- NAVIGATION -->
-    <nav class="navbar">
+    <nav class="navbar" id="mainNav">
         <div class="nav-container">
             <a href="index.html" class="nav-back">
                 <i class="fas fa-arrow-left"></i>
-                Back to venues
+                Back
             </a>
 
             <a href="index.html" class="logo">
@@ -1413,54 +1428,42 @@
             </a>
 
             <div class="nav-actions">
-                <button class="nav-btn" onclick="shareVenue()">
-                    <i class="fas fa-share-alt"></i>
-                    Share
-                </button>
-                <button class="nav-btn" id="saveFavBtn" onclick="saveVenue()">
-                    <i class="far fa-heart" id="saveIcon"></i>
-                    Save
-                </button>
-
                 <!-- Auth buttons (shown when logged out) -->
-                <div id="venueNavAuth" style="display: flex; gap: 12px; align-items: center;">
-                    <a href="login.html" class="nav-btn" style="font-weight: 600;">Log In</a>
-                    <a href="register.html" class="nav-btn"
-                        style="background: var(--primary-orange); color: white; border-radius: 20px;">Sign Up</a>
+                <div id="navAuth" style="display: flex; gap: 16px; align-items: center;">
+                    <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log
+                        In</a>
+                    <a href="register.html"
+                        style="text-decoration: none; background: var(--primary-orange); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 600;">Sign
+                        Up</a>
                 </div>
 
                 <!-- User menu (shown when logged in) -->
-                <div id="venueNavUserMenu" style="display: none;">
-                    <div class="user-menu">
+                <div id="navUserMenu" style="display: none;">
+                    <div class="user-menu" style="position: relative;">
                         <button class="user-btn" onclick="toggleUserDropdown()">
-                            <div class="user-avatar-nav" id="venueNavAvatar">U</div>
-                            <span id="venueNavUserName">User</span>
-                            <i class="fas fa-chevron-down"></i>
+                            <div class="user-avatar-nav" id="navUserAvatar">U</div>
+                            <span id="navUserName">User</span>
+                            <i class="fas fa-bars"></i>
                         </button>
-                        <div class="user-dropdown" id="venueUserDropdown">
-                            <div id="venueOwnerDashLink" style="display: none;">
-                                <a href="dashboard.html" class="dropdown-item">
-                                    <i class="fas fa-chart-line"></i> Dashboard
-                                </a>
-                                <div class="dropdown-divider"></div>
+                        <div class="user-dropdown" id="userDropdown">
+                            <div class="dropdown-item" onclick="openVenueProfileModal()">
+                                <i class="fas fa-user-circle"></i> Profile
                             </div>
-                            <button class="dropdown-item" onclick="openVenueProfileModal()">
-                                <i class="fas fa-user-edit"></i> Edit Profile
-                            </button>
-                            <a href="dashboard.html?tab=favorites" class="dropdown-item" id="venueRenterFavLink"
-                                style="display: none;">
-                                <i class="fas fa-heart"></i> My Favorites
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <button class="dropdown-item" onclick="logoutVenue()" style="color: #FF5A5F;">
-                                <i class="fas fa-sign-out-alt"></i> Log Out
-                            </button>
+                            <div class="dropdown-item" id="ownerDashboardLink" style="display: none;"
+                                onclick="window.location.href='dashboard.html'">
+                                <i class="fas fa-chart-line"></i> Dashboard
+                            </div>
+                            <div class="divider"></div>
+                            <div class="dropdown-item" onclick="logoutVenue()">
+                                <i class="fas fa-sign-out-alt"></i> Log out
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
+
 
     <!-- PROFILE MODAL (venue page) -->
     <div class="profile-modal-overlay" id="venueProfileModal">
@@ -1522,20 +1525,17 @@
 
         <!-- Header -->
         <div class="venue-header" id="venueHeader">
-            <h1>Luxury Downtown Loft</h1>
+            <h1 id="venueTitle">Loading...</h1>
             <div class="venue-meta">
                 <span class="rating">
                     <i class="fas fa-star"></i>
-                    <span id="venueRating">4.92</span>
+                    <span id="venueRating">-</span>
                 </span>
                 <span>·</span>
-                <span id="venueLocation">New York, NY</span>
+                <span id="venueLocation">-</span>
             </div>
             <!-- Category Tags -->
             <div class="category-tags" id="categoryTags">
-                <span class="category-tag">Indoor spaces</span>
-                <span class="category-tag">Unique spots</span>
-                <span class="category-tag">Corporate</span>
             </div>
         </div>
 
@@ -1753,16 +1753,29 @@
         // Check if user is logged in and update navigation
         let pendingVPBase64 = null;
 
-        function checkUser() {
+        async function checkUser() {
             const userStr = localStorage.getItem('siza_user');
             if (userStr) {
                 currentUser = JSON.parse(userStr);
-                // Show user menu, hide auth buttons
-                document.getElementById('venueNavAuth').style.display = 'none';
-                document.getElementById('venueNavUserMenu').style.display = 'block';
 
-                document.getElementById('venueNavUserName').textContent = currentUser.name.split(' ')[0];
-                const navAvatar = document.getElementById('venueNavAvatar');
+                // Sync profile data to get latest picture
+                try {
+                    const resp = await fetch(`/api/users/${currentUser.id}`);
+                    const data = await resp.json();
+                    if (data.user) {
+                        currentUser = data.user;
+                        localStorage.setItem('siza_user', JSON.stringify(currentUser));
+                    }
+                } catch (e) { console.error("Venue nav sync failed", e); }
+
+                // Show user menu, hide auth buttons
+                document.getElementById('navAuth').style.display = 'none';
+                const userMenuEl = document.getElementById('navUserMenu');
+                userMenuEl.style.display = 'flex';
+                userMenuEl.style.alignItems = 'center';
+
+                document.getElementById('navUserName').textContent = currentUser.name.split(' ')[0];
+                const navAvatar = document.getElementById('navUserAvatar');
                 if (currentUser.profile_image) {
                     navAvatar.innerHTML = `<img src="${currentUser.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
                 } else {
@@ -1770,29 +1783,37 @@
                 }
 
                 if (currentUser.role === 'owner') {
-                    document.getElementById('venueOwnerDashLink').style.display = 'block';
+                    document.getElementById('ownerDashboardLink').style.display = 'block';
                     // Hide Save button for owners
                     const saveBtn = document.getElementById('saveFavBtn');
                     if (saveBtn) saveBtn.style.display = 'none';
-                } else {
-                    document.getElementById('venueRenterFavLink').style.display = 'flex';
                 }
             } else {
                 // Show auth buttons, hide user menu
-                document.getElementById('venueNavAuth').style.display = 'flex';
-                document.getElementById('venueNavUserMenu').style.display = 'none';
+                document.getElementById('navAuth').style.display = 'flex';
+                document.getElementById('navUserMenu').style.display = 'none';
             }
         }
 
         // Toggle user dropdown
         function toggleUserDropdown() {
-            document.getElementById('venueUserDropdown').classList.toggle('active');
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown.style.display === 'none' || !dropdown.style.display) {
+                dropdown.style.display = 'flex';
+                dropdown.classList.add('active');
+            } else {
+                dropdown.style.display = 'none';
+                dropdown.classList.remove('active');
+            }
         }
 
         window.addEventListener('click', (e) => {
             if (!e.target.closest('.user-menu')) {
-                const dd = document.getElementById('venueUserDropdown');
-                if (dd) dd.classList.remove('active');
+                const dd = document.getElementById('userDropdown');
+                if (dd) {
+                    dd.style.display = 'none';
+                    dd.classList.remove('active');
+                }
             }
         });
 
@@ -1828,18 +1849,51 @@
             document.getElementById('venueProfileModal').classList.remove('active');
         }
 
-        function handleVPImage(input) {
+        async function handleVPImage(input) {
             if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('vpModalImg').src = e.target.result;
+                const file = input.files[0];
+                try {
+                    const compressedBase64 = await compressVPImage(file);
+                    document.getElementById('vpModalImg').src = compressedBase64;
                     document.getElementById('vpModalImg').style.display = 'block';
                     document.getElementById('vpModalInitials').style.display = 'none';
                     document.getElementById('vpRemovePicBtn').style.display = 'block';
-                    pendingVPBase64 = e.target.result;
-                };
-                reader.readAsDataURL(input.files[0]);
+                    pendingVPBase64 = compressedBase64;
+                } catch (err) {
+                    console.error("Image compression failed", err);
+                    alert("Failed to process image. Try a different one.");
+                }
             }
+        }
+
+        function compressVPImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.src = e.target.result;
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        const MAX_WIDTH = 800;
+                        const MAX_HEIGHT = 800;
+                        if (width > height) {
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        } else {
+                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                        }
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.5));
+                    };
+                    img.onerror = reject;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         }
 
         function removeVPPicture() {
@@ -2004,8 +2058,10 @@
                     venueData.unavailableDates = [];
                 }
 
-                // Fire off view analytics asynchronously
-                fetch('/api/venues/' + venueId + '/view', { method: 'POST' }).catch(e => console.error(e));
+                // Fire off view analytics asynchronously (Only if not owner)
+                if (!currentUser || currentUser.id !== venueData.owner_id) {
+                    fetch('/api/venues/' + venueId + '/view', { method: 'POST' }).catch(e => console.error(e));
+                }
 
             } catch (error) {
                 console.error("Error fetching venue:", error);
@@ -2015,7 +2071,7 @@
 
             // Update page content
             document.title = `${venueData.title} - Siza`;
-            document.getElementById('venueHeader').querySelector('h1').textContent = venueData.title;
+            document.getElementById('venueTitle').textContent = venueData.title;
             document.getElementById('venueRating').textContent = venueData.rating || "New";
             document.getElementById('venueLocation').textContent = venueData.location;
             document.getElementById('venueDescription').textContent = venueData.description;
@@ -2256,7 +2312,7 @@
         }
 
         // Save venue to favorites (renters only)
-        function saveVenue() {
+        async function saveVenue() {
             if (!currentUser) {
                 // Show login prompt
                 document.getElementById('loginPromptModal').classList.add('active');
@@ -2268,33 +2324,33 @@
                 return;
             }
 
-            const icon = document.getElementById('saveIcon');
-            const btn = icon.closest('.nav-btn');
+            try {
+                const response = await fetch('/api/favorites/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, venue_id: venueData.id })
+                });
+                const data = await response.json();
 
-            if (icon.classList.contains('far')) {
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                icon.style.color = '#FF6B6B';
-                btn.style.color = '#FF6B6B';
+                const icon = document.getElementById('saveIcon');
+                const btn = icon.closest('.nav-btn');
 
-                // Save to favorites
-                let favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
-                if (!favorites.includes(venueData.id)) {
-                    favorites.push(venueData.id);
-                    localStorage.setItem('siza_favorites', JSON.stringify(favorites));
+                if (data.status === 'added') {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.style.color = '#FF6B6B';
+                    btn.style.color = '#FF6B6B';
+                    showNotification('Saved to your favorites!');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    icon.style.color = '';
+                    btn.style.color = '';
+                    showNotification('Removed from favorites');
                 }
-                showNotification('Saved to your favorites!');
-            } else {
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                icon.style.color = '';
-                btn.style.color = '';
-
-                // Remove from favorites
-                let favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
-                favorites = favorites.filter(id => id !== venueData.id);
-                localStorage.setItem('siza_favorites', JSON.stringify(favorites));
-                showNotification('Removed from favorites');
+            } catch (err) {
+                console.error("Error toggling favorite:", err);
+                showNotification('Error saving favorite');
             }
         }
 
@@ -2330,22 +2386,29 @@
         });
 
         // Check saved state on load
-        function checkSavedState() {
-            if (!currentUser) return;
-            const favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
-            if (favorites.includes(venueData.id)) {
-                const icon = document.getElementById('saveIcon');
-                const btn = icon.closest('.nav-btn');
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                icon.style.color = '#FF6B6B';
-                btn.style.color = '#FF6B6B';
+        async function checkSavedState() {
+            if (!currentUser || !venueData.id) return;
+            try {
+                const response = await fetch(`/api/users/${currentUser.id}/favorites`);
+                const data = await response.json();
+                const favorites = data.favorites || [];
+
+                if (favorites.includes(venueData.id)) {
+                    const icon = document.getElementById('saveIcon');
+                    const btn = icon.closest('.nav-btn');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.style.color = '#FF6B6B';
+                    btn.style.color = '#FF6B6B';
+                }
+            } catch (err) {
+                console.error("Error checking favorite state:", err);
             }
         }
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadVenue();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadVenue();
             checkSavedState();
         });
     </script>

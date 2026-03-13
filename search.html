@@ -1270,13 +1270,13 @@
             }
         }
 
+        let userFavorites = [];
+
         // Toggle favorite (renters only)
-        function toggleFavorite(venueId, button) {
+        async function toggleFavorite(venueId, button) {
             if (currentUser && currentUser.role === 'owner') {
                 return;
             }
-            const icon = button.querySelector('i');
-            const isSaved = button.classList.contains('saved');
 
             // Check if logged in
             if (!currentUser) {
@@ -1286,40 +1286,62 @@
                 return;
             }
 
-            let favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
+            try {
+                const response = await fetch('/api/favorites/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, venue_id: venueId })
+                });
+                const data = await response.json();
 
-            if (isSaved) {
-                button.classList.remove('saved');
-                icon.classList.remove('fas');
-                icon.classList.add('far');
-                favorites = favorites.filter(id => id !== venueId);
-            } else {
-                button.classList.add('saved');
-                icon.classList.remove('far');
-                icon.classList.add('fas');
-                if (!favorites.includes(venueId)) {
-                    favorites.push(venueId);
+                const icon = button.querySelector('i');
+                if (data.status === 'added') {
+                    button.classList.add('saved');
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    userFavorites.push(venueId);
+                    showNotification('Venue added to favorites!');
+                } else {
+                    button.classList.remove('saved');
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    userFavorites = userFavorites.filter(id => id !== venueId);
+                    showNotification('Removed from favorites');
                 }
+            } catch (err) {
+                console.error("Error toggling favorite:", err);
+                showNotification('Error saving favorite');
             }
-
-            localStorage.setItem('siza_favorites', JSON.stringify(favorites));
-            showNotification(isSaved ? 'Removed from favorites' : 'Venue added to favorites!');
         }
 
         // Check saved favorites on load
-        function checkSavedFavorites() {
-            const user = localStorage.getItem('siza_user');
-            if (!user) return;
+        async function checkSavedFavorites() {
+            if (!currentUser) return;
 
-            const favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
-            document.querySelectorAll('.venue-favorite').forEach((btn, index) => {
-                const venueId = allVenues[index]?.id;
-                if (favorites.includes(venueId)) {
-                    btn.classList.add('saved');
-                    btn.querySelector('i').classList.remove('far');
-                    btn.querySelector('i').classList.add('fas');
-                }
-            });
+            try {
+                const response = await fetch(`/api/users/${currentUser.id}/favorites`);
+                const data = await response.json();
+                userFavorites = data.favorites || [];
+
+                document.querySelectorAll('.venue-card').forEach(card => {
+                    const href = card.getAttribute('href');
+                    const venueId = parseInt(href.split('id=')[1]);
+                    const btn = card.querySelector('.venue-favorite');
+                    const icon = btn.querySelector('i');
+
+                    if (userFavorites.includes(venueId)) {
+                        btn.classList.add('saved');
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                    } else {
+                        btn.classList.remove('saved');
+                        icon.classList.remove('fas');
+                        icon.classList.add('far');
+                    }
+                });
+            } catch (err) {
+                console.error("Error fetching favorites:", err);
+            }
         }
 
         // Enter key for search

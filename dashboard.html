@@ -483,6 +483,37 @@
             color: white;
         }
 
+        /* Heart button on favorites cards */
+        .venue-favorite {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: var(--cool-gray);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        .venue-favorite:hover,
+        .venue-favorite.active {
+            background: white;
+            color: #FF5A5F;
+            transform: scale(1.1);
+        }
+
+        .venue-favorite.active i {
+            color: #FF5A5F;
+        }
+
         .venue-actions {
             position: absolute;
             top: 16px;
@@ -1387,7 +1418,7 @@
             <div class="user-menu">
                 <button class="user-btn" onclick="toggleUserMenu()">
                     <div class="user-avatar" id="userAvatar">A</div>
-                    <span id="userName">Alex</span>
+                    <span id="userName">...</span>
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </div>
@@ -1399,7 +1430,7 @@
 
         <!-- Header -->
         <div class="dashboard-header">
-            <h1>Welcome back, <span id="ownerName">Alex</span>! 👋</h1>
+            <h1>Welcome back, <span id="ownerName">...</span>! 👋</h1>
             <p>Here's how your venues are performing this month</p>
         </div>
 
@@ -1971,11 +2002,45 @@
             loadVenues();
         });
 
-        // Helper to convert file to base64
+        // Helper to convert file to base64 with compression/resizing
         const getBase64 = (file) => new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.readAsDataURL(file);
-            reader.onload = () => resolve(reader.result);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+
+                    // Set max dimensions
+                    const MAX_WIDTH = 800; // Reduced from 1200
+                    const MAX_HEIGHT = 800;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Convert to base64 with 0.5 quality for better performance
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.5);
+                    resolve(dataUrl);
+                };
+                img.onerror = (err) => reject(err);
+            };
             reader.onerror = error => reject(error);
         });
 
@@ -2147,62 +2212,101 @@
             }
         }
 
+        let userFavorites = [];
+
         // Render favorites for renters
-        function renderFavorites() {
+        async function renderFavorites() {
             const grid = document.getElementById('favoritesGrid');
             if (!grid) return;
 
-            // Load favorites from localStorage
-            const favoriteIds = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
-            const favorites = venues.filter(v => favoriteIds.includes(v.id));
+            if (!currentUser || currentUser.role === 'owner') return;
 
-            if (favorites.length === 0) {
-                grid.innerHTML = '';
-                const emptyState = document.getElementById('emptyState');
-                emptyState.style.display = 'block';
-                emptyState.querySelector('h2').textContent = "No Favorites Yet";
-                emptyState.querySelector('p').textContent = "Explore venues and add them to your favorites to see them here!";
-                const btn = emptyState.querySelector('button');
-                if (btn) {
-                    btn.innerHTML = '<i class="fas fa-search"></i> Discover Venues';
-                    btn.onclick = () => window.location.href = 'index.html';
+            try {
+                // Get favorite IDs
+                const response = await fetch(`/api/users/${currentUser.id}/favorites`);
+                const data = await response.json();
+                userFavorites = data.favorites || [];
+
+                if (userFavorites.length === 0) {
+                    grid.innerHTML = '';
+                    const emptyState = document.getElementById('emptyState');
+                    emptyState.style.display = 'block';
+                    emptyState.querySelector('h2').textContent = "No Favorites Yet";
+                    emptyState.querySelector('p').textContent = "Explore venues and add them to your favorites to see them here!";
+                    const btn = emptyState.querySelector('button');
+                    if (btn) {
+                        btn.innerHTML = '<i class="fas fa-search"></i> Discover Venues';
+                        btn.onclick = () => window.location.href = 'index.html';
+                    }
+                    return;
                 }
-                return;
+
+                // Fetch all venues and filter to the favorited ones
+                const allVenuesResp = await fetch('/api/venues');
+                const allVenuesData = await allVenuesResp.json();
+                const allVenuesList = allVenuesData.venues || [];
+
+                const favorites = allVenuesList.filter(v => userFavorites.includes(v.id)).map(v => {
+                    let imgs = [];
+                    try {
+                        if (typeof v.image === 'string' && (v.image.startsWith('[') || v.image.startsWith('data:'))) {
+                            imgs = v.image.startsWith('[') ? JSON.parse(v.image) : [v.image];
+                        } else if (v.image) {
+                            imgs = [v.image];
+                        }
+                    } catch (e) { imgs = []; }
+                    return { ...v, name: v.title, images: imgs };
+                });
+
+                document.getElementById('emptyState').style.display = 'none';
+
+                grid.innerHTML = favorites.map(venue => `
+                    <div class="venue-card">
+                        <div class="venue-image">
+                            <img src="${venue.images && venue.images.length > 0 ? venue.images[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available'}" alt="${venue.name}">
+                            <button class="venue-favorite active" onclick="event.preventDefault(); toggleFavorite(${venue.id}, this)" title="Remove from favorites">
+                                <i class="fas fa-heart" style="color: #FF5A5F;"></i>
+                            </button>
+                        </div>
+                        <div class="venue-info">
+                            <h3>${venue.name}</h3>
+                            <p class="venue-location"><i class="fas fa-map-marker-alt"></i> ${venue.location}</p>
+                            <div class="venue-price">KES ${(venue.price || 0).toLocaleString()} / day</div>
+                            <a href="venue.html?id=${venue.id}" class="btn-primary" style="margin-top: 12px; display: block; text-align: center; text-decoration: none;">View Details</a>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error("Error loading favorites:", err);
             }
-
-            document.getElementById('emptyState').style.display = 'none';
-
-            grid.innerHTML = favorites.map(venue => `
-                <div class="venue-card">
-                    <div class="venue-image">
-                        <img src="${venue.images && venue.images.length > 0 ? venue.images[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available'}" alt="${venue.name}">
-                        <button class="venue-favorite active" onclick="event.preventDefault(); toggleFavorite(${venue.id}, this)">
-                            <i class="fas fa-heart"></i>
-                        </button>
-                    </div>
-                    <div class="venue-info">
-                        <h3>${venue.name}</h3>
-                        <p class="venue-location">${venue.location}</p>
-                        <div class="venue-price">KES ${venue.price.toLocaleString()} / day</div>
-                        <a href="venue.html?id=${venue.id}" class="btn-primary" style="margin-top: 12px; display: block; text-align: center; text-decoration: none;">View Details</a>
-                    </div>
-                </div>
-            `).join('');
+        }
+            } catch (err) {
+            console.error("Error loading favorites:", err);
+        }
         }
 
         // Toggle favorite from dashboard
-        function toggleFavorite(venueId, btn) {
-            let favorites = JSON.parse(localStorage.getItem('siza_favorites') || '[]');
-            if (favorites.includes(venueId)) {
-                favorites = favorites.filter(id => id !== venueId);
-                localStorage.setItem('siza_favorites', JSON.stringify(favorites));
-                showNotification('Removed from favorites');
-            } else {
-                favorites.push(venueId);
-                localStorage.setItem('siza_favorites', JSON.stringify(favorites));
-                showNotification('Added to favorites');
+        async function toggleFavorite(venueId, btn) {
+            try {
+                const response = await fetch('/api/favorites/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: currentUser.id, venue_id: venueId })
+                });
+                const data = await response.json();
+
+                if (data.status === 'removed') {
+                    showNotification('Removed from favorites');
+                } else {
+                    showNotification('Added to favorites');
+                }
+
+                // Re-render
+                renderFavorites();
+            } catch (err) {
+                console.error("Error toggling favorite:", err);
+                showNotification('Error updating favorites');
             }
-            renderFavorites();
         }
 
         // Update statistics display
@@ -2409,7 +2513,7 @@
             }
 
             const venuePayload = {
-                owner_id: currentUser ? currentUser.id : 1,
+                owner_id: currentUser ? currentUser.id : null,
                 title: name,
                 location: location,
                 type: typeValue,

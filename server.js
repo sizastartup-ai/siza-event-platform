@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const path = require('path');
-const db = require('./database');
+const supabase = require('./supabaseClient');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -18,174 +18,199 @@ app.use(express.static(path.join(__dirname)));
 // --- API Endpoints ---
 
 // Get all venues, optionally filter by location and guests
-app.get('/api/venues', (req, res) => {
-    let query = "SELECT * FROM venues";
-    const params = [];
+app.get('/api/venues', async (req, res) => {
+    try {
+        // Only select fields needed for the venue cards to keep payload small
+        let query = supabase.from('venues').select(`
+            id, title, location, type, guests, price, rating, reviews, image, views
+        `);
 
-    const conditions = [];
-    if (req.query.location) {
-        conditions.push("location LIKE ?");
-        params.push(`%${req.query.location}%`);
-    }
-    if (req.query.guests) {
-        conditions.push("guests >= ?");
-        params.push(req.query.guests);
-    }
-    if (req.query.owner_id) {
-        conditions.push("owner_id = ?");
-        params.push(req.query.owner_id);
-    }
-
-    if (conditions.length > 0) {
-        query += " WHERE " + conditions.join(" AND ");
-    }
-
-    db.all(query, params, (err, rows) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
+        if (req.query.location) {
+            query = query.ilike('location', `%${req.query.location}%`);
         }
-        res.json({ venues: rows });
-    });
+        if (req.query.guests) {
+            query = query.gte('guests', parseInt(req.query.guests));
+        }
+        if (req.query.owner_id) {
+            query = query.eq('owner_id', req.query.owner_id);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+
+        // If 'views' isn't available as a direct column, the query above might need adjustment
+        // For now, let's just use the data as is to avoid the expensive join if possible
+        const venues = data.map(v => ({
+            ...v,
+            views: v.views || 0
+        }));
+
+        res.json({ venues });
+    } catch (err) {
+        console.error("API error:", err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Get venue by ID with owner profile
-app.get('/api/venues/:id', (req, res) => {
-    const query = `
-        SELECT v.*, u.name as owner_name, u.profile_image as owner_image 
-        FROM venues v 
-        LEFT JOIN users u ON v.owner_id = u.id 
-        WHERE v.id = ?
-    `;
-    db.get(query, [req.params.id], (err, row) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        if (!row) {
-            res.status(404).json({ error: "Venue not found" });
-            return;
-        }
-        res.json({ venue: row });
-    });
+app.get('/api/venues/:id', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('venues')
+            .select('*, users:owner_id(name, profile_image), venue_views(count)')
+            .eq('id', req.params.id)
+            .single();
+
+        if (error) throw error;
+        if (!data) return res.status(404).json({ error: "Venue not found" });
+
+        // Format to match existing frontend expectations
+        const venue = {
+            ...data,
+            owner_name: data.users ? data.users.name : 'Unknown',
+            owner_image: data.users ? data.users.profile_image : null,
+            views: data.venue_views ? (data.venue_views[0] ? data.venue_views[0].count : 0) : 0
+        };
+
+        res.json({ venue });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Create a new venue
-app.post('/api/venues', (req, res) => {
+app.post('/api/venues', async (req, res) => {
     const { owner_id, title, location, type, guests, price, rating, image, amenities, description } = req.body;
 
-    // Fallbacks just in case
-    const safeTitle = title || "New Venue";
-    const safeGuests = guests || 50;
-    const safePrice = price || 0;
-
-    // Safely handle image serialization
-    let finalImage = image;
-    if (image && typeof image !== 'string') {
-        finalImage = JSON.stringify(image);
-    }
-
-    console.log('[POST /api/venues] image type:', typeof finalImage, '| is array:', Array.isArray(image), '| finalImage length:', (finalImage || '').length);
-    if (typeof finalImage === 'string' && finalImage.length < 200) console.log('[POST /api/venues] finalImage preview:', finalImage);
-
-    db.run(
-        "INSERT INTO venues (owner_id, title, location, type, guests, price, rating, reviews, image, amenities, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [owner_id || 1, safeTitle, location, type, safeGuests, safePrice, rating || 0.0, 0, finalImage, JSON.stringify(amenities || []), description || ""],
-        function (err) {
-            if (err) {
-                console.error("Database error creating venue:", err.message);
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            console.log("Venue created with ID:", this.lastID);
-            res.status(201).json({ message: "Venue created", id: this.lastID });
+    try {
+        let finalImage = image;
+        if (image && typeof image !== 'string') {
+            finalImage = JSON.stringify(image);
         }
-    );
+
+        const { data, error } = await supabase
+            .from('venues')
+            .insert([{
+                owner_id: owner_id,
+                title: title || "New Venue",
+                location,
+                type,
+                guests: guests || 50,
+                price: price || 0,
+                rating: rating || 0.0,
+                reviews: 0,
+                image: finalImage,
+                amenities: JSON.stringify(amenities || []),
+                description: description || ""
+            }])
+            .select();
+
+        if (error) {
+            console.error(`[POST /api/venues] Supabase Error:`, error);
+            throw error;
+        }
+        res.status(201).json({ message: "Venue created", id: data[0].id });
+    } catch (err) {
+        console.error(`[POST /api/venues] Catch Error:`, err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Delete a venue by ID
-app.delete('/api/venues/:id', (req, res) => {
-    db.run("DELETE FROM venues WHERE id = ?", [req.params.id], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
+app.delete('/api/venues/:id', async (req, res) => {
+    try {
+        const { error } = await supabase.from('venues').delete().eq('id', req.params.id);
+        if (error) {
+            console.error(`[DELETE /api/venues/${req.params.id}] Error:`, error);
+            throw error;
         }
         res.json({ message: "Venue deleted" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Update venue unavailable dates
-app.put('/api/venues/:id/availability', (req, res) => {
+app.put('/api/venues/:id/availability', async (req, res) => {
     const { unavailable_dates } = req.body;
-    console.log(`[Availability Update] Venue ID: ${req.params.id}`);
-    console.log(`[Availability Update] Dates received:`, unavailable_dates);
+    try {
+        const finalDates = JSON.stringify(unavailable_dates || []);
+        const { error } = await supabase
+            .from('venues')
+            .update({ unavailable_dates: finalDates })
+            .eq('id', req.params.id);
 
-    const finalDates = JSON.stringify(unavailable_dates || []);
-
-    db.run(
-        "UPDATE venues SET unavailable_dates = ? WHERE id = ?",
-        [finalDates, req.params.id],
-        function (err) {
-            if (err) {
-                console.error(`[Availability Update] Error:`, err.message);
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            console.log(`[Availability Update] Success for Venue ${req.params.id}`);
-            res.json({ message: "Availability updated" });
+        if (error) {
+            console.error(`[PUT /api/venues/${req.params.id}/availability] Error:`, error);
+            throw error;
         }
-    );
+        res.json({ message: "Availability updated" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Update a venue by ID
-app.put('/api/venues/:id', (req, res) => {
+app.put('/api/venues/:id', async (req, res) => {
     const { title, location, type, guests, price, image, amenities, unavailable_dates, description } = req.body;
 
-    // Safely handle image serialization
-    let finalImage = image;
-    if (image && typeof image !== 'string') {
-        finalImage = JSON.stringify(image);
-    }
-
-    console.log('[PUT /api/venues/:id] image type:', typeof finalImage, '| is array:', Array.isArray(image), '| finalImage length:', (finalImage || '').length);
-    if (typeof finalImage === 'string' && finalImage.length < 200) console.log('[PUT /api/venues/:id] finalImage preview:', finalImage);
-
-    db.run(
-        "UPDATE venues SET title = ?, location = ?, type = ?, guests = ?, price = ?, image = ?, amenities = ?, unavailable_dates = ?, description = ? WHERE id = ?",
-        [title, location, type, guests, price, finalImage, JSON.stringify(amenities || []), JSON.stringify(unavailable_dates || []), description, req.params.id],
-        function (err) {
-            if (err) {
-                console.error(`Database error updating venue ${req.params.id}:`, err.message);
-                res.status(500).json({ error: err.message });
-                return;
-            }
-            res.json({ message: "Venue updated" });
+    try {
+        let finalImage = image;
+        if (image && typeof image !== 'string') {
+            finalImage = JSON.stringify(image);
         }
-    );
+
+        const { error } = await supabase
+            .from('venues')
+            .update({
+                title,
+                location,
+                type,
+                guests,
+                price,
+                image: finalImage,
+                amenities: JSON.stringify(amenities || []),
+                unavailable_dates: JSON.stringify(unavailable_dates || []),
+                description
+            })
+            .eq('id', req.params.id);
+
+        if (error) {
+            console.error(`[PUT /api/venues/${req.params.id}] Error:`, error);
+            throw error;
+        }
+        res.json({ message: "Venue updated" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
-// Increment venue views
-app.post('/api/venues/:id/view', (req, res) => {
-    db.run("UPDATE venues SET views = views + 1 WHERE id = ?", [req.params.id], function (err) {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
+// Increment venue views (Advanced Analytics)
+app.post('/api/venues/:id/view', async (req, res) => {
+    const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    try {
+        await supabase
+            .from('venue_views')
+            .insert([{ venue_id: req.params.id, ip_address: ip }]);
+
         res.json({ message: "View recorded" });
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Auth: Login
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
     const { email, password } = req.body;
-    db.get("SELECT * FROM users WHERE email = ?", [email], async (err, user) => {
-        if (err) {
-            res.status(500).json({ error: err.message });
-            return;
-        }
-        if (!user) {
-            res.status(401).json({ error: "Invalid email or password" });
-            return;
+    try {
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('id, name, email, password_hash, role') // Explicitly NOT selecting profile_image
+            .eq('email', email)
+            .single();
+
+        if (error || !user) {
+            return res.status(401).json({ error: "Invalid email or password" });
         }
 
         const match = await bcrypt.compare(password, user.password_hash);
@@ -194,107 +219,157 @@ app.post('/api/auth/login', (req, res) => {
         } else {
             res.status(401).json({ error: "Invalid email or password" });
         }
-    });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Auth: Register
 app.post('/api/auth/register', async (req, res) => {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, phone } = req.body;
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
         const userRole = role === 'owner' ? 'owner' : 'user';
 
-        db.run("INSERT INTO users (name, email, password_hash, role) VALUES (?, ?, ?, ?)",
-            [name, email, hashedPassword, userRole],
-            function (err) {
-                if (err) {
-                    res.status(400).json({ error: "Email already exists or error creating user." });
-                    return;
-                }
-                res.status(201).json({
-                    message: "User created successfully",
-                    user: { id: this.lastID, name: name, email: email, role: userRole }
-                });
-            });
+        const { data, error } = await supabase
+            .from('users')
+            .insert([{ name, email, password_hash: hashedPassword, role: userRole, phone: phone || null }])
+            .select();
+
+        if (error) {
+            console.error('[Register] Supabase Error:', error);
+            return res.status(400).json({ error: "Email already exists or error creating user." });
+        }
+        res.status(201).json({
+            message: "User created successfully",
+            user: { id: data[0].id, name, email, role: userRole }
+        });
     } catch (err) {
+        console.error('[Register] Catch Error:', err);
         res.status(500).json({ error: "Server error" });
     }
 });
 
 // Get User Profile
-app.get('/api/users/:id', (req, res) => {
-    db.get("SELECT id, name, email, role, profile_image FROM users WHERE id = ?", [req.params.id], (err, row) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!row) return res.status(404).json({ error: "User not found" });
-        res.json({ user: row });
-    });
+app.get('/api/users/:id', async (req, res) => {
+    try {
+        const { data: user, error } = await supabase
+            .from('users')
+            .select('id, name, email, role, profile_image, phone')
+            .eq('id', req.params.id)
+            .single();
+
+        if (error || !user) return res.status(404).json({ error: "User not found" });
+        res.json({ user });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Update User Profile
-app.put('/api/users/:id/profile', (req, res) => {
+app.put('/api/users/:id/profile', async (req, res) => {
     const { name, email, phone, profile_image } = req.body;
+    try {
+        const updateData = { name, email };
+        if (phone !== undefined) updateData.phone = phone;
+        if (profile_image !== undefined) updateData.profile_image = profile_image;
 
-    let query = "UPDATE users SET name = ?, email = ?";
-    let params = [name, email];
+        const { error } = await supabase
+            .from('users')
+            .update(updateData)
+            .eq('id', req.params.id);
 
-    if (phone !== undefined) {
-        query += ", phone = ?";
-        params.push(phone);
-    }
-
-    if (profile_image !== undefined) {
-        query += ", profile_image = ?";
-        params.push(profile_image);
-    }
-
-    query += " WHERE id = ?";
-    params.push(req.params.id);
-
-    db.run(query, params, function (err) {
-        if (err) {
-            return res.status(500).json({ error: err.message });
+        if (error) {
+            console.error(`[PUT /api/users/${req.params.id}/profile] Error:`, error);
+            throw error;
         }
         res.json({ message: "Profile updated" });
-    });
+    } catch (err) {
+        console.error(`[PUT /api/users/${req.params.id}/profile] Catch Error:`, err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Bookings: Create booking
-app.post('/api/bookings', (req, res) => {
+app.post('/api/bookings', async (req, res) => {
     const { user_id, venue_id, date, guests } = req.body;
     if (!user_id || !venue_id || !date || !guests) {
         return res.status(400).json({ error: "Missing required fields" });
     }
 
-    // Check if the date is unavailable
-    db.get("SELECT unavailable_dates FROM venues WHERE id = ?", [venue_id], (err, venue) => {
-        if (err) return res.status(500).json({ error: err.message });
-        if (!venue) return res.status(404).json({ error: "Venue not found" });
+    try {
+        const { data: venue, error: vErr } = await supabase
+            .from('venues')
+            .select('unavailable_dates, bookings_count')
+            .eq('id', venue_id)
+            .single();
+
+        if (vErr || !venue) return res.status(404).json({ error: "Venue not found" });
 
         let unavailable = [];
         try {
             unavailable = JSON.parse(venue.unavailable_dates || '[]');
-        } catch (e) {
-            unavailable = [];
-        }
+        } catch (e) { unavailable = []; }
 
         if (unavailable.includes(date)) {
             return res.status(400).json({ error: "This date is marked as unavailable by the owner." });
         }
 
-        db.run("INSERT INTO bookings (user_id, venue_id, date, guests) VALUES (?, ?, ?, ?)",
-            [user_id, venue_id, date, guests],
-            function (err) {
-                if (err) {
-                    res.status(500).json({ error: err.message });
-                    return;
-                }
+        const { data: booking, error: bErr } = await supabase
+            .from('bookings')
+            .insert([{ user_id, venue_id, date, guests }])
+            .select();
 
-                // Increment bookings count
-                db.run("UPDATE venues SET bookings_count = bookings_count + 1 WHERE id = ?", [venue_id]);
+        if (bErr) throw bErr;
 
-                res.status(201).json({ message: "Booking created", bookingId: this.lastID });
-            });
-    });
+        // Increment bookings count
+        await supabase.from('venues').update({ bookings_count: (venue.bookings_count || 0) + 1 }).eq('id', venue_id);
+
+        res.status(201).json({ message: "Booking created", bookingId: booking[0].id });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Favorites: Get user favorites
+app.get('/api/users/:id/favorites', async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('favorites')
+            .select('venue_id')
+            .eq('user_id', req.params.id);
+
+        if (error) throw error;
+        res.json({ favorites: data.map(f => f.venue_id) });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Favorites: Toggle favorite
+app.post('/api/favorites/toggle', async (req, res) => {
+    const { user_id, venue_id } = req.body;
+    try {
+        // Check if exists
+        const { data: existing } = await supabase
+            .from('favorites')
+            .select('*')
+            .eq('user_id', user_id)
+            .eq('venue_id', venue_id)
+            .single();
+
+        if (existing) {
+            // Remove
+            await supabase.from('favorites').delete().eq('id', existing.id);
+            res.json({ message: "Removed from favorites", status: 'removed' });
+        } else {
+            // Add
+            await supabase.from('favorites').insert([{ user_id, venue_id }]);
+            res.json({ message: "Added to favorites", status: 'added' });
+        }
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // Serve HTML pages (fallback)
