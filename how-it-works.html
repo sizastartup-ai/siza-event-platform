@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How Siza Works - Siza</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #40E0D0;
+            --brand-pink: #FF5A5F;
+            --primary-dark: #20B2AA;
+            --navy-blue: #2C3E50;
+            --cool-gray: #5D6D7E;
+            --light-gray: #F8F9FA;
+            --white: #FFFFFF;
+            --dark-gray: #2C3E50;
+            --border-gray: #DDDDDD;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; color: var(--dark-gray); background: var(--white); line-height: 1.6; }
+
+        .navbar { padding: 16px 40px; position: fixed; top: 16px; left: 40px; right: 40px; z-index: 1000; border-radius: 24px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); display: flex; align-items: center; justify-content: space-between; }
+        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--navy-blue); font-size: 24px; font-weight: 700; }
+        .logo i { color: #FF5A5F; font-size: 28px; }
+        .nav-btn-group { display: flex; gap: 16px; align-items: center; }
+        .nav-btn { text-decoration: none; color: var(--navy-blue); font-weight: 600; white-space: nowrap; }
+        .nav-btn.primary { background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; box-shadow: 0 4px 12px rgba(255, 90, 95, 0.2); }
+
+        .content-container { max-width: 900px; margin: 140px auto 80px; padding: 0 24px; }
+        h1 { font-size: 42px; margin-bottom: 24px; color: var(--navy-blue); }
+        h3 { font-size: 24px; margin: 32px 0 16px; color: var(--primary-dark); }
+        p { margin-bottom: 20px; font-size: 18px; color: var(--cool-gray); }
+        ul { margin-bottom: 24px; list-style: none; }
+        li { margin-bottom: 12px; font-size: 18px; display: flex; align-items: flex-start; gap: 12px; }
+        li i { color: var(--primary-color); margin-top: 4px; }
+
+        .footer { background: var(--light-gray); padding: 80px 40px 40px; }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; }
+        .footer-section h3 { margin-top: 0; font-size: 18px; margin-bottom: 20px; color: var(--navy-blue); }
+        .footer-section a { display: block; color: var(--cool-gray); text-decoration: none; margin-bottom: 12px; }
+        .footer-bottom { border-top: 1px solid #eee; margin-top: 40px; padding-top: 20px; text-align: center; color: var(--cool-gray); }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <a href="index.html" class="logo"><i class="fas fa-gem"></i> Siza</a>
+        <div class="nav-btn-group">
+            <a href="login.html" class="nav-btn">Log In</a>
+            <a href="register.html" class="nav-btn primary">Sign Up</a>
+        </div>
+    </nav>
+
+    <div class="content-container">
+        <h1>How Siza Works</h1>
+        <h3>Finding the perfect venue should be exciting — not stressful.</h3>
+        <p>Siza connects people looking for venues with beautiful spaces ready to host unforgettable moments.</p>
+        <p>Whether you're planning a wedding, birthday, corporate event, photoshoot, or celebration, Siza makes the process simple and smooth.</p>
+
+        <h3>Step 1: Explore amazing venues</h3>
+        <p>Browse through a variety of venues — gardens, halls, rooftops, creative spaces, and unique locations.</p>
+        <p>Each listing includes:</p>
+        <ul>
+            <li><i class="fas fa-camera"></i> Photos</li>
+            <li><i class="fas fa-info-circle"></i> Venue details</li>
+            <li><i class="fas fa-users"></i> Capacity information</li>
+            <li><i class="fas fa-calendar-check"></i> Booking options</li>
+        </ul>
+        <p>You can explore until you find the space that feels just right.</p>
+
+        <h3>Step 2: Check availability and request a booking</h3>
+        <p>Once you find a venue you like, simply request a booking directly through Siza.</p>
+        <p>Your request is sent to the venue owner so they can confirm availability and details.</p>
+
+        <h3>Step 3: Connect with the venue owner</h3>
+        <p>After your request is submitted, the venue owner reviews it and gets in touch to confirm the booking.</p>
+        <p>You can then finalize arrangements and prepare for your event.</p>
+
+        <h3>Step 4: Make memories</h3>
+        <p>Now comes the best part — hosting your event in a beautiful space and creating unforgettable moments.</p>
+        <p>From intimate gatherings to big celebrations, <strong>Siza helps you find the perfect place to bring people together.</strong></p>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="safety.html">Safety Information</a>
+            </div>
+            <div class="footer-section">
+                <h3>About</h3>
+                <a href="how-it-works.html">How Siza Works</a>
+                <a href="careers.html">Careers</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Siza, Inc. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

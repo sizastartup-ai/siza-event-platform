@@ -12,20 +12,17 @@
     <style>
         /* CSS VARIABLES - Same warm palette */
         :root {
-            --primary-orange: #FF6B6B;
-            --primary-coral: #FF8E53;
-            --pastel-orange: #FFD4C4;
+            --primary-orange: #40E0D0;
+            --primary-dark: #20B2AA;
             --navy-blue: #2C3E50;
-            --teal: #4ECDC4;
-            --warm-cream: #FFF8F0;
-            --cool-gray: #8B8B8B;
-            --light-gray: #F7F7F7;
+            --teal: #40E0D0;
+            --cool-gray: #5D6D7E;
+            --light-gray: #F8F9FA;
             --white: #FFFFFF;
-            --dark-gray: #2D3436;
-            --border-gray: #E0E0E0;
+            --dark-gray: #2C3E50;
+            --border-gray: #DDDDDD;
             --hover-gray: #EBEBEB;
-            --soft-shadow: rgba(0, 0, 0, 0.08);
-            --warm-shadow: rgba(255, 107, 107, 0.15);
+            --soft-shadow: rgba(0, 0, 0, 0.05);
         }
 
         * {
@@ -50,12 +47,17 @@
             right: 40px;
             z-index: 1000;
             border-radius: 24px;
-            background: rgba(255, 212, 196, 0.75);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
         }
 
         .navbar.scrolled {
@@ -1265,9 +1267,14 @@
         // Perform search
         function performSearch() {
             const query = document.getElementById('searchInput').value;
-            if (query) {
-                window.location.href = `search.html?location=${encodeURIComponent(query)}`;
+            const params = new URLSearchParams(window.location.search);
+            const guests = params.get('guests');
+            
+            let newUrl = `search.html?location=${encodeURIComponent(query)}`;
+            if (guests) {
+                newUrl += `&guests=${encodeURIComponent(guests)}`;
             }
+            window.location.href = newUrl;
         }
 
         let userFavorites = [];

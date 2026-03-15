@@ -11,13 +11,16 @@
     <style>
         /* CSS VARIABLES - Your Color Palette */
         :root {
-            --primary-orange: #FF5A5F;
-            --navy-blue: #0A192F;
-            --teal: #008080;
-            --cool-gray: #717171;
-            --light-gray: #F7F7F7;
+            --primary-orange: #FF501A;
+            --brand-pink: #FF5A5F;
+            --primary-dark: #20B2AA;
+            --navy-blue: #2C3E50;
+            --teal: #40E0D0;
+            --light-teal-bg: #F0FAF9;
+            --cool-gray: #5D6D7E;
+            --light-gray: #F8F9FA;
             --white: #FFFFFF;
-            --dark-gray: #222222;
+            --dark-gray: #2C3E50;
             --border-gray: #DDDDDD;
             --hover-gray: #EBEBEB;
         }
@@ -32,7 +35,7 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--dark-gray);
-            background-color: var(--white);
+            background-color: var(--light-teal-bg);
             line-height: 1.6;
         }
 
@@ -45,29 +48,41 @@
             right: 40px;
             z-index: 1000;
             border-radius: 24px;
-            background: rgba(255, 212, 196, 0.75);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
         }
 
         .navbar.scrolled {
-            background: rgba(255, 212, 196, 0.95);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
         }
 
         .nav-container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1440px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: relative;
+            min-height: 60px;
         }
+
+        .nav-left { flex: 1; display: flex; align-items: center; }
+        .nav-center { 
+            position: absolute; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            align-items: center; 
+        }
+        .nav-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; }
 
         /* Logo */
         .logo {
@@ -126,8 +141,38 @@
             font-weight: 700;
             margin-bottom: 32px;
             line-height: 1.2;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-            transition: font-size 0.3s ease;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .sliding-container {
+            display: inline-block;
+            vertical-align: bottom;
+            height: 1.2em;
+            overflow: hidden;
+            text-align: left;
+            margin-left: 0.2em;
+        }
+
+        .sliding-words {
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 12s cubic-bezier(0.645, 0.045, 0.355, 1) infinite;
+        }
+
+        .sliding-word {
+            height: 1.2em;
+            line-height: 1.2em;
+            color: var(--primary-dark);
+            white-space: nowrap;
+        }
+
+        @keyframes slideUp {
+            0%, 15% { transform: translateY(0); }
+            20%, 35% { transform: translateY(-1.2em); }
+            40%, 55% { transform: translateY(-2.4em); }
+            60%, 75% { transform: translateY(-3.6em); }
+            80%, 95% { transform: translateY(-4.8em); }
+            100% { transform: translateY(0); }
         }
 
         /* SEARCH BAR */
@@ -190,7 +235,7 @@
             width: 48px;
             height: 48px;
             border-radius: 50%;
-            background: var(--primary-orange);
+            background: #FF5A5F;
             border: none;
             color: var(--white);
             cursor: pointer;
@@ -925,57 +970,55 @@
     </script>
     <!-- NAVIGATION BAR -->
     <nav class="navbar" id="mainNav">
-        <div class="nav-container" style="justify-content: space-between;">
-            <a href="index.html" class="logo">
-                <i class="fas fa-gem"></i>
-                <span>Siza</span>
-            </a>
-
-            <!-- Pop-out Search for sticky nav -->
-            <div class="nav-search" id="navSearch" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-                <span>Where</span>
-                <div class="divider-sm"></div>
-                <span>When</span>
-                <div class="divider-sm"></div>
-                <span>Guests</span>
-                <div class="search-icon-sm">
-                    <i class="fas fa-search"></i>
+        <div class="nav-container">
+            <div class="nav-left">
+                <!-- Pop-out Search for sticky nav -->
+                <div class="nav-search" id="navSearch" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="display: none;">
+                    <span>Where</span>
+                    <div class="divider-sm"></div>
+                    <span>When</span>
+                    <div class="divider-sm"></div>
+                    <span>Guests</span>
+                    <div class="search-icon-sm">
+                        <i class="fas fa-search"></i>
+                    </div>
                 </div>
             </div>
-
-            <div id="navAuth" style="display: none; gap: 16px; align-items: center;">
-                <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log
-                    In</a>
-                <a href="register.html"
-                    style="text-decoration: none; background: var(--primary-orange); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 600;">Sign
-                    Up</a>
+            <div class="nav-center">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-gem" style="color: #FF5A5F;"></i>
+                    <span>Siza</span>
+                </a>
             </div>
+            <div class="nav-right">
+                <div id="navAuth" style="display: none; gap: 16px; align-items: center;">
+                    <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log In</a>
+                    <a href="register.html" style="text-decoration: none; background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; font-weight: 600;">Sign Up</a>
+                </div>
 
-            <div id="navUserMenu" style="display: none;">
-                <div class="user-menu">
-                    <button class="user-btn" onclick="toggleUserDropdown()">
-                        <div class="user-avatar" id="navUserAvatar">U</div>
-                        <span id="navUserName">User</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="user-dropdown" id="userDropdown">
-                        <div id="ownerDashboardLink" style="display: none;">
-                            <a href="dashboard.html" class="dropdown-item">
+                <div id="navUserMenu" style="display: none;">
+                    <div class="user-menu">
+                        <button class="user-btn" onclick="toggleUserDropdown()">
+                            <div class="user-avatar" id="navUserAvatar">U</div>
+                            <span id="navUserName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                             <a href="dashboard.html" class="dropdown-item" id="ownerDashboardLink" style="display: none;">
                                 <i class="fas fa-chart-line"></i> Dashboard
                             </a>
+                            <button class="dropdown-item" onclick="openProfileModal()">
+                                <i class="fas fa-user-edit"></i> Edit Profile
+                            </button>
+                            <a href="dashboard.html?tab=favorites" class="dropdown-item" id="renterFavoritesLink"
+                                style="display: none;">
+                                <i class="fas fa-heart"></i> My Favorites
+                            </a>
                             <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="logout()" style="color: #FF5A5F;">
+                                <i class="fas fa-sign-out-alt"></i> Log Out
+                            </button>
                         </div>
-                        <button class="dropdown-item" onclick="openProfileModal()">
-                            <i class="fas fa-user-edit"></i> Edit Profile
-                        </button>
-                        <a href="dashboard.html?tab=favorites" class="dropdown-item" id="renterFavoritesLink"
-                            style="display: none;">
-                            <i class="fas fa-heart"></i> My Favorites
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <button class="dropdown-item" onclick="logout()" style="color: #FF5A5F;">
-                            <i class="fas fa-sign-out-alt"></i> Log Out
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1045,7 +1088,17 @@
     <!-- HERO SECTION -->
     <section class="hero">
         <div class="hero-content">
-            <h1>Find the perfect place to<br>host your next event</h1>
+            <h1>Find the perfect place to host your next
+                <div class="sliding-container">
+                    <div class="sliding-words">
+                        <span class="sliding-word">wedding</span>
+                        <span class="sliding-word">graduation dinner</span>
+                        <span class="sliding-word">picnic</span>
+                        <span class="sliding-word">birthday lunch</span>
+                        <span class="sliding-word">event</span>
+                    </div>
+                </div>
+            </h1>
 
             <!-- Search Bar -->
             <div class="search-container">
@@ -1084,27 +1137,27 @@
                 <i class="fas fa-leaf"></i>
                 <span>Gardens</span>
             </button>
-            <button class="category-item" onclick="filterCategory('Indoor', this)">
+            <button class="category-item" onclick="filterCategory('indoor spaces', this)">
                 <i class="fas fa-home"></i>
                 <span>Indoor spaces</span>
             </button>
-            <button class="category-item" onclick="filterCategory('Schools', this)">
+            <button class="category-item" onclick="filterCategory('schools', this)">
                 <i class="fas fa-graduation-cap"></i>
                 <span>Schools</span>
             </button>
-            <button class="category-item" onclick="filterCategory('Hotels', this)">
+            <button class="category-item" onclick="filterCategory('hotels', this)">
                 <i class="fas fa-hotel"></i>
                 <span>Hotels</span>
             </button>
-            <button class="category-item" onclick="filterCategory('Unique', this)">
+            <button class="category-item" onclick="filterCategory('unique spots', this)">
                 <i class="fas fa-magic"></i>
                 <span>Unique spots</span>
             </button>
-            <button class="category-item" onclick="filterCategory('Home', this)">
+            <button class="category-item" onclick="filterCategory('home', this)">
                 <i class="fas fa-house-user"></i>
                 <span>Home</span>
             </button>
-            <button class="category-item" onclick="filterCategory('Rooftops', this)">
+            <button class="category-item" onclick="filterCategory('rooftop', this)">
                 <i class="fas fa-city"></i>
                 <span>Rooftops</span>
             </button>
@@ -1126,15 +1179,12 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Support</h3>
-                <a href="#">Help Center</a>
-                <a href="#">Safety Information</a>
-                <a href="#">Cancellation Options</a>
+                <a href="safety.html">Safety Information</a>
             </div>
             <div class="footer-section">
                 <h3>About</h3>
-                <a href="#">How Siza Works</a>
-                <a href="#">Careers</a>
-                <a href="#">Investors</a>
+                <a href="how-it-works.html">How Siza Works</a>
+                <a href="careers.html">Careers</a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -1362,34 +1412,51 @@
             document.querySelectorAll('.category-item').forEach(btn => {
                 btn.classList.remove('active');
             });
-            button.classList.add('active');
+            if (button) button.classList.add('active');
 
-            // Filter the venues (exact case-insensitive match on type)
+            const grid = document.getElementById('venuesGrid');
+            
+            // Filter the venues
             if (category === 'all') {
                 renderVenues(allVenues);
             } else {
                 const catLower = category.toLowerCase();
                 const filtered = allVenues.filter(v => {
                     const typeLower = (v.type || '').toLowerCase();
-                    // Exact match OR type starts with category keyword
-                    return typeLower === catLower || typeLower.startsWith(catLower);
+                    return typeLower === catLower || typeLower.includes(catLower);
                 });
-                renderVenues(filtered);
+                
+                if (filtered.length === 0) {
+                    resetInfiniteScroll();
+                    grid.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--cool-gray);">
+                            <i class="fas fa-search" style="font-size: 48px; margin-bottom: 20px; opacity: 0.3;"></i>
+                            <h3 style="color: var(--navy-blue); margin-bottom: 10px;">Sorry. No venue found under that category.</h3>
+                            <p>Select another category or another location</p>
+                            <button onclick="filterCategory('all', document.querySelector('.category-item'))" 
+                                    style="margin-top: 20px; padding: 10px 20px; border: 1px solid var(--primary-dark); color: var(--primary-dark); background: none; border-radius: 20px; cursor: pointer;">
+                                Show All Venues
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    renderVenues(filtered);
+                }
             }
         }
 
         // Handle search button click
         function handleSearch() {
-            const location = document.getElementById('locationInput').value;
+            const location = document.getElementById('locationInput').value.trim();
             const guests = document.getElementById('guestsInput').value;
 
             // Build the URL with search parameters
-            let searchUrl = 'search.html?';
-            if (location) searchUrl += `location = ${encodeURIComponent(location)}& `;
-            if (guests) searchUrl += `guests = ${guests} `;
+            const params = new URLSearchParams();
+            if (location) params.append('location', location);
+            if (guests) params.append('guests', guests);
 
             // Go to search results page
-            window.location.href = searchUrl;
+            window.location.href = `search.html?${params.toString()}`;
         }
 
         // Load venues when page loads
@@ -1413,6 +1480,10 @@
 
         async function checkAuthNav() {
             const userStr = localStorage.getItem('siza_user');
+            const navAuth = document.getElementById('navAuth');
+            const navMenu = document.getElementById('navUserMenu');
+            const dropdown = document.getElementById('userDropdown');
+
             if (userStr) {
                 currentUser = JSON.parse(userStr);
 
@@ -1426,8 +1497,8 @@
                     }
                 } catch (e) { console.error("Nav sync failed", e); }
 
-                document.getElementById('navAuth').style.display = 'none';
-                document.getElementById('navUserMenu').style.display = 'block';
+                navAuth.style.display = 'none';
+                navMenu.style.display = 'block';
 
                 document.getElementById('navUserName').textContent = currentUser.name.split(' ')[0];
                 const navAvatar = document.getElementById('navUserAvatar');
@@ -1437,16 +1508,47 @@
                     navAvatar.innerHTML = (currentUser.name || 'U').charAt(0).toUpperCase();
                 }
 
+                // Standardize Dropdown
                 if (currentUser.role === 'owner') {
-                    document.getElementById('ownerDashboardLink').style.display = 'block';
+                    dropdown.innerHTML = `
+                        <a href="dashboard.html" class="dropdown-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                        <div class="dropdown-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> Edit Profile</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item logout-btn" onclick="logout()" style="color: #FF5A5F;"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    `;
                 } else {
-                    document.getElementById('renterFavoritesLink').style.display = 'flex';
+                    dropdown.innerHTML = `
+                        <div class="dropdown-item" onclick="openProfileModal()"><i class="fas fa-user-circle"></i> Edit Profile</div>
+                        <a href="dashboard.html?tab=favorites" class="dropdown-item"><i class="fas fa-heart"></i> My Favorites</a>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item logout-btn" onclick="logout()" style="color: #FF5A5F;"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    `;
                 }
             } else {
-                document.getElementById('navAuth').style.display = 'flex';
-                document.getElementById('navUserMenu').style.display = 'none';
+                navAuth.style.display = 'flex';
+                navMenu.style.display = 'none';
             }
         }
+
+        // AUTO-LOGOUT & SESSION
+        let logoutTimer;
+        const INACTIVITY_LIMIT = 30 * 60 * 1000;
+
+        function resetLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(logout, INACTIVITY_LIMIT);
+        }
+
+        window.addEventListener('mousemove', resetLogoutTimer);
+        window.addEventListener('keypress', resetLogoutTimer);
+        window.addEventListener('click', resetLogoutTimer);
+        window.addEventListener('scroll', resetLogoutTimer);
+        resetLogoutTimer();
+
+        // Standard beforeunload is tricky, but we can set a session flag
+        window.onbeforeunload = function() {
+            // If user explicitly closes, localStorage remains, but inanimate for 30m will catch it.
+        };
 
         function toggleUserDropdown() {
             document.getElementById('userDropdown').classList.toggle('active');
@@ -1593,32 +1695,28 @@
             const heroContent = document.querySelector('.hero-content');
             const navSearch = document.getElementById('navSearch');
 
-            // Base padding/values
-            const basePadding = 80;
+            // Base values
+            const basePadding = 140; 
             const shrinkThreshold = 300;
 
-            // Shrink ratio (1 at top, decreases as we scroll)
+            // Ratio (1 at top, decreases as we scroll)
             const ratio = Math.max(0, 1 - scrollY / shrinkThreshold);
 
-            // Apply shrinking to hero
+            // Apply shrinking effects
             hero.style.paddingTop = `${basePadding * ratio}px`;
-            hero.style.paddingBottom = `${basePadding * ratio}px`;
+            hero.style.paddingBottom = `${80 * ratio}px`;
             heroContent.style.opacity = ratio;
-            heroContent.style.transform = `scale(${0.8 + 0.2 * ratio})`;
-
-            // Logically collapse the hero height so it doesn't take space when gone
+            heroContent.style.transform = `scale(${0.9 + 0.1 * ratio})`;
+            
+            // Toggle visibility to prevent interaction when hidden
             if (ratio === 0) {
-                hero.style.height = '0';
-                hero.style.minHeight = '0';
-                hero.style.padding = '0';
-                hero.style.border = 'none';
+                hero.style.visibility = 'hidden';
             } else {
-                hero.style.height = 'auto';
-                hero.style.padding = `${basePadding * ratio}px 24px`;
+                hero.style.visibility = 'visible';
             }
 
             // Pop out search in nav
-            if (scrollY > 200) {
+            if (scrollY > 150) {
                 navSearch.classList.add('visible');
             } else {
                 navSearch.classList.remove('visible');

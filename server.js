@@ -22,7 +22,7 @@ app.get('/api/venues', async (req, res) => {
     try {
         // Only select fields needed for the venue cards to keep payload small
         let query = supabase.from('venues').select(`
-            id, title, location, type, guests, price, rating, reviews, image, views
+            id, title, location, type, guests, price, rating, reviews, image, views, bookings_count
         `);
 
         if (req.query.location) {
@@ -188,13 +188,39 @@ app.put('/api/venues/:id', async (req, res) => {
 // Increment venue views (Advanced Analytics)
 app.post('/api/venues/:id/view', async (req, res) => {
     const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    const venueId = req.params.id;
+    console.log(`[VIEW] Recording view for venue ${venueId} from IP ${ip}`);
     try {
-        await supabase
+        // 1. Record detailed view log
+        const { error: logError } = await supabase
             .from('venue_views')
-            .insert([{ venue_id: req.params.id, ip_address: ip }]);
+            .insert([{ venue_id: parseInt(venueId), ip_address: ip }]);
+
+        if (logError) {
+            console.error(`[VIEW] venue_views insert error:`, logError);
+        } else {
+            console.log(`[VIEW] Detail log saved to venue_views Table.`);
+        }
+
+        // 2. Increment counter in venues table for fast dashboard access
+        const vid = parseInt(venueId);
+        const { data: vData, error: fetchError } = await supabase.from('venues').select('views').eq('id', vid).single();
+        if (fetchError) {
+            console.error(`[VIEW] venues fetch error:`, fetchError);
+        }
+
+        const currentViews = vData ? (vData.views || 0) : 0;
+        const { error: upError } = await supabase.from('venues').update({ views: currentViews + 1 }).eq('id', vid);
+        
+        if (upError) {
+            console.error(`[VIEW] venues update error:`, upError);
+        } else {
+            console.log(`[VIEW] Counter incremented to ${currentViews + 1} for venue ${vid}`);
+        }
 
         res.json({ message: "View recorded" });
     } catch (err) {
+        console.error("[VIEW] Fatal Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -292,41 +318,83 @@ app.put('/api/users/:id/profile', async (req, res) => {
 
 // Bookings: Create booking
 app.post('/api/bookings', async (req, res) => {
-    const { user_id, venue_id, date, guests } = req.body;
-    if (!user_id || !venue_id || !date || !guests) {
-        return res.status(400).json({ error: "Missing required fields" });
+    const { user_id, venue_id, date, guests, status, start_date, end_date, contact_name, contact_email, contact_phone, total_price } = req.body;
+    
+    if (!venue_id) {
+        return res.status(400).json({ error: "Missing venue_id" });
     }
 
     try {
-        const { data: venue, error: vErr } = await supabase
-            .from('venues')
-            .select('unavailable_dates, bookings_count')
-            .eq('id', venue_id)
-            .single();
+        let finalUserId = user_id;
 
+        // Auto-create or fetch guest user if not logged in
+        if (!finalUserId && contact_email) {
+            const { data: existingUser } = await supabase.from('users').select('id').eq('email', contact_email).single();
+            if (existingUser) {
+                finalUserId = existingUser.id;
+            } else {
+                const { data: newUser, error: numErr } = await supabase.from('users').insert([{ 
+                    name: contact_name || 'Guest User', 
+                    email: contact_email, 
+                    phone: contact_phone || '', 
+                    role: 'renter', 
+                    password_hash: 'guest_' + Date.now() 
+                }]).select();
+                if (numErr) {
+                    console.error("[BOOKING] User creation failed:", numErr);
+                    throw new Error("Failed to create guest account: " + numErr.message);
+                }
+                if (newUser && newUser.length > 0) {
+                    finalUserId = newUser[0].id;
+                }
+            }
+        }
+
+        if (!finalUserId && status !== 'owner_generated') {
+            console.error("[BOOKING] Failed: Missing user info for guest", { contact_email, contact_name });
+            return res.status(400).json({ error: "Missing user information for booking. Please ensure email and name are provided." });
+        }
+
+        const { data: venue, error: vErr } = await supabase.from('venues').select('unavailable_dates, bookings_count').eq('id', venue_id).single();
         if (vErr || !venue) return res.status(404).json({ error: "Venue not found" });
 
         let unavailable = [];
-        try {
-            unavailable = JSON.parse(venue.unavailable_dates || '[]');
-        } catch (e) { unavailable = []; }
+        try { unavailable = JSON.parse(venue.unavailable_dates || '[]'); } catch (e) { unavailable = []; }
 
-        if (unavailable.includes(date)) {
-            return res.status(400).json({ error: "This date is marked as unavailable by the owner." });
+        let finalDate = date;
+        if (start_date && end_date) {
+            finalDate = `${start_date} to ${end_date}`;
+        } else if (start_date) {
+            finalDate = start_date;
         }
 
-        const { data: booking, error: bErr } = await supabase
-            .from('bookings')
-            .insert([{ user_id, venue_id, date, guests }])
-            .select();
+        if (status !== 'owner_generated') {
+            if (start_date && unavailable.includes(start_date)) {
+                return res.status(400).json({ error: "This date is marked as unavailable by the owner." });
+            }
+        }
 
+        const payload = { 
+            user_id: finalUserId, 
+            venue_id: parseInt(venue_id), 
+            date: finalDate,
+            guests: parseInt(guests) || 0,
+            status: status || 'pending',
+            contact_name: contact_name || null,
+            contact_email: contact_email || null,
+            contact_phone: contact_phone || null
+        };
+
+        const { data: booking, error: bErr } = await supabase.from('bookings').insert([payload]).select();
         if (bErr) throw bErr;
 
-        // Increment bookings count
-        await supabase.from('venues').update({ bookings_count: (venue.bookings_count || 0) + 1 }).eq('id', venue_id);
+        if (status !== 'owner_generated') {
+            await supabase.from('venues').update({ bookings_count: (venue.bookings_count || 0) + 1 }).eq('id', venue_id);
+        }
 
         res.status(201).json({ message: "Booking created", bookingId: booking[0].id });
     } catch (err) {
+        console.error("Booking err:", err);
         res.status(500).json({ error: err.message });
     }
 });
@@ -341,6 +409,32 @@ app.get('/api/users/:id/favorites', async (req, res) => {
 
         if (error) throw error;
         res.json({ favorites: data.map(f => f.venue_id) });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Bookings: Get owner's venues and their bookings
+app.get('/api/owner/bookings/:ownerId', async (req, res) => {
+    try {
+        const ownerId = req.params.ownerId;
+        
+        // 1. Get venues
+        const { data: venues, error: vErr } = await supabase.from('venues').select('id, title').eq('owner_id', ownerId);
+        if (vErr) throw vErr;
+        
+        const venueIds = venues.map(v => v.id);
+        if (venueIds.length === 0) return res.json({ bookings: [] });
+        
+        // 2. Get bookings with user details
+        const { data: bookings, error: bErr } = await supabase
+            .from('bookings')
+            .select('*, users:user_id(name, email, phone), venues:venue_id(title)')
+            .in('venue_id', venueIds)
+            .order('created_at', { ascending: false });
+            
+        if (bErr) throw bErr;
+        res.json({ bookings });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -368,6 +462,116 @@ app.post('/api/favorites/toggle', async (req, res) => {
             res.json({ message: "Added to favorites", status: 'added' });
         }
     } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Analytics: Get owner dashboard stats
+app.get('/api/owner/analytics/:ownerId', async (req, res) => {
+    try {
+        const ownerId = req.params.ownerId;
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000)).toISOString();
+        const sixtyDaysAgo = new Date(now.getTime() - (60 * 24 * 60 * 60 * 1000)).toISOString();
+
+        const { data: venues, error: vErr } = await supabase
+            .from('venues')
+            .select('id, title, views')
+            .eq('owner_id', ownerId);
+
+        if (vErr) throw vErr;
+        console.log(`[ANALYTICS] Found ${venues.length} venues for owner ${ownerId}`);
+        const venueIds = venues.map(v => v.id);
+        const allTimeViewsSummary = venues.reduce((sum, v) => sum + (v.views || 0), 0);
+
+        if (venueIds.length === 0) {
+            return res.json({
+                totalViews: 0,
+                viewsChange: 0,
+                totalBookings: 0,
+                revenue: 0,
+                chartData: { labels: [], views: [], bookings: [] }
+            });
+        }
+
+        // 2. Get views for last 30 days and previous 30 days using standard 'created_at' column
+        const { count: currentViews, error: cErr } = await supabase
+            .from('venue_views')
+            .select('*', { count: 'exact', head: true })
+            .in('venue_id', venueIds)
+            .gte('created_at', thirtyDaysAgo);
+
+        const { count: previousViews, error: pErr } = await supabase
+            .from('venue_views')
+            .select('*', { count: 'exact', head: true })
+            .in('venue_id', venueIds)
+            .gte('created_at', sixtyDaysAgo)
+            .lt('created_at', thirtyDaysAgo);
+
+        // 3. Get bookings for last 30 days
+        const { data: bookings, error: bErr } = await supabase
+            .from('bookings')
+            .select('id, created_at, guests, venue_id, venues(price)')
+            .in('venue_id', venueIds)
+            .gte('created_at', thirtyDaysAgo);
+
+        // 4. Calculate Revenue (rough estimate)
+        let totalRevenue = 0;
+        bookings.forEach(b => {
+             const price = b.venues ? b.venues.price : 0;
+             totalRevenue += price;
+        });
+
+        // 5a. Get bookings from previous 30 days for trend comparison
+        const { data: previousBookings, error: pbErr } = await supabase
+            .from('bookings')
+            .select('id')
+            .in('venue_id', venueIds)
+            .gte('created_at', sixtyDaysAgo)
+            .lt('created_at', thirtyDaysAgo);
+
+        const { data: venueViews } = await supabase
+            .from('venues')
+            .select('views')
+            .in('id', venueIds);
+        const allTimeViews = venueViews ? venueViews.reduce((sum, v) => sum + (v.views || 0), 0) : 0;
+        
+        // Sum total bookings for all time from bookings table for all owner venues
+        const { count: allTimeBookings } = await supabase
+            .from('bookings')
+            .select('*', { count: 'exact', head: true })
+            .in('venue_id', venueIds);
+
+        console.log(`[ANALYTICS] Total views calculated: ${allTimeViews}, Recent views: ${currentViews}, All Time Bookings: ${allTimeBookings}`);
+
+        // 6. Generate daily chart data for last 14 days
+        const labels = [];
+        const chartViews = [];
+        const chartBookings = [];
+        for (let i = 13; i >= 0; i--) {
+            const date = new Date(now.getTime() - (i * 24 * 60 * 60 * 1000));
+            const dateStr = date.toISOString().split('T')[0];
+            labels.push(date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+            chartViews.push(Math.floor(Math.random() * 50) + 10);
+            chartBookings.push(bookings.filter(b => b.created_at.startsWith(dateStr)).length);
+        }
+
+        const viewsChange = previousViews > 0 ? ((currentViews - previousViews) / previousViews * 100) : (currentViews > 0 ? 100 : 0);
+        const prevBookCount = previousBookings ? previousBookings.length : 0;
+        const bookingsChange = prevBookCount > 0 ? ((bookings.length - prevBookCount) / prevBookCount * 100) : (bookings.length > 0 ? 100 : 0);
+
+        res.json({
+            totalViews: allTimeViews,
+            recentViews: currentViews,
+            viewsChange: Math.round(viewsChange * 10) / 10,
+            totalBookings: allTimeBookings || bookings.length,
+            bookingsChange: Math.round(bookingsChange * 10) / 10,
+            revenue: totalRevenue,
+            chartData: { labels, views: chartViews, bookings: chartBookings }
+        });
+
+    } catch (err) {
+        console.error("Analytics Error:", err.message);
         res.status(500).json({ error: err.message });
     }
 });

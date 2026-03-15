@@ -12,32 +12,26 @@
     <style>
         /* CSS VARIABLES - Same warm palette */
         :root {
-            --primary-orange: #FF6B6B;
-            --primary-coral: #FF8E53;
-            --pastel-orange: #FFD4C4;
+            --primary-orange: #FF501A;
+            --brand-pink: #FF5A5F;
+            --primary-dark: #20B2AA;
             --navy-blue: #2C3E50;
-            --teal: #4ECDC4;
-            --warm-cream: #FFF8F0;
-            --cool-gray: #8B8B8B;
-            --light-gray: #F7F7F7;
+            --teal: #40E0D0;
+            --light-teal-bg: #F0FAF9;
+            --cool-gray: #5D6D7E;
+            --light-gray: #F8F9FA;
             --white: #FFFFFF;
-            --dark-gray: #2D3436;
-            --border-gray: #E0E0E0;
+            --dark-gray: #2C3E50;
+            --border-gray: #DDDDDD;
             --hover-gray: #EBEBEB;
-            --soft-shadow: rgba(0, 0, 0, 0.08);
-            --warm-shadow: rgba(255, 107, 107, 0.15);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             color: var(--dark-gray);
-            background-color: var(--warm-cream);
+            background-color: var(--light-teal-bg);
+            margin: 0;
+            padding: 0;
             line-height: 1.6;
         }
 
@@ -50,12 +44,14 @@
             right: 40px;
             z-index: 1000;
             border-radius: 24px;
-            background: rgba(255, 212, 196, 0.75);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
         }
 
         .navbar.scrolled {
@@ -64,12 +60,18 @@
         }
 
         .nav-container {
-            max-width: 1200px;
+            width: 100%;
+            max-width: 1440px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: relative;
         }
+
+        .nav-left { flex: 1; display: flex; align-items: center; }
+        .nav-center { flex: 0; position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; }
+        .nav-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; }
 
         .logo {
             display: flex;
@@ -422,6 +424,30 @@
         /* MY VENUES SECTION */
         .venues-section {
             margin-bottom: 48px;
+        }
+
+        /* OWNER ACTION BUTTONS */
+        .btn-owner {
+            padding: 14px 28px;
+            background: var(--teal) !important;
+            color: var(--white) !important;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 12px rgba(64, 224, 208, 0.2);
+            text-decoration: none;
+        }
+
+        .btn-owner:hover {
+            background: var(--primary-dark) !important;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 90, 95, 0.5); /* Pink Glow */
         }
 
         .venues-grid {
@@ -1099,6 +1125,32 @@
             flex: 1;
         }
 
+        #confirmDateBtn {
+            background: var(--teal) !important;
+            color: white !important;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        #confirmDateBtn:hover {
+            background: var(--primary-orange) !important;
+            box-shadow: 0 4px 12px rgba(255, 80, 26, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* BOOKING MESSAGE MODAL */
+        .booking-message-content {
+            padding: 20px;
+            text-align: center;
+            line-height: 1.6;
+            font-size: 16px;
+            color: var(--dark-gray);
+        }
+
+        .booking-message-content strong {
+            color: var(--primary-orange);
+        }
+
         .popup-overlay {
             position: fixed;
             top: 0;
@@ -1391,10 +1443,52 @@
             opacity: 1;
         }
 
-        .notification i {
-            color: var(--primary-orange);
-            font-size: 18px;
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 240px;
+            background: var(--white);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            display: none;
+            flex-direction: column;
+            padding: 8px;
+            z-index: 1000;
+            border: 1px solid var(--border-gray);
+            animation: fadeIn 0.2s ease;
         }
+
+        .user-dropdown.active { display: flex; }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none !important;
+        }
+
+        .dropdown-item:hover { background: var(--light-gray); text-decoration: none !important; }
+        .dropdown-item i { font-size: 18px; color: var(--cool-gray); width: 24px; text-align: center; }
+        .dropdown-divider { height: 1px; background: var(--border-gray); margin: 8px; }
+        .logout-btn { color: #FF5A5F; text-decoration: none !important; }
+        .logout-btn i { color: #FF5A5F; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .footer { background: var(--light-gray); padding: 60px 40px 40px; margin-top: 80px; }
+        .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; }
+        .footer-section h3 { font-size: 16px; margin-bottom: 20px; color: var(--navy-blue); }
+        .footer-section a { display: block; color: var(--cool-gray); text-decoration: none; margin-bottom: 12px; font-size: 14px; transition: color 0.2s; }
+        .footer-section a:hover { color: #FF5A5F; }
+        .footer-bottom { border-top: 1px solid var(--border-gray); margin-top: 40px; padding-top: 24px; text-align: center; color: var(--cool-gray); font-size: 14px; }
     </style>
 </head>
 
@@ -1404,23 +1498,30 @@
     <div class="content-blur-layer" id="blurLayer"></div>
 
     <!-- FLOATING NAVIGATION -->
-    <nav class="navbar" id="navbar">
+    <nav class="navbar" id="mainNav">
         <div class="nav-container">
-            <a href="index.html" class="logo">
-                <i class="fas fa-gem"></i>
-                <span>Siza</span>
-            </a>
-
-            <div class="nav-links">
-                <a href="#" class="nav-link active">Dashboard</a>
+            <div class="nav-left">
+                <!-- Empty for balance -->
             </div>
-
-            <div class="user-menu">
-                <button class="user-btn" onclick="toggleUserMenu()">
-                    <div class="user-avatar" id="userAvatar">A</div>
-                    <span id="userName">...</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
+            <div class="nav-center">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-gem" style="color: #FF5A5F;"></i>
+                    <span>Siza</span>
+                </a>
+            </div>
+            <div class="nav-right">
+                <div id="navUserMenu">
+                    <div class="user-menu">
+                        <button class="user-btn" onclick="toggleDropdown()">
+                            <div class="user-avatar" id="userAvatar">U</div>
+                            <span id="userName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -1441,7 +1542,7 @@
             </div>
             <h2>No Venues Listed Yet</h2>
             <p>Get started by adding your first venue listing. It's quick and easy!</p>
-            <button class="btn-primary" onclick="openAddVenueModal()">
+            <button class="btn-owner" onclick="openAddVenueModal()">
                 <i class="fas fa-plus"></i>
                 Add Your First Venue
             </button>
@@ -1454,7 +1555,7 @@
                     <i class="fas fa-eye"></i>
                 </div>
                 <div class="stat-value" id="totalViews">0</div>
-                <div class="stat-label">Total Views</div>
+                <div class="stat-label">Views (Total)</div>
                 <div class="stat-change positive" id="viewsChange">
                     <i class="fas fa-arrow-up"></i> 0%
                 </div>
@@ -1485,7 +1586,7 @@
         <div class="venues-section" id="venuesSection" style="display: none;">
             <div class="section-header">
                 <h2>My Venues</h2>
-                <button class="btn-primary" onclick="openAddVenueModal()">
+                <button class="btn-owner" onclick="openAddVenueModal()">
                     <i class="fas fa-plus"></i>
                     Add New Venue
                 </button>
@@ -1508,9 +1609,59 @@
             </div>
         </div>
 
+        <!-- Bookings Section (Owner only) -->
+        <div class="venues-section" id="bookingsSection" style="display: none;">
+            <div class="section-header">
+                <h2>Manage Bookings</h2>
+                <p>View and manage your venue reservations</p>
+            </div>
+            <div class="bookings-table-container" style="background: white; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); overflow: hidden; margin-top: 20px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: var(--light-gray);">
+                        <tr>
+                            <th style="padding: 16px; font-weight: 600; color: var(--cool-gray);">Renter</th>
+                            <th style="padding: 16px; font-weight: 600; color: var(--cool-gray);">Venue</th>
+                            <th style="padding: 16px; font-weight: 600; color: var(--cool-gray);">Dates</th>
+                            <th style="padding: 16px; font-weight: 600; color: var(--cool-gray);">Status</th>
+                            <th style="padding: 16px; font-weight: 600; color: var(--cool-gray);">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bookingsTableBody">
+                        <!-- Bookings populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
 
 
     </div>
+
+    <footer class="footer">
+        <div class="footer-decoration footer-decoration-1"></div>
+        <div class="footer-decoration footer-decoration-2"></div>
+        <div class="footer-content">
+            <div class="footer-section">
+                <div class="logo-footer">
+                    <i class="fas fa-gem" style="color: #FF5A5F;"></i>
+                    <span>Siza</span>
+                </div>
+                <p>Connecting people with extraordinary event spaces.</p>
+            </div>
+            <div class="footer-section">
+                <h3>Support</h3>
+                <a href="safety.html">Safety Information</a>
+            </div>
+            <div class="footer-section">
+                <h3>About</h3>
+                <a href="how-it-works.html">How Siza Works</a>
+                <a href="careers.html">Careers</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Siza, Inc. All rights reserved.</p>
+        </div>
+    </footer>
 
     <!-- ADD VENUE MODAL -->
     <div class="modal-overlay" id="addVenueModal">
@@ -1697,7 +1848,7 @@
 
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('addVenueModal')">Cancel</button>
-                    <button type="submit" class="btn-primary">Save Venue</button>
+                    <button type="submit" class="btn-owner">Save Venue</button>
                 </div>
             </form>
         </div>
@@ -1779,7 +1930,7 @@
 
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeModal('editVenueModal')">Cancel</button>
-                    <button type="submit" class="btn-primary">Update Venue</button>
+                    <button type="submit" class="btn-owner">Update Venue</button>
                 </div>
             </form>
         </div>
@@ -1845,6 +1996,24 @@
         </div>
     </div>
 
+    <!-- BOOKING DETAILS POPUP -->
+    <div class="modal-overlay" id="bookingDetailsModal">
+        <div class="modal" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>Booking Confirmation</h2>
+                <button class="modal-close" onclick="closeModal('bookingDetailsModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="booking-message-content" id="bookingMessageContent">
+                <!-- Message populated by JS -->
+            </div>
+            <div class="modal-actions">
+                <button class="btn-owner" onclick="closeModal('bookingDetailsModal')" style="width: 100%;">Close</button>
+            </div>
+        </div>
+    </div>
+
     <!-- DELETE CONFIRMATION MODAL -->
     <div class="modal-overlay" id="deleteModal">
         <div class="modal">
@@ -1885,13 +2054,12 @@
 
             <div style="text-align: center; margin-bottom: 24px;">
                 <div id="profileModalAvatar"
-                    style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-orange), var(--primary-coral)); color: white; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 600; margin: 0 auto; overflow: hidden;">
+                    style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #FF5A5F, #FF8A8F); color: white; display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: 600; margin: 0 auto; overflow: hidden; box-shadow: 0 4px 12px rgba(255, 90, 95, 0.2);">
                     <span id="profileModalInitials">A</span>
                     <img id="profileModalImg" src=""
                         style="display: none; width: 100%; height: 100%; object-fit: cover;">
                 </div>
-                <h3 id="profileModalName" style="margin-top: 16px; font-size: 20px; color: var(--dark-gray);">Owner Name
-                </h3>
+                <h3 id="profileModalName" style="margin-top: 16px; font-size: 20px; color: var(--navy-blue);">Owner Name</h3>
                 <p id="profileModalEmail" style="color: var(--cool-gray); font-size: 14px;">owner@example.com</p>
             </div>
 
@@ -1941,30 +2109,9 @@
         </div>
     </div>
 
-    <!-- PASTEL ORANGE FOOTER -->
-    <footer class="footer">
-        <div class="footer-decoration footer-decoration-1"></div>
-        <div class="footer-decoration footer-decoration-2"></div>
-        <div class="footer-content">
-            <div class="footer-section">
-                <h3>Support</h3>
-                <a href="#">Help Center</a>
-                <a href="#">Safety Information</a>
-                <a href="#">Cancellation Options</a>
-            </div>
-            <div class="footer-section">
-                <h3>About</h3>
-                <a href="#">How Siza Works</a>
-                <a href="#">Careers</a>
-                <a href="#">Investors</a>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <p>&copy; 2026 Siza, Inc. All rights reserved.</p>
-        </div>
-    </footer>
 
-    <!-- NOTIFICATION TOAST -->
+
+
     <div id="notification" class="notification">
         <i class="fas fa-info-circle"></i>
         <span id="notificationMessage">Message goes here</span>
@@ -1996,11 +2143,25 @@
         ];
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            checkAuth();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuth();
             setupScrollBlur();
-            loadVenues();
+            await loadVenues();
+
+            // Handle Favorites tab from URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('tab') === 'favorites') {
+                showFavoritesTab();
+            }
         });
+
+        function showFavoritesTab() {
+            if (currentUser.role === 'owner') return;
+            document.getElementById('statsGrid').style.display = 'none';
+            document.getElementById('venuesSection').style.display = 'none';
+            document.getElementById('favoritesSection').style.display = 'block';
+            window.scrollTo({ top: 300, behavior: 'smooth' });
+        }
 
         // Helper to convert file to base64 with compression/resizing
         const getBase64 = (file) => new Promise((resolve, reject) => {
@@ -2202,13 +2363,17 @@
 
             // Toggle visibility based on role
             if (currentUser.role === 'owner') {
-                document.getElementById('statsGrid').style.display = 'grid';
-                document.getElementById('venuesSection').style.display = 'block';
+                const hasVenues = venues.length > 0;
+                document.getElementById('emptyState').style.display = hasVenues ? 'none' : 'block';
+                document.getElementById('statsGrid').style.display = hasVenues ? 'grid' : 'none';
+                document.getElementById('venuesSection').style.display = hasVenues ? 'block' : 'none';
                 document.getElementById('favoritesSection').style.display = 'none';
+                document.getElementById('bookingsSection').style.display = 'none';
             } else {
                 document.getElementById('statsGrid').style.display = 'none';
                 document.getElementById('venuesSection').style.display = 'none';
                 document.getElementById('favoritesSection').style.display = 'block';
+                document.getElementById('bookingsSection').style.display = 'none';
             }
         }
 
@@ -2261,28 +2426,27 @@
                 document.getElementById('emptyState').style.display = 'none';
 
                 grid.innerHTML = favorites.map(venue => `
-                    <div class="venue-card">
+                    <div class="venue-card" style="position: relative;">
+                        <a href="venue.html?id=${venue.id}" target="_blank" style="position:absolute; inset:0; z-index:2;"></a>
                         <div class="venue-image">
                             <img src="${venue.images && venue.images.length > 0 ? venue.images[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available'}" alt="${venue.name}">
-                            <button class="venue-favorite active" onclick="event.preventDefault(); toggleFavorite(${venue.id}, this)" title="Remove from favorites">
+                            <button class="venue-favorite active" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(${venue.id}, this)" title="Remove from favorites" style="z-index: 3;">
                                 <i class="fas fa-heart" style="color: #FF5A5F;"></i>
                             </button>
                         </div>
                         <div class="venue-info">
-                            <h3>${venue.name}</h3>
-                            <p class="venue-location"><i class="fas fa-map-marker-alt"></i> ${venue.location}</p>
-                            <div class="venue-price">KES ${(venue.price || 0).toLocaleString()} / day</div>
-                            <a href="venue.html?id=${venue.id}" class="btn-primary" style="margin-top: 12px; display: block; text-align: center; text-decoration: none;">View Details</a>
+                            <h3 style="margin-bottom: 8px; font-weight: 700;">${venue.name}</h3>
+                            <p class="venue-location" style="font-size: 14px; color: var(--cool-gray); margin-bottom: 4px;">
+                                <i class="fas fa-map-marker-alt"></i> ${venue.location}
+                            </p>
+                            <div class="venue-price" style="font-weight: 700; color: var(--dark-gray); margin-top: 8px;">KES ${(venue.price || 0).toLocaleString()} / day</div>
+                            <div class="btn-primary" style="margin-top: 12px; display: block; text-align: center; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: 600; background: #FF5A5F;">View Details</div>
                         </div>
                     </div>
                 `).join('');
             } catch (err) {
                 console.error("Error loading favorites:", err);
             }
-        }
-            } catch (err) {
-            console.error("Error loading favorites:", err);
-        }
         }
 
         // Toggle favorite from dashboard
@@ -2303,76 +2467,251 @@
 
                 // Re-render
                 renderFavorites();
+                updateDropdownMenu();
             } catch (err) {
                 console.error("Error toggling favorite:", err);
                 showNotification('Error updating favorites');
             }
         }
 
-        // Update statistics display
-        function updateStats() {
-            const hasVenues = venues.length > 0;
+        // Update performance stats
+        async function updateStats() {
+            if (!currentUser || currentUser.role !== 'owner') return;
 
-            if (!hasVenues) {
-                document.getElementById('emptyState').style.display = 'block';
-                document.getElementById('statsGrid').style.display = 'none';
-                document.getElementById('venuesSection').style.display = 'none';
-                return;
+            try {
+                const response = await fetch(`/api/owner/analytics/${currentUser.id}`);
+                const stats = await response.json();
+
+                if (response.ok) {
+                    // Update main cards
+                    const totalViews = stats.totalViews || 0;
+                    const totalBookings = stats.totalBookings || 0;
+                    
+                    document.getElementById('totalViews').textContent = totalViews > 1000 ? (totalViews / 1000).toFixed(1) + 'K' : totalViews;
+                    document.getElementById('totalBookings').textContent = totalBookings;
+
+                    // Update changes
+                    const viewsEl = document.getElementById('viewsChange');
+                    const viewsPct = stats.viewsChange || 0;
+                    viewsEl.innerHTML = `<i class="fas fa-arrow-${viewsPct >= 0 ? 'up' : 'down'}"></i> ${Math.abs(viewsPct).toFixed(1)}%`;
+                    viewsEl.className = `stat-change ${viewsPct >= 0 ? 'positive' : 'negative'}`;
+
+                    const bookingsEl = document.getElementById('bookingsChange');
+                    const bookingsPct = stats.bookingsChange || 0;
+                    bookingsEl.innerHTML = `<i class="fas fa-arrow-${bookingsPct >= 0 ? 'up' : 'down'}"></i> ${Math.abs(bookingsPct).toFixed(1)}%`;
+                    bookingsEl.className = `stat-change ${bookingsPct >= 0 ? 'positive' : 'negative'}`;
+
+                    // Update avg rating
+                    let totalRating = 0;
+                    let ratingCount = 0;
+                    venues.forEach(v => {
+                        if (v.rating) {
+                            totalRating += parseFloat(v.rating);
+                            ratingCount++;
+                        }
+                    });
+                    const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : '0.0';
+                    document.getElementById('avgRating').textContent = avgRating;
+
+                    // Render chart if data exists
+                    if (stats.chartData && window.Chart) {
+                        renderAnalyticsChart(stats.chartData);
+                    }
+                }
+            } catch (err) {
+                console.error("Error updating dashboard stats:", err);
+            }
+            
+            updateDropdownMenu();
+        }
+
+        // New function to handle tab switching
+        function switchTab(tabName) {
+            const stats = document.getElementById('statsGrid');
+            const venues = document.getElementById('venuesSection');
+            const favorites = document.getElementById('favoritesSection');
+            const bookings = document.getElementById('bookingsSection');
+
+            // Hide all
+            if (stats) stats.style.display = 'none';
+            venues.style.display = 'none';
+            favorites.style.display = 'none';
+            bookings.style.display = 'none';
+
+            if (tabName === 'dashboard') {
+                if (stats) stats.style.display = 'grid';
+                venues.style.display = 'block';
+            } else if (tabName === 'favorites') {
+                favorites.style.display = 'block';
+            } else if (tabName === 'bookings') {
+                bookings.style.display = 'block';
+                renderBookingsTable();
+            }
+        }
+
+        async function renderBookingsTable() {
+            const tbody = document.getElementById('bookingsTableBody');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="5" style="padding: 40px; text-align: center; color: var(--cool-gray);">Loading bookings...</td></tr>';
+
+            try {
+                const response = await fetch(`/api/owner/bookings/${currentUser.id}`);
+                const data = await response.json();
+                const bookingsList = data.bookings || [];
+
+                if (bookingsList.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="padding: 40px; text-align: center; color: var(--cool-gray);">No bookings found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = bookingsList.map(b => {
+                    const renterName = b.users ? b.users.name : (b.status === 'owner_generated' ? 'N/A (Owner Block)' : 'Guest');
+                    const statusClass = b.status === 'owner_generated' ? 'unavailable' : 'available';
+                    const statusText = b.status === 'owner_generated' ? 'Blocked' : 'Confirmed';
+                    
+                    return `
+                        <tr style="border-bottom: 1px solid var(--border-gray);">
+                            <td style="padding: 16px;">
+                                <div style="font-weight: 600;">${renterName}</div>
+                                <div style="font-size: 12px; color: var(--cool-gray);">${b.users ? b.users.email : ''}</div>
+                            </td>
+                            <td style="padding: 16px; font-size: 14px;">${b.venues ? b.venues.title : 'Venue'}</td>
+                            <td style="padding: 16px; font-size: 14px; font-family: monospace;">${b.date}</td>
+                            <td style="padding: 16px;">
+                                <span class="status-display ${statusClass}" style="margin: 0; padding: 4px 12px; font-size: 12px;">${statusText}</span>
+                            </td>
+                            <td style="padding: 16px;">
+                                ${b.status !== 'owner_generated' ? `
+                                <button class="btn-secondary" style="padding: 6px 12px; font-size: 12px;" onclick="showBookingDetails(${JSON.stringify(b).replace(/"/g, '&quot;')})">
+                                    more details
+                                </button>
+                                ` : '-'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error("Error loading bookings:", err);
+                tbody.innerHTML = '<tr><td colspan="5" style="padding: 40px; text-align: center; color: #FF5A5F;">Error loading bookings</td></tr>';
+            }
+        }
+
+        function showBookingDetails(booking) {
+            const firstName = booking.users ? booking.users.name.split(' ')[0] : 'Guest';
+            const venueName = booking.venues ? booking.venues.title : 'the venue';
+            const guests = booking.guests || 0;
+            
+            const message = `Yay! <strong>${firstName}</strong> has booked <strong>${venueName}</strong> for <strong>${booking.date}</strong> with <strong>${guests} guests</strong>. A Siza representative will get in touch with you shortly.`;
+            
+            document.getElementById('bookingMessageContent').innerHTML = message;
+            document.getElementById('bookingDetailsModal').classList.add('active');
+        }
+
+        // ANALYTICS GRAPH LOGIC
+        let analyticsChart = null;
+
+        function openAnalyticsModal() {
+            document.getElementById('analyticsModal').classList.add('active');
+            updateAnalyticsChart();
+        }
+
+        function updateAnalyticsChart() {
+            const range = document.getElementById('analyticsRange').value;
+            const ctx = document.getElementById('viewsChart').getContext('2d');
+            
+            if (analyticsChart) analyticsChart.destroy();
+
+            let labels = [];
+            let data = [];
+            
+            if (range === 'day') {
+                labels = ['6am', '9am', '12pm', '3pm', '6pm', '9pm', '12am'];
+                data = [12, 45, 89, 120, 160, 95, 30];
+                document.getElementById('peakPeriodLabel').textContent = '6:00 PM';
+                document.getElementById('avgDailyHitsLabel').textContent = '14';
+            } else if (range === 'week') {
+                labels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                data = [450, 520, 480, 610, 850, 1200, 980];
+                document.getElementById('peakPeriodLabel').textContent = 'Saturday';
+                document.getElementById('avgDailyHitsLabel').textContent = '727';
+            } else if (range === 'month') {
+                labels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+                data = [2400, 3100, 2800, 3500];
+                document.getElementById('peakPeriodLabel').textContent = 'Week 4';
+                document.getElementById('avgDailyHitsLabel').textContent = '422';
+            } else {
+                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                data = [8500, 9200, 11000, 10500, 12000, 14000, 15500, 17000, 15000, 16000, 18000, 21000];
+                document.getElementById('peakPeriodLabel').textContent = 'December';
+                document.getElementById('avgDailyHitsLabel').textContent = '465';
             }
 
-            document.getElementById('emptyState').style.display = 'none';
-            document.getElementById('statsGrid').style.display = 'grid';
-            document.getElementById('venuesSection').style.display = 'block';
-
-            // Calculate stats
-            let totalViews = 0;
-            let totalViewsLastWeek = 0;
-            let totalBookings = 0;
-            let totalBookingsLastWeek = 0;
-            let totalRating = 0;
-            let ratingCount = 0;
-
-            venues.forEach(venue => {
-                totalViews += venue.views || 0;
-                totalViewsLastWeek += venue.views_last_week || 0;
-                totalBookings += venue.bookings_count || 0;
-                totalBookingsLastWeek += venue.bookings_last_week || 0;
-                if (venue.rating) {
-                    totalRating += venue.rating;
-                    ratingCount++;
+            analyticsChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Venue Views',
+                        data: data,
+                        borderColor: '#40E0D0',
+                        backgroundColor: 'rgba(64, 224, 208, 0.1)',
+                        borderWidth: 3,
+                        tension: 0.4,
+                        fill: true,
+                        pointBackgroundColor: '#20B2AA',
+                        pointRadius: 6,
+                        pointHoverRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                        x: { grid: { display: false } }
+                    }
                 }
             });
+        }
 
-            const avgRating = ratingCount > 0 ? (totalRating / ratingCount).toFixed(1) : '0.0';
+        // SESSION & AUTO-LOGOUT
+        let logoutTimer;
+        const INACTIVITY_LIMIT = 30 * 60 * 1000;
 
-            // Calculate WoW percentage
-            let viewsPct = totalViewsLastWeek > 0 ? ((totalViews - totalViewsLastWeek) / totalViewsLastWeek) * 100 : (totalViews > 0 ? 100 : 0);
-            let bookingsPct = totalBookingsLastWeek > 0 ? ((totalBookings - totalBookingsLastWeek) / totalBookingsLastWeek) * 100 : (totalBookings > 0 ? 100 : 0);
+        function resetLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(logout, INACTIVITY_LIMIT);
+        }
 
-            // DOM rendering for Views
-            const viewsEl = document.getElementById('viewsChange');
-            if (viewsPct >= 0) {
-                viewsEl.className = 'stat-change positive';
-                viewsEl.innerHTML = `<i class="fas fa-arrow-up"></i> ${viewsPct.toFixed(1)}%`;
+        window.addEventListener('mousemove', resetLogoutTimer);
+        window.addEventListener('keypress', resetLogoutTimer);
+        window.addEventListener('click', resetLogoutTimer);
+        window.addEventListener('scroll', resetLogoutTimer);
+        resetLogoutTimer();
+
+        function updateDropdownMenu() {
+            const dropdown = document.getElementById('userDropdown');
+            if (currentUser.role === 'owner') {
+                dropdown.innerHTML = `
+                    <a href="javascript:void(0)" onclick="switchTab('dashboard')" class="dropdown-item"><i class="fas fa-chart-line"></i> Dashboard</a>
+                    <a href="javascript:void(0)" onclick="switchTab('bookings')" class="dropdown-item"><i class="fas fa-calendar-alt"></i> Manage Bookings</a>
+                    <a href="javascript:void(0)" onclick="openProfileModal()" class="dropdown-item"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                `;
             } else {
-                viewsEl.className = 'stat-change negative';
-                viewsEl.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(viewsPct).toFixed(1)}%`;
+                dropdown.innerHTML = `
+                    <a href="javascript:void(0)" onclick="openProfileModal()" class="dropdown-item"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                    <a href="dashboard.html?tab=favorites" class="dropdown-item"><i class="fas fa-heart"></i> My Favorites</a>
+                    <div class="dropdown-divider"></div>
+                    <div class="dropdown-item logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                `;
             }
+        }
 
-            // DOM rendering for Bookings
-            const bookingsEl = document.getElementById('bookingsChange');
-            if (bookingsPct >= 0) {
-                bookingsEl.className = 'stat-change positive';
-                bookingsEl.innerHTML = `<i class="fas fa-arrow-up"></i> ${bookingsPct.toFixed(1)}%`;
-            } else {
-                bookingsEl.className = 'stat-change negative';
-                bookingsEl.innerHTML = `<i class="fas fa-arrow-down"></i> ${Math.abs(bookingsPct).toFixed(1)}%`;
-            }
-
-            // Update DOM Values
-            document.getElementById('totalViews').textContent = totalViews > 1000 ? (totalViews / 1000).toFixed(1) + 'K' : totalViews;
-            document.getElementById('totalBookings').textContent = totalBookings;
-            document.getElementById('avgRating').textContent = avgRating;
+        function logout() {
+            localStorage.removeItem('siza_user');
+            window.location.href = 'index.html';
         }
 
         // Render venues grid
@@ -2384,51 +2723,63 @@
                 return;
             }
 
-            grid.innerHTML = venues.map((venue, index) => `
-                <div class="venue-card">
+            const isRenter = currentUser && currentUser.role === 'user';
+
+            grid.innerHTML = venues.map((venue, index) => {
+                const link = `venue.html?id=${venue.id}`;
+                const target = isRenter ? 'target="_blank"' : '';
+                const clickAction = isRenter ? '' : `onclick="openEditModal(${index})"`;
+                
+                return `
+                <div class="venue-card" ${clickAction} style="${isRenter ? 'cursor: default;' : 'cursor: pointer; position: relative;'}">
+                    ${isRenter ? `<a href="${link}" ${target} style="position:absolute; inset:0; z-index:2;"></a>` : ''}
                     <div class="venue-image">
                         <img src="${venue.images && venue.images.length > 0 ? venue.images[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available'}" alt="${venue.name}">
                         <span class="venue-status ${venue.status || 'active'}">${venue.status === 'pending' ? 'Pending' : 'Active'}</span>
-                        <div class="venue-actions">
-                            <button class="venue-action-btn" title="Edit" onclick="openEditModal(${index})">
+                        <div class="venue-actions" style="z-index: 3;">
+                            ${!isRenter ? `
+                            <button class="venue-action-btn" title="Edit" onclick="openEditModal(${index}); event.stopPropagation();">
                                 <i class="fas fa-pen"></i>
                             </button>
-                            <button class="venue-action-btn" title="Calendar" onclick="openVenueCalendar(${index})">
+                            ` : ''}
+                            <button class="venue-action-btn" title="Calendar" onclick="openVenueCalendar(${index}); event.stopPropagation();">
                                 <i class="fas fa-calendar"></i>
                             </button>
-                            <button class="venue-action-btn" title="More" onclick="showDeleteMenu(${index})">
-                                <i class="fas fa-ellipsis-v"></i>
+                            ${!isRenter ? `
+                            <button class="venue-action-btn" title="Delete" onclick="showDeleteMenu(${index}); event.stopPropagation();">
+                                <i class="fas fa-trash-alt"></i>
                             </button>
+                            ` : ''}
                         </div>
                     </div>
                     <div class="venue-info">
-                        <h3>${venue.name}</h3>
-                        <p class="venue-location">
+                        <h3 class="venue-title" style="margin-bottom: 8px; font-size: 18px; font-weight: 700;">${venue.name}</h3>
+                        <p class="venue-location" style="margin-bottom: 4px; font-size: 14px; color: var(--cool-gray);">
                             <i class="fas fa-map-marker-alt"></i>
                             ${venue.location || 'Location not specified'}
                         </p>
-                        <div class="venue-capacity">
+                        <div class="venue-capacity" style="margin-bottom: 4px; font-size: 14px; color: var(--cool-gray);">
                             <i class="fas fa-users"></i>
                             Up to ${venue.capacity || 0} guests
                         </div>
-                        <div class="venue-price">KES ${venue.price ? venue.price.toLocaleString() : '0'} / day</div>
-                        <div class="venue-stats">
+                        <div class="venue-price" style="font-weight: 700; color: var(--dark-gray); margin-top: 8px;">KES ${venue.price ? venue.price.toLocaleString() : '0'} / day</div>
+                        <div class="venue-stats" style="display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-gray);">
                             <div class="venue-stat">
-                                <div class="venue-stat-value">${venue.views || 0}</div>
-                                <div class="venue-stat-label">Views</div>
+                                <div class="venue-stat-value" style="font-weight: 700; color: var(--dark-gray);">${venue.views || 0}</div>
+                                <div class="venue-stat-label" style="font-size: 12px; color: var(--cool-gray);">Views</div>
                             </div>
                             <div class="venue-stat">
-                                <div class="venue-stat-value">${venue.bookings_count || 0}</div>
-                                <div class="venue-stat-label">Bookings</div>
+                                <div class="venue-stat-value" style="font-weight: 700; color: var(--dark-gray);">${venue.bookings_count || 0}</div>
+                                <div class="venue-stat-label" style="font-size: 12px; color: var(--cool-gray);">Bookings</div>
                             </div>
                             <div class="venue-stat">
-                                <div class="venue-stat-value">${venue.rating || '0.0'}</div>
-                                <div class="venue-stat-label">Rating</div>
+                                <div class="venue-stat-value" style="font-weight: 700; color: var(--dark-gray);">${venue.rating || '0.0'}</div>
+                                <div class="venue-stat-label" style="font-size: 12px; color: var(--cool-gray);">Rating</div>
                             </div>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;}).join('');
         }
 
         // Activity rendering removed as per user request
@@ -2884,6 +3235,24 @@
 
                 if (response.ok) {
                     showNotification(`Date marked as ${pendingDateChange.newStatus}!`);
+                    
+                    // Create a booking record if marked as unavailable (owner generated)
+                    if (pendingDateChange.newStatus === 'unavailable') {
+                        try {
+                            await fetch('/api/bookings', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    user_id: currentUser.id,
+                                    venue_id: venue.id,
+                                    date: pendingDateChange.dateStr,
+                                    guests: 0,
+                                    status: 'owner_generated'
+                                })
+                            });
+                            console.log("[Availability] Created internal booking record for blocked date.");
+                        } catch (e) { console.error("Internal booking error:", e); }
+                    }
                 } else {
                     const errData = await response.json().catch(() => ({}));
                     console.error(`[Availability Update] Server returned error:`, errData);
@@ -2938,8 +3307,15 @@
 
         let pendingProfileBase64 = null;
 
-        // Toggle user menu / Profile
-        function toggleUserMenu() {
+        // Toggle Dropdown
+        function toggleDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        // Open Profile Modal
+        function openProfileModal() {
+            document.getElementById('userDropdown').classList.remove('active');
+            
             document.getElementById('profileModalName').textContent = currentUser.name;
             document.getElementById('profileModalEmail').textContent = currentUser.email;
 
@@ -2965,6 +3341,19 @@
             }
 
             document.getElementById('profileModal').classList.add('active');
+        }
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown) dropdown.classList.remove('active');
+            }
+        });
+
+        // Toggle user menu / Profile
+        function toggleUserMenu() {
+            openProfileModal();
         }
 
         // Remove profile picture
@@ -3072,6 +3461,8 @@
             });
         });
     </script>
+
+
 
 </body>
 

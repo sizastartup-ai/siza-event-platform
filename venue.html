@@ -12,67 +12,75 @@
     <style>
         /* CSS VARIABLES - Warm, Playful Palette */
         :root {
-            --primary-orange: #FF6B6B;
-            --primary-coral: #FF8E53;
-            --pastel-orange: #FFD4C4;
+            --primary-orange: #FF501A;
+            --brand-pink: #FF5A5F;
+            --primary-dark: #20B2AA;
             --navy-blue: #2C3E50;
-            --teal: #4ECDC4;
-            --warm-cream: #FFF8F0;
-            --cool-gray: #8B8B8B;
-            --light-gray: #F7F7F7;
+            --teal: #40E0D0;
+            --light-teal-bg: #F0FAF9;
+            --cool-gray: #5D6D7E;
+            --light-gray: #F8F9FA;
             --white: #FFFFFF;
-            --dark-gray: #2D3436;
-            --border-gray: #E0E0E0;
+            --dark-gray: #2C3E50;
+            --border-gray: #DDDDDD;
             --hover-gray: #EBEBEB;
-            --soft-shadow: rgba(0, 0, 0, 0.08);
-            --warm-shadow: rgba(255, 107, 107, 0.15);
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Inter', sans-serif;
             color: var(--dark-gray);
-            background-color: var(--white);
+            background-color: var(--light-teal-bg);
+            margin: 0;
+            padding: 0;
             line-height: 1.6;
         }
 
         /* FLOATING NAVIGATION */
         .navbar {
-            padding: 16px 40px;
+            padding: 12px 40px;
             position: fixed;
             top: 16px;
             left: 40px;
             right: 40px;
+            height: auto;
+            min-height: 64px;
             z-index: 1000;
             border-radius: 24px;
-            background: rgba(255, 212, 196, 0.75);
+            background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
         }
 
         .navbar.scrolled {
-            background: rgba(255, 212, 196, 0.95);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
         }
 
         .nav-container {
             width: 100%;
-            max-width: 1200px;
+            max-width: 1440px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            position: relative;
+            min-height: 50px;
         }
+
+        .nav-left { flex: 1; display: flex; align-items: center; }
+        .nav-center { 
+            position: absolute; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            align-items: center; 
+        }
+        .nav-right { flex: 1; display: flex; align-items: center; justify-content: flex-end; }
 
         .logo {
             display: flex;
@@ -92,10 +100,7 @@
 
         .logo i {
             font-size: 36px;
-            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #FF5A5F;
         }
 
         .nav-back {
@@ -167,18 +172,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        .user-avatar-nav {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            overflow: hidden;
-        }
+
 
         .user-dropdown {
             position: absolute;
@@ -198,6 +192,20 @@
 
         .user-dropdown.active {
             display: flex;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 600;
+            overflow: hidden;
         }
 
         .dropdown-item {
@@ -229,6 +237,113 @@
             margin: 8px 0;
         }
 
+        /* LOGIN PROMPT MODAL (Exact match with index.html) */
+        .login-prompt-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .login-prompt-modal.active {
+            display: flex;
+        }
+
+        .login-prompt-content {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 48px;
+            max-width: 480px;
+            width: 90%;
+            text-align: center;
+            position: relative;
+            animation: modalPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .login-prompt-content i.fa-heart {
+            font-size: 52px;
+            color: var(--primary-orange);
+            margin-bottom: 24px;
+            display: block;
+            animation: heartPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes heartPulse {
+            0% { transform: scale(1); }
+            15% { transform: scale(1.15); }
+            30% { transform: scale(1); }
+            45% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        .login-prompt-content h2 {
+            font-size: 26px;
+            margin-bottom: 12px;
+            color: var(--dark-gray);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .login-prompt-content p {
+            color: var(--cool-gray);
+            margin-bottom: 36px;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .login-prompt-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .login-prompt-buttons a {
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-prompt-buttons .btn-primary {
+            background: var(--primary-orange) !important;
+            color: white !important;
+            box-shadow: 0 8px 16px rgba(255, 90, 95, 0.2);
+        }
+
+        .login-prompt-buttons .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark-gray);
+            border: 1px solid var(--border-gray);
+        }
+
+        .modal-close-small {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 18px;
+            color: var(--cool-gray);
+            cursor: pointer;
+        }
+
+        @keyframes modalPop {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
         /* PROFILE MODAL */
         .profile-modal-overlay {
             position: fixed;
@@ -246,6 +361,32 @@
 
         .profile-modal-overlay.active {
             display: flex;
+        }
+
+        /* GENERIC MODAL OVERLAY (for booking success, etc.) */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 90%;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            animation: modalPop 0.3s ease;
         }
 
         .profile-modal {
@@ -396,19 +537,53 @@
 
         .category-tag {
             padding: 6px 14px;
-            background: linear-gradient(135deg, rgba(255, 107, 107, 0.1) 0%, rgba(255, 142, 83, 0.1) 100%);
-            color: var(--primary-orange);
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            border: 1px solid rgba(255, 107, 107, 0.2);
-            transition: all 0.3s ease;
+            background: var(--light-gray);
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--cool-gray);
+            transition: all 0.2s;
         }
 
         .category-tag:hover {
-            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
-            color: white;
+            background: #FF5A5F;
+            color: var(--white);
             transform: translateY(-2px);
+        }
+
+        .action-btn {
+            background: white;
+            border: 1px solid var(--border-gray);
+            padding: 10px 20px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+
+        .action-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            border-color: var(--brand-pink);
+            color: var(--brand-pink);
+            box-shadow: 0 8px 20px rgba(255, 90, 95, 0.15);
+        }
+
+        .action-btn i {
+            font-size: 18px;
+            transition: transform 0.3s ease;
+        }
+
+        .action-btn:hover i {
+            transform: scale(1.2);
+        }
+
+        .action-btn.active i {
+            color: #FF5A5F;
         }
 
         /* IMAGE GALLERY */
@@ -1414,55 +1589,57 @@
 
 <body>
 
-    <!-- NAVIGATION -->
     <nav class="navbar" id="mainNav">
         <div class="nav-container">
-            <a href="index.html" class="nav-back">
-                <i class="fas fa-arrow-left"></i>
-                Back
-            </a>
-
-            <a href="index.html" class="logo">
-                <i class="fas fa-gem"></i>
-                <span>Siza</span>
-            </a>
-
-            <div class="nav-actions">
-                <!-- Auth buttons (shown when logged out) -->
-                <div id="navAuth" style="display: flex; gap: 16px; align-items: center;">
-                    <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log
-                        In</a>
-                    <a href="register.html"
-                        style="text-decoration: none; background: var(--primary-orange); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 600;">Sign
-                        Up</a>
+            <div class="nav-left">
+                <a href="index.html" class="nav-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Back
+                </a>
+            </div>
+            <div class="nav-center">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-gem" style="color: #FF5A5F;"></i>
+                    <span>Siza</span>
+                </a>
+            </div>
+            <div class="nav-right">
+                <div id="navAuth" style="display: none; gap: 16px; align-items: center;">
+                    <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log In</a>
+                    <a href="register.html" style="text-decoration: none; background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; font-weight: 600;">Sign Up</a>
                 </div>
 
-                <!-- User menu (shown when logged in) -->
                 <div id="navUserMenu" style="display: none;">
-                    <div class="user-menu" style="position: relative;">
-                        <button class="user-btn" onclick="toggleUserDropdown()">
-                            <div class="user-avatar-nav" id="navUserAvatar">U</div>
+                    <div class="user-menu">
+                        <button class="user-btn" onclick="toggleDropdown()">
+                            <div class="user-avatar" id="navUserAvatar">U</div>
                             <span id="navUserName">User</span>
-                            <i class="fas fa-bars"></i>
+                            <i class="fas fa-chevron-down"></i>
                         </button>
-                        <div class="user-dropdown" id="userDropdown">
-                            <div class="dropdown-item" onclick="openVenueProfileModal()">
-                                <i class="fas fa-user-circle"></i> Profile
-                            </div>
-                            <div class="dropdown-item" id="ownerDashboardLink" style="display: none;"
-                                onclick="window.location.href='dashboard.html'">
-                                <i class="fas fa-chart-line"></i> Dashboard
-                            </div>
-                            <div class="divider"></div>
-                            <div class="dropdown-item" onclick="logoutVenue()">
-                                <i class="fas fa-sign-out-alt"></i> Log out
-                            </div>
+                        <div class="user-dropdown" id="navUserDropdown">
+                            <!-- Populated by JS -->
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
+
+    <!-- LOGIN PROMPT MODAL (Matches index.html) -->
+    <div class="login-prompt-modal" id="loginPromptModal">
+        <div class="login-prompt-content">
+            <button class="modal-close-small" onclick="closeLoginPrompt()">
+                <i class="fas fa-times"></i>
+            </button>
+            <i class="fas fa-heart"></i>
+            <h2>Save your favorites</h2>
+            <p>Log in or sign up to save venues and access them anytime.</p>
+            <div class="login-prompt-buttons">
+                <a href="login.html" class="btn-primary">Log In</a>
+                <a href="register.html" class="btn-secondary">Sign Up</a>
+            </div>
+        </div>
+    </div>
 
 
     <!-- PROFILE MODAL (venue page) -->
@@ -1535,7 +1712,17 @@
                 <span id="venueLocation">-</span>
             </div>
             <!-- Category Tags -->
-            <div class="category-tags" id="categoryTags">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px;">
+                <div class="category-tags" id="categoryTags"></div>
+                
+                <div style="display: flex; gap: 16px;">
+                    <button class="action-btn" onclick="shareVenue()">
+                        <i class="far fa-share-square"></i> Share
+                    </button>
+                    <button class="action-btn" id="saveFavBtn" onclick="toggleFavorite()">
+                        <i class="far fa-heart" id="saveIcon"></i> Save
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -1612,7 +1799,7 @@
                     </div>
                 </div>
 
-                <button class="book-btn" onclick="checkAvailability()">
+                <button class="book-btn" onclick="checkAvailability(true)">
                     Check availability
                 </button>
 
@@ -1685,49 +1872,40 @@
                 </div>
                 <div class="form-group">
                     <label>Phone Number</label>
-                    <input type="tel" id="guestPhone" required placeholder="+1 (555) 000-0000">
+                    <input type="tel" id="guestPhone" required placeholder="+1 (254) 700-000-000">
                 </div>
-                <button type="submit" class="btn-primary">Continue</button>
+                <button type="submit" class="btn-primary" style="background: var(--teal); transition: background 0.3s;" onmouseover="this.style.background='#89E3DC'" onmouseout="this.style.background='var(--teal)'">Continue</button>
             </form>
         </div>
     </div>
 
-    <!-- LOGIN PROMPT MODAL (for save feature) -->
-    <div class="login-prompt-modal" id="loginPromptModal">
-        <div class="login-prompt-content">
-            <button class="guest-modal-close" onclick="closeLoginPrompt()">
-                <i class="fas fa-times"></i>
-            </button>
-            <i class="fas fa-heart"></i>
-            <h2>Save your favorites</h2>
-            <p>Log in or sign up to save venues and access them anytime.</p>
-            <div class="login-prompt-buttons">
-                <a href="login.html" class="btn-primary"
-                    style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Log
-                    In</a>
-                <a href="login.html" class="btn-secondary"
-                    style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">Sign
-                    Up</a>
+    <!-- BOOKING SUCCESS MODAL -->
+    <div class="modal-overlay" id="bookingSuccessModal">
+        <div class="modal" style="max-width: 450px; text-align: center; padding: 40px; border-radius: 24px;">
+            <div style="width: 80px; height: 80px; background: rgba(78, 205, 196, 0.1); color: var(--teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin: 0 auto 24px;">
+                <i class="fas fa-check"></i>
+            </div>
+            <h2 style="margin-bottom: 16px; font-weight: 800;">Booking Reserved!</h2>
+            <p style="color: var(--cool-gray); margin-bottom: 32px; line-height: 1.6; font-size: 15px;">A Siza representative will get in touch with you shortly to finalize your reservation for <strong><span id="successVenueName"></span></strong>.</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn-primary" onclick="closeModal('bookingSuccessModal')" style="background: var(--teal); border: none; padding: 14px; font-weight: 700;">Close</button>
+                <a href="index.html" class="btn-secondary" style="text-decoration: none; padding: 14px; border-radius: 12px; font-weight: 600; display: block; background: var(--light-gray);">Browse other venues</a>
             </div>
         </div>
     </div>
 
-    <!-- PASTEL ORANGE FOOTER WITH PATTERNS -->
+
+
     <footer class="footer">
-        <div class="footer-decoration footer-decoration-1"></div>
-        <div class="footer-decoration footer-decoration-2"></div>
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Support</h3>
-                <a href="#">Help Center</a>
-                <a href="#">Safety Information</a>
-                <a href="#">Cancellation Options</a>
+                <a href="safety.html">Safety Information</a>
             </div>
             <div class="footer-section">
                 <h3>About</h3>
-                <a href="#">How Siza Works</a>
-                <a href="#">Careers</a>
-                <a href="#">Investors</a>
+                <a href="how-it-works.html">How Siza Works</a>
+                <a href="careers.html">Careers</a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -1768,12 +1946,26 @@
                     }
                 } catch (e) { console.error("Venue nav sync failed", e); }
 
-                // Show user menu, hide auth buttons
-                document.getElementById('navAuth').style.display = 'none';
-                const userMenuEl = document.getElementById('navUserMenu');
-                userMenuEl.style.display = 'flex';
-                userMenuEl.style.alignItems = 'center';
+                // Update Dropdown by Role
+                const dropdown = document.getElementById('navUserDropdown');
+                if (currentUser.role === 'owner') {
+                    dropdown.innerHTML = `
+                        <a href="dashboard.html" class="dropdown-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                        <div class="dropdown-item" onclick="openVenueProfileModal()"><i class="fas fa-user-circle"></i> Edit Profile</div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item logout-btn" onclick="logout()" style="color: #FF5A5F;"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    `;
+                } else {
+                    dropdown.innerHTML = `
+                        <div class="dropdown-item" onclick="openVenueProfileModal()"><i class="fas fa-user-circle"></i> Edit Profile</div>
+                        <a href="dashboard.html?tab=favorites" class="dropdown-item"><i class="fas fa-heart"></i> My Favorites</a>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item logout-btn" onclick="logout()" style="color: #FF5A5F;"><i class="fas fa-sign-out-alt"></i> Logout</div>
+                    `;
+                }
 
+                document.getElementById('navAuth').style.display = 'none';
+                document.getElementById('navUserMenu').style.display = 'block';
                 document.getElementById('navUserName').textContent = currentUser.name.split(' ')[0];
                 const navAvatar = document.getElementById('navUserAvatar');
                 if (currentUser.profile_image) {
@@ -1781,30 +1973,39 @@
                 } else {
                     navAvatar.innerHTML = (currentUser.name || 'U').charAt(0).toUpperCase();
                 }
-
-                if (currentUser.role === 'owner') {
-                    document.getElementById('ownerDashboardLink').style.display = 'block';
-                    // Hide Save button for owners
-                    const saveBtn = document.getElementById('saveFavBtn');
-                    if (saveBtn) saveBtn.style.display = 'none';
-                }
             } else {
-                // Show auth buttons, hide user menu
                 document.getElementById('navAuth').style.display = 'flex';
                 document.getElementById('navUserMenu').style.display = 'none';
             }
         }
 
+        // AUTO-LOGOUT & SESSION
+        let logoutTimer;
+        const INACTIVITY_LIMIT = 30 * 60 * 1000;
+
+        function resetLogoutTimer() {
+            clearTimeout(logoutTimer);
+            logoutTimer = setTimeout(logout, INACTIVITY_LIMIT);
+        }
+
+        window.addEventListener('mousemove', resetLogoutTimer);
+        window.addEventListener('keypress', resetLogoutTimer);
+        window.addEventListener('click', resetLogoutTimer);
+        window.addEventListener('scroll', resetLogoutTimer);
+        resetLogoutTimer();
+
         // Toggle user dropdown
+        function toggleDropdown() {
+            document.getElementById('navUserDropdown').classList.toggle('active');
+        }
+
         function toggleUserDropdown() {
-            const dropdown = document.getElementById('userDropdown');
-            if (dropdown.style.display === 'none' || !dropdown.style.display) {
-                dropdown.style.display = 'flex';
-                dropdown.classList.add('active');
-            } else {
-                dropdown.style.display = 'none';
-                dropdown.classList.remove('active');
-            }
+            toggleDropdown();
+        }
+
+        function logout() {
+            localStorage.removeItem('siza_user');
+            window.location.href = 'index.html';
         }
 
         window.addEventListener('click', (e) => {
@@ -1937,10 +2138,7 @@
             }
         }
 
-        function logoutVenue() {
-            localStorage.removeItem('siza_user');
-            window.location.href = 'index.html';
-        }
+
 
         // Update navigation (kept for backward compat but checkUser now handles it)
         function updateNav() {
@@ -1979,12 +2177,6 @@
             checkUser();
             updateNav();
 
-            // Hide Save button for owners
-            if (currentUser && currentUser.role === 'owner') {
-                const saveBtn = document.querySelector('.nav-btn[onclick="saveVenue()"]');
-                if (saveBtn) saveBtn.style.display = 'none';
-            }
-
             // Get ID from URL
             const params = new URLSearchParams(window.location.search);
             const venueId = params.get('id');
@@ -2001,6 +2193,19 @@
 
                 // Map backend data to frontend expected structure
                 venueData = data.venue;
+
+                // Record view if not owner (now that we have venueData)
+                if (!currentUser || (currentUser.role !== 'owner' && venueData.owner_id !== currentUser.id)) {
+                    try {
+                        fetch(`/api/venues/${venueId}/view`, { method: 'POST' });
+                    } catch (e) { console.error("Error recording view", e); }
+                }
+
+                // Hide Save button for owners
+                if (currentUser && currentUser.role === 'owner') {
+                    const saveBtn = document.getElementById('saveFavBtn');
+                    if (saveBtn) saveBtn.style.display = 'none';
+                }
                 venueData.categories = [venueData.type];
                 venueData.owner_name = data.venue.owner_name || "Siza Host";
                 venueData.owner_image = data.venue.owner_image;
@@ -2180,6 +2385,11 @@
             document.body.style.overflow = '';
         }
 
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
         function updateCarousel() {
             document.getElementById('carouselImage').src = venueData.images[currentImageIndex];
             document.getElementById('carouselCounter').textContent = `${currentImageIndex + 1} / ${venueData.images.length}`;
@@ -2222,7 +2432,7 @@
         }
 
         // Check availability
-        function checkAvailability(showPrompt = true) {
+        function checkAvailability(showPrompt = false) {
             const date = document.getElementById('eventDate').value;
             if (!date) {
                 if (showPrompt) {
@@ -2262,27 +2472,85 @@
                     document.getElementById('guestModal').classList.add('active');
                     document.body.style.overflow = 'hidden';
                 } else {
-                    // Show success message for logged in users
-                    messageDiv.textContent = 'A representative will get in touch with you shortly';
+                    handleReserve();
                 }
+            }
+        }
+
+        async function handleReserve(guestInfo = null) {
+            const startDateStr = document.getElementById('eventDate').value;
+            const endDateStr = document.getElementById('endDate').value;
+            const guestEl = document.getElementById('guestCount');
+            const guests = guestEl ? parseInt(guestEl.value) : 1;
+
+            // Calculate total price for payload
+            let totalPrice = venueData.price || 0;
+            if (startDateStr && endDateStr) {
+                const s = new Date(startDateStr);
+                const e = new Date(endDateStr);
+                if (e > s) {
+                    const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24));
+                    totalPrice = venueData.price * days;
+                }
+            }
+
+            const payload = {
+                venue_id: venueData.id,
+                start_date: startDateStr,
+                end_date: endDateStr,
+                guests: guests,
+                total_price: totalPrice,
+                status: 'pending'
+            };
+
+            if (currentUser) {
+                payload.user_id = currentUser.id;
+                payload.contact_name = currentUser.name;
+                payload.contact_email = currentUser.email;
+                payload.contact_phone = currentUser.phone;
+            } else if (guestInfo) {
+                payload.contact_name = guestInfo.name;
+                payload.contact_email = guestInfo.email;
+                payload.contact_phone = guestInfo.phone;
+            }
+
+            try {
+                const response = await fetch('/api/bookings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    document.getElementById('successVenueName').textContent = venueData.name;
+                    document.getElementById('bookingSuccessModal').classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                } else {
+                    const err = await response.json();
+                    showNotification(err.error || 'Failed to reserve booking');
+                }
+            } catch (err) {
+                console.error("Booking reservation error:", err);
+                showNotification('Error processing reservation');
             }
         }
 
         // Guest info modal
         function closeGuestModal() {
             document.getElementById('guestModal').classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         function submitGuestInfo(e) {
             e.preventDefault();
-            const name = document.getElementById('guestName').value;
-            const email = document.getElementById('guestEmail').value;
-            const phone = document.getElementById('guestPhone').value;
+            const guestInfo = {
+                name: document.getElementById('guestName').value,
+                email: document.getElementById('guestEmail').value,
+                phone: document.getElementById('guestPhone').value
+            };
 
-            // Store guest info and show success
             closeGuestModal();
-            document.getElementById('availabilityMessage').textContent = 'A representative will get in touch with you shortly';
-            showNotification('Information submitted successfully!');
+            handleReserve(guestInfo);
         }
 
         // Calculate total price
@@ -2312,7 +2580,7 @@
         }
 
         // Save venue to favorites (renters only)
-        async function saveVenue() {
+        async function toggleFavorite() {
             if (!currentUser) {
                 // Show login prompt
                 document.getElementById('loginPromptModal').classList.add('active');
@@ -2333,13 +2601,13 @@
                 const data = await response.json();
 
                 const icon = document.getElementById('saveIcon');
-                const btn = icon.closest('.nav-btn');
+                const btn = document.getElementById('saveFavBtn');
 
                 if (data.status === 'added') {
                     icon.classList.remove('far');
                     icon.classList.add('fas');
-                    icon.style.color = '#FF6B6B';
-                    btn.style.color = '#FF6B6B';
+                    icon.style.color = '#FF5A5F';
+                    btn.style.color = '#FF5A5F';
                     showNotification('Saved to your favorites!');
                 } else {
                     icon.classList.remove('fas');
@@ -2357,6 +2625,7 @@
         // Login prompt modal
         function closeLoginPrompt() {
             document.getElementById('loginPromptModal').classList.remove('active');
+            document.body.style.overflow = '';
         }
 
         // Share venue
@@ -2393,13 +2662,15 @@
                 const data = await response.json();
                 const favorites = data.favorites || [];
 
-                if (favorites.includes(venueData.id)) {
+                if (favorites.includes(parseInt(venueData.id))) {
                     const icon = document.getElementById('saveIcon');
-                    const btn = icon.closest('.nav-btn');
-                    icon.classList.remove('far');
-                    icon.classList.add('fas');
-                    icon.style.color = '#FF6B6B';
-                    btn.style.color = '#FF6B6B';
+                    const btn = document.getElementById('saveFavBtn');
+                    if (icon && btn) {
+                        icon.classList.remove('far');
+                        icon.classList.add('fas');
+                        icon.style.color = '#FF5A5F';
+                        btn.style.color = '#FF5A5F';
+                    }
                 }
             } catch (err) {
                 console.error("Error checking favorite state:", err);
