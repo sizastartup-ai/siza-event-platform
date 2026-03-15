@@ -722,6 +722,43 @@
             font-weight: 500;
         }
 
+        /* LOCATION TAG PILLS */
+        .location-tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(64, 224, 208, 0.12);
+            color: var(--teal);
+            border: 1px solid rgba(64, 224, 208, 0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            animation: tagPop 0.2s ease;
+        }
+        @keyframes tagPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .location-tag-pill .tag-remove {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(64, 224, 208, 0.2);
+            color: var(--teal);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            transition: all 0.2s;
+        }
+        .location-tag-pill .tag-remove:hover {
+            background: var(--primary-orange);
+            color: white;
+        }
+
         /* MODAL STYLES */
         .modal-overlay {
             display: none;
@@ -1365,11 +1402,35 @@
 
         @media (max-width: 768px) {
             .navbar {
-                left: 20px;
-                right: 20px;
+                left: 16px;
+                right: 16px;
                 top: 12px;
-                padding: 12px 20px;
+                padding: 12px 16px;
                 border-radius: 20px;
+            }
+
+            .nav-container {
+                gap: 8px;
+                justify-content: space-between;
+                flex-wrap: nowrap;
+            }
+
+            .logo {
+                font-size: 20px;
+                gap: 4px;
+            }
+
+            .logo i {
+                font-size: 20px;
+            }
+
+            .user-btn {
+                padding: 6px 12px;
+                gap: 6px;
+            }
+
+            #navUserName {
+                display: none;
             }
 
             .nav-links {
@@ -1501,13 +1562,13 @@
     <nav class="navbar" id="mainNav">
         <div class="nav-container">
             <div class="nav-left">
-                <!-- Empty for balance -->
-            </div>
-            <div class="nav-center">
                 <a href="index.html" class="logo">
                     <i class="fas fa-gem" style="color: #FF5A5F;"></i>
                     <span>Siza</span>
                 </a>
+            </div>
+            <div class="nav-center">
+                <!-- Empty for balance -->
             </div>
             <div class="nav-right">
                 <div id="navUserMenu">
@@ -1753,6 +1814,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Location Tags <small style="font-weight:400; color:var(--cool-gray);">(up to 5 keywords to help renters find your venue)</small></label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="locationTagInput" placeholder="e.g. Kilimani, Westlands, CBD" style="flex:1;" 
+                            onkeydown="if(event.key==='Enter'){event.preventDefault(); addLocationTag('locationTagInput','locationTagsList');}">
+                        <button type="button" class="btn-owner" style="padding: 10px 16px; min-width: auto; border-radius: 12px;" onclick="addLocationTag('locationTagInput','locationTagsList')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="locationTagsList" class="location-tags-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;"></div>
+                </div>
+
+                <div class="form-group">
                     <label>Amenities</label>
                     <div class="checkbox-grid" id="amenitiesGrid">
                         <div class="checkbox-item">
@@ -1915,6 +1988,18 @@
                 <div class="form-group">
                     <label for="editVenueDescription">Description *</label>
                     <textarea id="editVenueDescription" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>Location Tags <small style="font-weight:400; color:var(--cool-gray);">(up to 5 keywords)</small></label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="editLocationTagInput" placeholder="e.g. Kilimani, Westlands, CBD" style="flex:1;" 
+                            onkeydown="if(event.key==='Enter'){event.preventDefault(); addLocationTag('editLocationTagInput','editLocationTagsList');}">
+                        <button type="button" class="btn-owner" style="padding: 10px 16px; min-width: auto; border-radius: 12px;" onclick="addLocationTag('editLocationTagInput','editLocationTagsList')">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                    <div id="editLocationTagsList" class="location-tags-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;"></div>
                 </div>
 
                 <div class="form-group">
@@ -2815,6 +2900,45 @@
             });
         }
 
+        /* LOCATION TAGS LOGIC */
+        function addLocationTag(inputId, listId) {
+            const input = document.getElementById(inputId);
+            const val = input.value.trim();
+            if (!val) return;
+
+            const list = document.getElementById(listId);
+            const currentTags = list.querySelectorAll('.location-tag-pill').length;
+            
+            if (currentTags >= 5) {
+                showNotification("Maximum 5 location tags allowed.");
+                return;
+            }
+
+            // Check for duplicates
+            const existing = Array.from(list.querySelectorAll('span')).map(s => s.textContent.toLowerCase());
+            if (existing.includes(val.toLowerCase())) {
+                input.value = '';
+                return;
+            }
+
+            const pill = document.createElement('div');
+            pill.className = 'location-tag-pill';
+            pill.innerHTML = `
+                <span>${val}</span>
+                <button type="button" class="tag-remove" tabindex="-1" onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            list.appendChild(pill);
+            input.value = '';
+        }
+
+        function getLocationTags(listId) {
+            const list = document.getElementById(listId);
+            if (!list) return [];
+            return Array.from(list.querySelectorAll('span')).map(s => s.textContent);
+        }
+
         // Save new venue
         async function saveVenue(event) {
             event.preventDefault();
@@ -2824,6 +2948,7 @@
             const price = parseInt(document.getElementById('venuePrice').value);
             const capacity = parseInt(document.getElementById('venueCapacity').value);
             const description = document.getElementById('venueDescription').value;
+            const locationTags = getLocationTags('locationTagsList');
 
             // Get selected categories
             const selectedCategories = [];
@@ -2867,6 +2992,7 @@
                 owner_id: currentUser ? currentUser.id : null,
                 title: name,
                 location: location,
+                location_tags: locationTags,
                 type: typeValue,
                 guests: capacity,
                 price: price,
@@ -2891,6 +3017,7 @@
                     await loadVenues();
                     document.getElementById('addVenueForm').reset();
                     document.getElementById('uploadedFiles').innerHTML = '';
+                    document.getElementById('locationTagsList').innerHTML = '';
                     document.getElementById('otherAmenityInput').classList.remove('active');
                 } else {
                     const data = await response.json();
@@ -2911,6 +3038,23 @@
             document.getElementById('editVenuePrice').value = venue.price || '';
             document.getElementById('editVenueCapacity').value = venue.capacity || '';
             document.getElementById('editVenueDescription').value = venue.description || '';
+
+            // Render existing location tags
+            const tagsList = document.getElementById('editLocationTagsList');
+            tagsList.innerHTML = '';
+            if (venue.location_tags && Array.isArray(venue.location_tags)) {
+                venue.location_tags.forEach(tag => {
+                    const pill = document.createElement('div');
+                    pill.className = 'location-tag-pill';
+                    pill.innerHTML = `
+                        <span>${tag}</span>
+                        <button type="button" class="tag-remove" tabindex="-1" onclick="this.parentElement.remove()">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    tagsList.appendChild(pill);
+                });
+            }
 
             // Render categories
             const catGrid = document.getElementById('editCategoriesGrid');
@@ -2979,6 +3123,7 @@
                 const payload = {
                     title: venue.name,
                     location: venue.location,
+                    location_tags: venue.location_tags || [],
                     type: venue.categories ? venue.categories[0] : 'Event Space',
                     guests: venue.capacity,
                     price: venue.price,
@@ -3035,6 +3180,7 @@
             const location = document.getElementById('editVenueLocation').value;
             const price = parseInt(document.getElementById('editVenuePrice').value);
             const capacity = parseInt(document.getElementById('editVenueCapacity').value);
+            const locationTags = getLocationTags('editLocationTagsList');
 
             // Categories
             const selectedCategories = [];
@@ -3074,6 +3220,7 @@
             const payload = {
                 title: name,
                 location: location,
+                location_tags: locationTags,
                 type: typeValue,
                 guests: capacity,
                 price: price,

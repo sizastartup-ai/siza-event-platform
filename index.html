@@ -740,6 +740,38 @@
             .footer-content {
                 grid-template-columns: 1fr;
             }
+
+            /* Navbar Mobile Fixes */
+            .navbar {
+                padding: 12px 20px;
+                left: 16px;
+                right: 16px;
+                top: 12px;
+                border-radius: 20px;
+            }
+            .nav-container {
+                gap: 10px;
+                flex-wrap: nowrap;
+                justify-content: space-between;
+            }
+            .nav-search {
+                padding: 6px 6px 6px 16px;
+                gap: 8px;
+            }
+            .nav-search span {
+                font-size: 12px;
+            }
+            #navAuth {
+                gap: 8px !important;
+            }
+            #navAuth a {
+                font-size: 14px;
+                padding: 8px 16px !important;
+            }
+            .logo {
+                font-size: 20px;
+                gap: 6px;
+            }
         }
 
         /* NOTIFICATION TOAST */
@@ -972,6 +1004,12 @@
     <nav class="navbar" id="mainNav">
         <div class="nav-container">
             <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-gem" style="color: #FF5A5F;"></i>
+                    <span>Siza</span>
+                </a>
+            </div>
+            <div class="nav-center">
                 <!-- Pop-out Search for sticky nav -->
                 <div class="nav-search" id="navSearch" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="display: none;">
                     <span>Where</span>
@@ -983,12 +1021,6 @@
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
-            </div>
-            <div class="nav-center">
-                <a href="index.html" class="logo">
-                    <i class="fas fa-gem" style="color: #FF5A5F;"></i>
-                    <span>Siza</span>
-                </a>
             </div>
             <div class="nav-right">
                 <div id="navAuth" style="display: none; gap: 16px; align-items: center;">

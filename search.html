@@ -66,11 +66,11 @@
         }
 
         .nav-container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 0 auto;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             gap: 20px;
         }
 
@@ -815,19 +815,45 @@
             }
 
             .nav-container {
-                gap: 12px;
+                gap: 8px;
+                justify-content: space-between;
             }
 
             .logo {
                 font-size: 20px;
+                gap: 4px;
             }
 
             .logo i {
-                font-size: 24px;
+                font-size: 20px;
             }
 
             .mini-search {
-                max-width: none;
+                flex: none;
+                width: 140px;
+            }
+
+            .mini-search-input {
+                font-size: 13px;
+                width: 100%;
+            }
+
+            .mini-search-bar {
+                padding: 6px 6px 6px 12px;
+            }
+
+            .mini-search-btn {
+                width: 32px;
+                height: 32px;
+            }
+
+            #navAuth {
+                gap: 6px !important;
+            }
+
+            #navAuth a {
+                font-size: 13px !important;
+                padding: 6px 10px !important;
             }
 
             .search-layout {

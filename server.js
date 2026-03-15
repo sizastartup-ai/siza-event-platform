@@ -20,13 +20,15 @@ app.use(express.static(path.join(__dirname)));
 // Get all venues, optionally filter by location and guests
 app.get('/api/venues', async (req, res) => {
     try {
-        // Only select fields needed for the venue cards to keep payload small
+        // Select fields needed for the venue cards
         let query = supabase.from('venues').select(`
-            id, title, location, type, guests, price, rating, reviews, image, views, bookings_count
+            id, title, location, location_tags, type, guests, price, rating, reviews, image, views, bookings_count
         `);
 
         if (req.query.location) {
-            query = query.ilike('location', `%${req.query.location}%`);
+            // Search both location and location_tags columns
+            const searchTerm = req.query.location;
+            query = query.or(`location.ilike.%${searchTerm}%,location_tags.ilike.%${searchTerm}%`);
         }
         if (req.query.guests) {
             query = query.gte('guests', parseInt(req.query.guests));
@@ -38,11 +40,10 @@ app.get('/api/venues', async (req, res) => {
         const { data, error } = await query;
         if (error) throw error;
 
-        // If 'views' isn't available as a direct column, the query above might need adjustment
-        // For now, let's just use the data as is to avoid the expensive join if possible
         const venues = data.map(v => ({
             ...v,
-            views: v.views || 0
+            views: v.views || 0,
+            location_tags: v.location_tags ? (typeof v.location_tags === 'string' ? JSON.parse(v.location_tags) : v.location_tags) : []
         }));
 
         res.json({ venues });
@@ -80,7 +81,7 @@ app.get('/api/venues/:id', async (req, res) => {
 
 // Create a new venue
 app.post('/api/venues', async (req, res) => {
-    const { owner_id, title, location, type, guests, price, rating, image, amenities, description } = req.body;
+    const { owner_id, title, location, location_tags, type, guests, price, rating, image, amenities, description } = req.body;
 
     try {
         let finalImage = image;
@@ -94,6 +95,7 @@ app.post('/api/venues', async (req, res) => {
                 owner_id: owner_id,
                 title: title || "New Venue",
                 location,
+                location_tags: JSON.stringify(location_tags || []),
                 type,
                 guests: guests || 50,
                 price: price || 0,
@@ -152,7 +154,7 @@ app.put('/api/venues/:id/availability', async (req, res) => {
 
 // Update a venue by ID
 app.put('/api/venues/:id', async (req, res) => {
-    const { title, location, type, guests, price, image, amenities, unavailable_dates, description } = req.body;
+    const { title, location, location_tags, type, guests, price, image, amenities, unavailable_dates, description } = req.body;
 
     try {
         let finalImage = image;
@@ -165,6 +167,7 @@ app.put('/api/venues/:id', async (req, res) => {
             .update({
                 title,
                 location,
+                location_tags: JSON.stringify(location_tags || []),
                 type,
                 guests,
                 price,
