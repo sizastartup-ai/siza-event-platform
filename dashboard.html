@@ -2628,12 +2628,11 @@
                 if (response.ok && data.venues) {
                     // Map backend schema to frontend expectations
                     venues = data.venues.map(v => {
-                        let parsedAmenities = [];
-                        try {
-                            if (typeof v.amenities === 'string') {
-                                parsedAmenities = JSON.parse(v.amenities);
-                            }
-                        } catch (e) { }
+                        let parsedAmenities = v.amenities;
+                        if (typeof parsedAmenities === 'string') {
+                            try { parsedAmenities = JSON.parse(parsedAmenities); } catch (e) { parsedAmenities = []; }
+                        }
+                        if (!Array.isArray(parsedAmenities)) parsedAmenities = [];
 
                         // Handle multiple images stored as JSON
                         let venueImages = parseVenueImages(v.image);
@@ -2648,6 +2647,14 @@
                             price: v.price,
                             capacity: v.guests,
                             description: v.description || `${v.title} located in ${v.location}. For up to ${v.guests} guests.`,
+                            location_tags: (() => {
+                                if (!v.location_tags) return [];
+                                if (typeof v.location_tags === 'string') {
+                                    try { return JSON.parse(v.location_tags); } catch(e) { return []; }
+                                }
+                                return v.location_tags;
+                            })(),
+                            details_pdf: v.details_pdf || null,
                             categories: [v.type],
                             event_categories: (() => { 
                                 let ec = v.event_categories;
@@ -3137,6 +3144,12 @@
             input.classList.toggle('active', checkbox.checked);
         }
 
+        function toggleEditOtherAmenity() {
+            const checkbox = document.getElementById('edit-amen-other');
+            const input = document.getElementById('editOtherAmenityInput');
+            input.classList.toggle('active', checkbox.checked);
+        }
+
         // Handle file upload display
         function handleFileUpload(input) {
             const container = document.getElementById('uploadedFiles');
@@ -3348,23 +3361,39 @@
 
             // Render amenities
             const amenGrid = document.getElementById('editAmenitiesGrid');
+            const venueAmenities = venue.amenities || [];
+            
             amenGrid.innerHTML = commonAmenities.map(amen => `
                 <div class="checkbox-item">
-                    <input type="checkbox" id="edit-amen-${amen.replace(/\s+/g, '-')}" value="${amen}" ${venue.amenities && venue.amenities.includes(amen) ? 'checked' : ''}>
+                    <input type="checkbox" id="edit-amen-${amen.replace(/\s+/g, '-')}" value="${amen}" ${venueAmenities.includes(amen) ? 'checked' : ''}>
                     <label for="edit-amen-${amen.replace(/\s+/g, '-')}">${amen}</label>
                 </div>
             `).join('');
 
+            // Identify "Other" amenities (not in common list)
+            const otherAmenities = venueAmenities.filter(a => !commonAmenities.includes(a));
+            const hasOther = otherAmenities.length > 0;
+
             // Add other checkbox
             amenGrid.innerHTML += `
                 <div class="checkbox-item">
-                    <input type="checkbox" id="edit-amen-other" value="Other">
+                    <input type="checkbox" id="edit-amen-other" value="Other" onchange="toggleEditOtherAmenity()" ${hasOther ? 'checked' : ''}>
                     <label for="edit-amen-other">Other (Specify)</label>
                 </div>
             `;
 
-            document.getElementById('editVenueCapacity').value = venue.capacity;
-            document.getElementById('editVenueDescription').value = venue.description;
+            // Handle Other Input
+            const editOtherInput = document.getElementById('editOtherAmenityInput');
+            const editOtherText = document.getElementById('editOtherAmenityText');
+            if (editOtherInput && editOtherText) {
+                if (hasOther) {
+                    editOtherInput.classList.add('active');
+                    editOtherText.value = otherAmenities.join(', ');
+                } else {
+                    editOtherInput.classList.remove('active');
+                    editOtherText.value = '';
+                }
+            }
 
             // Render existing images with delete buttons
             const editUploadedFiles = document.getElementById('editUploadedFiles');

@@ -66,7 +66,7 @@ app.get('/api/venues', async (req, res) => {
     try {
         // Select fields needed for the venue cards
         let query = supabase.from('venues').select(`
-            id, title, location, location_tags, type, event_categories, guests, price, rating, reviews, image, views, bookings_count
+            id, title, location, location_tags, type, event_categories, guests, price, rating, reviews, image, views, bookings_count, amenities, description, unavailable_dates, details_pdf
         `);
 
         if (req.query.location) {
@@ -185,6 +185,10 @@ app.delete('/api/venues/:id', async (req, res) => {
         // 2. Delete associated favorites
         const { error: favsErr } = await supabase.from('favorites').delete().eq('venue_id', venueId);
         if (favsErr) console.warn(`[DELETE /api/venues/${venueId}] Warning deleting favorites:`, favsErr);
+
+        // 2.5 Delete associated bookings
+        const { error: bookingsErr } = await supabase.from('bookings').delete().eq('venue_id', venueId);
+        if (bookingsErr) console.warn(`[DELETE /api/venues/${venueId}] Warning deleting bookings:`, bookingsErr);
 
         // 3. Finally delete the venue
         const { error } = await supabase.from('venues').delete().eq('id', venueId);
