@@ -2425,14 +2425,74 @@
             'Brunch', 'Concerts', 'Fun social gatherings'
         ];
 
-        // 20 Common amenities list
+        // Standardized amenities with consistent values and labels
         const commonAmenities = [
-            'WiFi', 'Parking Available', 'AV Equipment', 'Catering Services',
-            'Bar Service', 'Stage', 'Dance Floor', 'Professional Lighting',
-            'Sound System', 'Projector/Screen', 'Microphones', 'Tables & Chairs',
-            'Climate Control', 'Wheelchair Accessible', 'Private Restrooms',
-            'Green Room', 'Outdoor Space', 'Kitchen Facilities', 'Security Service', 'Coat Check'
+            { value: 'WiFi', label: 'WiFi' },
+            { value: 'Parking', label: 'Parking Available' },
+            { value: 'AV Equipment', label: 'AV Equipment' },
+            { value: 'Catering', label: 'Catering Services' },
+            { value: 'Bar', label: 'Bar Service' },
+            { value: 'Stage', label: 'Stage' },
+            { value: 'Dance Floor', label: 'Dance Floor' },
+            { value: 'Lighting', label: 'Professional Lighting' },
+            { id: 'sound', value: 'Sound System', label: 'Sound System' },
+            { value: 'Projector', label: 'Projector/Screen' },
+            { value: 'Microphones', label: 'Microphones' },
+            { id: 'furniture', value: 'Furniture', label: 'Tables & Chairs' },
+            { value: 'Climate Control', label: 'Climate Control' },
+            { id: 'accessible', value: 'Accessible', label: 'Wheelchair Accessible' },
+            { id: 'restrooms', value: 'Restrooms', label: 'Private Restrooms' },
+            { id: 'greens', value: 'Green Room', label: 'Green Room' },
+            { value: 'Outdoor Space', label: 'Outdoor Space' },
+            { id: 'kitchen', value: 'Kitchen', label: 'Kitchen Facilities' },
+            { id: 'security', value: 'Security', label: 'Security Service' },
+            { value: 'Coat Check', label: 'Coat Check' }
         ];
+
+        // Helper to render amenity checkboxes
+        function renderAmenityGrid(gridId, selectedList = [], isEdit = false) {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            
+            const prefix = isEdit ? 'edit-amen-' : 'add-amen-';
+            const onToggle = isEdit ? 'toggleEditOtherAmenity()' : 'toggleOtherAmenity()';
+            const otherCheckId = isEdit ? 'edit-amen-other' : 'amen-other-check';
+
+            let html = commonAmenities.map(amen => {
+                const isChecked = selectedList.includes(amen.value) || selectedList.includes(amen.label);
+                return `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="${prefix}${amen.value.replace(/\s+/g, '-')}" value="${amen.value}" ${isChecked ? 'checked' : ''}>
+                        <label for="${prefix}${amen.value.replace(/\s+/g, '-')}">${amen.label}</label>
+                    </div>
+                `;
+            }).join('');
+
+            // Handle "Other"
+            const otherAmenities = selectedList.filter(a => 
+                !commonAmenities.some(ca => ca.value === a || ca.label === a)
+            );
+            const hasOther = otherAmenities.length > 0;
+
+            html += `
+                <div class="checkbox-item">
+                    <input type="checkbox" id="${otherCheckId}" value="Other" onchange="${onToggle}" ${hasOther ? 'checked' : ''}>
+                    <label for="${otherCheckId}">Other (Specify)</label>
+                </div>
+            `;
+            
+            grid.innerHTML = html;
+            
+            // Show other input if needed
+            if (isEdit) {
+                const input = document.getElementById('editOtherAmenityInput');
+                const text = document.getElementById('editOtherAmenityText');
+                if (input && text) {
+                    input.classList.toggle('active', hasOther);
+                    text.value = hasOther ? otherAmenities.join(', ') : '';
+                }
+            }
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
@@ -2628,9 +2688,14 @@
                 if (response.ok && data.venues) {
                     // Map backend schema to frontend expectations
                     venues = data.venues.map(v => {
-                        let parsedAmenities = v.amenities;
+                        let parsedAmenities = v.amenities || [];
                         if (typeof parsedAmenities === 'string') {
-                            try { parsedAmenities = JSON.parse(parsedAmenities); } catch (e) { parsedAmenities = []; }
+                            try { 
+                                parsedAmenities = JSON.parse(parsedAmenities); 
+                            } catch (e) { 
+                                console.warn("Failed to parse amenities string:", v.amenities);
+                                parsedAmenities = []; 
+                            }
                         }
                         if (!Array.isArray(parsedAmenities)) parsedAmenities = [];
 
@@ -3128,6 +3193,15 @@
 
         // Modal functions
         function openAddVenueModal() {
+            document.getElementById('addVenueForm').reset();
+            document.getElementById('uploadedFiles').innerHTML = '';
+            document.getElementById('locationTagsList').innerHTML = '';
+            document.getElementById('venuePdfLabel').textContent = 'Click to upload PDF';
+            
+            // Render default grid
+            renderAmenityGrid('amenitiesGrid', [], false);
+            document.getElementById('otherAmenityInput').classList.remove('active');
+
             document.getElementById('addVenueModal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -3359,41 +3433,8 @@
                 </div>
             `).join('');
 
-            // Render amenities
-            const amenGrid = document.getElementById('editAmenitiesGrid');
-            const venueAmenities = venue.amenities || [];
-            
-            amenGrid.innerHTML = commonAmenities.map(amen => `
-                <div class="checkbox-item">
-                    <input type="checkbox" id="edit-amen-${amen.replace(/\s+/g, '-')}" value="${amen}" ${venueAmenities.includes(amen) ? 'checked' : ''}>
-                    <label for="edit-amen-${amen.replace(/\s+/g, '-')}">${amen}</label>
-                </div>
-            `).join('');
-
-            // Identify "Other" amenities (not in common list)
-            const otherAmenities = venueAmenities.filter(a => !commonAmenities.includes(a));
-            const hasOther = otherAmenities.length > 0;
-
-            // Add other checkbox
-            amenGrid.innerHTML += `
-                <div class="checkbox-item">
-                    <input type="checkbox" id="edit-amen-other" value="Other" onchange="toggleEditOtherAmenity()" ${hasOther ? 'checked' : ''}>
-                    <label for="edit-amen-other">Other (Specify)</label>
-                </div>
-            `;
-
-            // Handle Other Input
-            const editOtherInput = document.getElementById('editOtherAmenityInput');
-            const editOtherText = document.getElementById('editOtherAmenityText');
-            if (editOtherInput && editOtherText) {
-                if (hasOther) {
-                    editOtherInput.classList.add('active');
-                    editOtherText.value = otherAmenities.join(', ');
-                } else {
-                    editOtherInput.classList.remove('active');
-                    editOtherText.value = '';
-                }
-            }
+            // Render amenities properly
+            renderAmenityGrid('editAmenitiesGrid', venue.amenities || [], true);
 
             // Render existing images with delete buttons
             const editUploadedFiles = document.getElementById('editUploadedFiles');
@@ -3773,7 +3814,9 @@
                         venueToDelete = null;
                         await loadVenues();
                     } else {
-                        showNotification('Failed to delete venue');
+                        const errData = await response.json().catch(() => ({}));
+                        console.error("Delete failed:", errData);
+                        showNotification('Failed to delete venue: ' + (errData.error || 'Check server logs'));
                     }
                 } catch (error) {
                     showNotification('Server error when deleting venue');

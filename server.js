@@ -191,10 +191,10 @@ app.delete('/api/venues/:id', async (req, res) => {
         if (bookingsErr) console.warn(`[DELETE /api/venues/${venueId}] Warning deleting bookings:`, bookingsErr);
 
         // 3. Finally delete the venue
-        const { error } = await supabase.from('venues').delete().eq('id', venueId);
+        const { error } = await supabase.from('venues').delete().eq('id', parseInt(venueId));
         if (error) {
-            console.error(`[DELETE /api/venues/${venueId}] Error:`, error);
-            throw error;
+            console.error(`[DELETE /api/venues/${venueId}] Final Delete Error:`, error);
+            return res.status(500).json({ error: error.message, details: error });
         }
         
         res.json({ message: "Venue deleted" });
