@@ -4,52 +4,240 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>How Siza Works - Siza</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #40E0D0;
-            --brand-pink: #FF5A5F;
-            --primary-dark: #20B2AA;
+            --primary-orange: #FF5A5F;
+            --primary-coral: #FF7E82;
             --navy-blue: #2C3E50;
             --cool-gray: #5D6D7E;
             --light-gray: #F8F9FA;
             --white: #FFFFFF;
             --dark-gray: #2C3E50;
             --border-gray: #DDDDDD;
+            --soft-shadow: rgba(0, 0, 0, 0.05);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; color: var(--dark-gray); background: var(--white); line-height: 1.6; }
 
-        .navbar { padding: 16px 40px; position: fixed; top: 16px; left: 40px; right: 40px; z-index: 1000; border-radius: 24px; background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05); display: flex; align-items: center; justify-content: space-between; }
-        .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--navy-blue); font-size: 24px; font-weight: 700; }
-        .logo i { color: #FF5A5F; font-size: 28px; }
-        .nav-btn-group { display: flex; gap: 16px; align-items: center; }
-        .nav-btn { text-decoration: none; color: var(--navy-blue); font-weight: 600; white-space: nowrap; }
-        .nav-btn.primary { background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; box-shadow: 0 4px 12px rgba(255, 90, 95, 0.2); }
+        /* GLOBAL LOADER */
+        #siza-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .loader-diamond {
+            font-size: 60px;
+            color: #FF5A5F;
+            animation: pulseLoader 2s infinite ease-in-out;
+        }
+        @keyframes pulseLoader {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+        }
 
-        .content-container { max-width: 900px; margin: 140px auto 80px; padding: 0 24px; }
-        h1 { font-size: 42px; margin-bottom: 24px; color: var(--navy-blue); }
-        h3 { font-size: 24px; margin: 32px 0 16px; color: var(--primary-dark); }
+        /* NAVIGATION BAR */
+        .navbar {
+            padding: 16px 40px;
+            position: fixed;
+            top: 24px;
+            left: 40px;
+            right: 40px;
+            z-index: 1000;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
+            top: 12px;
+        }
+
+        .nav-container {
+            max-width: 1440px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-left { flex: 0 0 auto; display: flex; align-items: center; }
+        .nav-right { flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-end; }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--navy-blue);
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .logo i { color: #FF5A5F; font-size: 28px; }
+
+        /* USER MENU */
+        .user-menu { position: relative; }
+        .user-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid var(--border-gray);
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--dark-gray);
+            transition: all 0.3s ease;
+        }
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            overflow: hidden;
+        }
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 240px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-gray);
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+        }
+        .user-dropdown.active { display: flex; }
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+        .dropdown-item:hover { background: var(--light-gray); color: var(--primary-orange); }
+        .dropdown-divider { height: 1px; background: var(--border-gray); margin: 8px 0; }
+
+        .auth-separator { color: var(--border-gray); margin: 0 8px; }
+
+        .content-container { max-width: 900px; margin: 160px auto 80px; padding: 0 24px; }
+        h1 { font-size: 42px; margin-bottom: 24px; color: var(--navy-blue); font-family: 'Poppins', sans-serif; }
+        h3 { font-size: 24px; margin: 32px 0 16px; color: var(--primary-orange); font-family: 'Poppins', sans-serif; }
         p { margin-bottom: 20px; font-size: 18px; color: var(--cool-gray); }
         ul { margin-bottom: 24px; list-style: none; }
         li { margin-bottom: 12px; font-size: 18px; display: flex; align-items: flex-start; gap: 12px; }
-        li i { color: var(--primary-color); margin-top: 4px; }
+        li i { color: var(--primary-orange); margin-top: 4px; }
 
         .footer { background: var(--light-gray); padding: 80px 40px 40px; }
         .footer-content { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 40px; }
         .footer-section h3 { margin-top: 0; font-size: 18px; margin-bottom: 20px; color: var(--navy-blue); }
-        .footer-section a { display: block; color: var(--cool-gray); text-decoration: none; margin-bottom: 12px; }
-        .footer-bottom { border-top: 1px solid #eee; margin-top: 40px; padding-top: 20px; text-align: center; color: var(--cool-gray); }
+        .footer-section a { display: block; color: var(--cool-gray); text-decoration: none; margin-bottom: 12px; transition: color 0.3s; }
+        .footer-section a:hover { color: var(--primary-orange); }
+        .footer-bottom { border-top: 1px solid var(--border-gray); margin-top: 40px; padding-top: 24px; text-align: center; color: var(--cool-gray); }
+
+        @media (max-width: 768px) {
+            .navbar { left: 16px; right: 16px; top: 12px; padding: 12px 20px; }
+            .content-container { margin-top: 120px; }
+            h1 { font-size: 32px; }
+            #navUserName { display: none; }
+            .user-avatar { width: 28px; height: 28px; font-size: 12px; }
+            .logo span { display: none; }
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar">
-        <a href="index.html" class="logo"><i class="fas fa-gem"></i> Siza</a>
-        <div class="nav-btn-group">
-            <a href="login.html" class="nav-btn">Log In</a>
-            <a href="register.html" class="nav-btn primary">Sign Up</a>
+    <script>
+        // Prevent layout shift
+        const _uStr = localStorage.getItem('siza_user');
+        if (_uStr) {
+            document.write('<style>#navAuth { display: none !important; } #navUserMenu { display: block !important; }</style>');
+        } else {
+            document.write('<style>#navAuth { display: flex !important; } #navUserMenu { display: none !important; }</style>');
+        }
+
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('siza-loader');
+            if (loader) {
+                loader.style.transition = 'opacity 0.6s ease';
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 600);
+            }
+        });
+    </script>
+
+    <!-- GLOBAL LOADER -->
+    <div id="siza-loader">
+        <i class="fas fa-gem loader-diamond"></i>
+    </div>
+
+    <nav class="navbar" id="mainNav">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" class="logo"><i class="fas fa-gem"></i> <span>Siza</span></a>
+            </div>
+            <div class="nav-right">
+                <div id="navAuth" style="display: none; align-items: center; gap: 8px;">
+                    <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log In</a>
+                    <span class="auth-separator">|</span>
+                    <a href="register.html" style="text-decoration: none; background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; font-weight: 600;">Sign Up</a>
+                </div>
+                <div id="navUserMenu" style="display: none;">
+                    <div class="user-menu">
+                        <button class="user-btn" onclick="toggleUserDropdown()">
+                            <div class="user-avatar" id="navUserAvatar">U</div>
+                            <span id="navUserName">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                             <a href="dashboard.html" class="dropdown-item">
+                                <i class="fas fa-chart-line"></i> Dashboard
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <button class="dropdown-item" onclick="logout()" style="color: #FF5A5F;">
+                                <i class="fas fa-sign-out-alt"></i> Log Out
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -99,5 +287,53 @@
             <p>&copy; 2026 Siza, Inc. All rights reserved.</p>
         </div>
     </footer>
+
+    <script>
+        // Standard session logic
+        let currentUser = null;
+        function checkAuthNav() {
+            const userStr = localStorage.getItem('siza_user');
+            if (userStr) {
+                currentUser = JSON.parse(userStr);
+                const navAvatar = document.getElementById('navUserAvatar');
+                const navName = document.getElementById('navUserName');
+                
+                if (navName) navName.textContent = currentUser.name.split(' ')[0];
+                
+                if (currentUser.profile_image) {
+                    navAvatar.innerHTML = `<img src="${currentUser.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+                } else {
+                    const nameParts = currentUser.name.trim().split(/\s+/);
+                    let initials = nameParts[0].charAt(0);
+                    if (nameParts.length >= 2) initials += nameParts[nameParts.length - 1].charAt(0);
+                    navAvatar.textContent = initials.toUpperCase();
+                }
+            }
+        }
+
+        function toggleUserDropdown() {
+            document.getElementById('userDropdown').classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.removeItem('siza_user');
+            window.location.href = 'index.html';
+        }
+
+        window.addEventListener('click', (e) => {
+            if (!e.target.closest('.user-menu')) {
+                const drop = document.getElementById('userDropdown');
+                if (drop) drop.classList.remove('active');
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            const nav = document.getElementById('mainNav');
+            if (window.scrollY > 50) nav.classList.add('scrolled');
+            else nav.classList.remove('scrolled');
+        });
+
+        checkAuthNav();
+    </script>
 </body>
 </html>

@@ -257,6 +257,29 @@
             opacity: 1;
         }
 
+        /* GLOBAL LOADER */
+        #siza-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .loader-diamond {
+            font-size: 60px;
+            color: #FF5A5F;
+            animation: pulseLoader 2s infinite ease-in-out;
+        }
+        @keyframes pulseLoader {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+        }
+
         /* LOGIN PROMPT MODAL (Exact match with index.html) */
         .login-prompt-modal {
             display: none;
@@ -1702,6 +1725,30 @@
 </head>
 
 <body>
+
+    <script>
+        // Prevent layout shift
+        const _uStr = localStorage.getItem('siza_user');
+        if (_uStr) {
+            document.write('<style>#navAuth { display: none !important; } #navUserMenu { display: block !important; }</style>');
+        } else {
+            document.write('<style>#navAuth { display: flex !important; } #navUserMenu { display: none !important; }</style>');
+        }
+
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('siza-loader');
+            if (loader) {
+                loader.style.transition = 'opacity 0.6s ease';
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 600);
+            }
+        });
+    </script>
+
+    <!-- GLOBAL LOADER -->
+    <div id="siza-loader">
+        <i class="fas fa-gem loader-diamond"></i>
+    </div>
 
     <!-- BLUR LAYER -->
     <div class="content-blur-layer" id="blurLayer"></div>

@@ -174,14 +174,28 @@ app.post('/api/venues', async (req, res) => {
 
 // Delete a venue by ID
 app.delete('/api/venues/:id', async (req, res) => {
+    const venueId = req.params.id;
     try {
-        const { error } = await supabase.from('venues').delete().eq('id', req.params.id);
+        console.log(`[DELETE /api/venues/${venueId}] Initiating deletion...`);
+        
+        // 1. Delete associated venue_views
+        const { error: viewsErr } = await supabase.from('venue_views').delete().eq('venue_id', venueId);
+        if (viewsErr) console.warn(`[DELETE /api/venues/${venueId}] Warning deleting views:`, viewsErr);
+
+        // 2. Delete associated favorites
+        const { error: favsErr } = await supabase.from('favorites').delete().eq('venue_id', venueId);
+        if (favsErr) console.warn(`[DELETE /api/venues/${venueId}] Warning deleting favorites:`, favsErr);
+
+        // 3. Finally delete the venue
+        const { error } = await supabase.from('venues').delete().eq('id', venueId);
         if (error) {
-            console.error(`[DELETE /api/venues/${req.params.id}] Error:`, error);
+            console.error(`[DELETE /api/venues/${venueId}] Error:`, error);
             throw error;
         }
+        
         res.json({ message: "Venue deleted" });
     } catch (err) {
+        console.error(`[DELETE /api/venues/${venueId}] Catch Error:`, err);
         res.status(500).json({ error: err.message });
     }
 });

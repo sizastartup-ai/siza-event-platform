@@ -31,6 +31,29 @@
             box-sizing: border-box;
         }
 
+        /* GLOBAL LOADER */
+        #siza-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .loader-diamond {
+            font-size: 60px;
+            color: #FF5A5F;
+            animation: pulseLoader 2s infinite ease-in-out;
+        }
+        @keyframes pulseLoader {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+        }
+
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             color: var(--dark-gray);
@@ -58,11 +81,6 @@
         .navbar.scrolled {
             background: rgba(255, 255, 255, 0.95);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-        }
-
-        .navbar.scrolled {
-            background: rgba(255, 212, 196, 0.95);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
         }
 
         .nav-container {
@@ -93,8 +111,10 @@
 
         .logo i {
             font-size: 28px;
-            color: var(--primary-orange);
+            color: #FF5A5F;
         }
+
+        .auth-separator { color: var(--border-gray); margin: 0 8px; }
 
         /* CENTERED SEARCH BAR */
         .mini-search {
@@ -927,15 +947,41 @@
 <body>
 
     <!-- BLUR LAYER for content passing under navbar -->
+    <script>
+        // Prevent layout shift
+        const _uStr = localStorage.getItem('siza_user');
+        if (_uStr) {
+            document.write('<style>#navAuth { display: none !important; } #navUserMenu { display: block !important; }</style>');
+        } else {
+            document.write('<style>#navAuth { display: flex !important; } #navUserMenu { display: none !important; }</style>');
+        }
+
+        window.addEventListener('load', function() {
+            const loader = document.getElementById('siza-loader');
+            if (loader) {
+                loader.style.transition = 'opacity 0.6s ease';
+                loader.style.opacity = '0';
+                setTimeout(() => loader.remove(), 600);
+            }
+        });
+    </script>
+
+    <!-- GLOBAL LOADER -->
+    <div id="siza-loader">
+        <i class="fas fa-gem loader-diamond"></i>
+    </div>
+
     <div class="content-blur-layer" id="blurLayer"></div>
 
-    <!-- FLOATING NAVIGATION - Pastel orange, centered, rounded -->
-    <nav class="navbar" id="navbar">
+    <!-- NAVIGATION BAR -->
+    <nav class="navbar" id="mainNav">
         <div class="nav-container">
-            <a href="index.html" class="logo">
-                <i class="fas fa-gem"></i>
-                <span>Siza</span>
-            </a>
+            <div class="nav-left">
+                <a href="index.html" class="logo">
+                    <i class="fas fa-gem" style="color: #FF5A5F;"></i>
+                    <span>Siza</span>
+                </a>
+            </div>
 
             <div class="mini-search">
                 <div class="mini-search-bar">
@@ -946,12 +992,10 @@
                 </div>
             </div>
 
-            <div id="navAuth" style="display: flex; gap: 16px; align-items: center; margin-left: 16px;">
-                <a href="login.html" style="text-decoration: none; color: var(--dark-gray); font-weight: 600;">Log
-                    In</a>
-                <a href="register.html"
-                    style="text-decoration: none; background: var(--primary-orange); color: white; padding: 10px 20px; border-radius: 20px; font-weight: 600;">Sign
-                    Up</a>
+            <div id="navAuth" style="display: none; align-items: center; gap: 8px;">
+                <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log In</a>
+                <span class="auth-separator">|</span>
+                <a href="register.html" style="text-decoration: none; background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; font-weight: 600;">Sign Up</a>
             </div>
 
             <div id="navUserMenu" style="display: none; margin-left: 16px;">
@@ -1049,8 +1093,8 @@
     <div class="search-layout">
 
         <div class="results-header">
-            <h1 id="resultsTitle">Stays in New York</h1>
-            <p id="resultsCount">300+ venues available</p>
+            <h1 id="resultsTitle">Searching...</h1>
+            <p id="resultsCount"></p>
         </div>
 
         <!-- FILTER CHIPS -->
@@ -1206,7 +1250,7 @@
 
         // Setup scroll blur effect
         function setupScrollBlur() {
-            const navbar = document.getElementById('navbar');
+            const navbar = document.getElementById('mainNav');
             const blurLayer = document.getElementById('blurLayer');
 
             window.addEventListener('scroll', () => {
