@@ -101,6 +101,16 @@
             transform: scale(1.05) rotate(-2deg);
         }
 
+        /* Center logo on desktop for index.html */
+        @media (min-width: 769px) {
+            .navbar .logo {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 10;
+            }
+        }
+
         .logo i {
             font-size: 28px;
             color: var(--primary-orange);
@@ -855,13 +865,19 @@
                 transform: translate(-50%, -50%);
                 display: flex;
                 align-items: center;
+                pointer-events: none; /* Let clicks pass through to logo on left if needed, though logo is separate now */
             }
 
-            .navbar .nav-left, .navbar .nav-right {
-                flex: 1;
+            .navbar .nav-left {
+                flex: 0 0 auto;
+                display: flex;
+                align-items: center;
             }
 
             .navbar .nav-right {
+                flex: 0 0 auto;
+                display: flex;
+                align-items: center;
                 justify-content: flex-end;
             }
 
@@ -1156,13 +1172,12 @@
     <nav class="navbar" id="mainNav">
         <div class="nav-container">
             <div class="nav-left">
-                <!-- Placeholder for back button or empty if on home -->
-            </div>
-            <div class="nav-center">
                 <a href="index.html" class="logo">
                     <i class="fas fa-gem" style="color: #FF5A5F;"></i>
                     <span>Siza</span>
                 </a>
+            </div>
+            <div class="nav-center">
                 <!-- Pop-out Search for sticky nav -->
                 <div class="nav-search" id="navSearch" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="display: none;">
                     <span>Where</span>
@@ -1175,10 +1190,11 @@
                     </div>
                 </div>
             </div>
+            <div class="nav-right">
                 <div id="navAuth" style="display: none; gap: 8px; align-items: center;">
-                    <a href="register.html" style="text-decoration: none; background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; font-weight: 600;">Sign Up</a>
-                    <span class="auth-separator">|</span>
                     <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log In</a>
+                    <span class="auth-separator">|</span>
+                    <a href="register.html" style="text-decoration: none; background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; font-weight: 600;">Sign Up</a>
                 </div>
 
                 <div id="navUserMenu" style="display: none;">
