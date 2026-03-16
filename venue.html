@@ -1584,6 +1584,15 @@
                 gap: 8px;
                 flex-wrap: nowrap;
                 justify-content: space-between;
+                position: relative;
+            }
+            .nav-center {
+                position: absolute;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .logo {
@@ -1629,17 +1638,17 @@
 
     <nav class="navbar" id="mainNav">
         <div class="nav-container">
-            <div class="nav-left" style="display: flex; gap: 24px; align-items: center;">
+            <div class="nav-left">
+                <a href="index.html" class="nav-back">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>Back</span>
+                </a>
+            </div>
+            <div class="nav-center">
                 <a href="index.html" class="logo">
                     <i class="fas fa-gem" style="color: #FF5A5F;"></i>
                     <span>Siza</span>
                 </a>
-                <a href="index.html" class="nav-back">
-                    <i class="fas fa-arrow-left"></i>
-                    Back
-                </a>
-            </div>
-            <div class="nav-center">
             </div>
             <div class="nav-right">
                 <div id="navAuth" style="display: none; gap: 16px; align-items: center;">
@@ -2083,9 +2092,8 @@
 
         window.addEventListener('click', (e) => {
             if (!e.target.closest('.user-menu')) {
-                const dd = document.getElementById('userDropdown');
+                const dd = document.getElementById('navUserDropdown');
                 if (dd) {
-                    dd.style.display = 'none';
                     dd.classList.remove('active');
                 }
             }

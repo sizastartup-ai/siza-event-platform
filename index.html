@@ -261,14 +261,22 @@
             z-index: 100;
         }
 
-        .categories-container {
+        .categories-wrapper {
             max-width: 1440px;
             margin: 0 auto;
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .categories-container {
             display: flex;
             gap: 32px;
             overflow-x: auto;
             scrollbar-width: none;
-            justify-content: center;
+            scroll-behavior: smooth;
+            padding: 0 40px;
+            width: 100%;
         }
 
         .categories-container::-webkit-scrollbar {
@@ -306,6 +314,89 @@
         .category-item.active {
             color: var(--primary-orange);
             border-bottom-color: var(--primary-orange);
+        }
+
+        /* CATEGORY SCROLLING BUTTONS */
+        .category-scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: white;
+            border: 1px solid var(--border-gray);
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 105;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .category-scroll-btn.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .category-scroll-btn:hover {
+            transform: translateY(-50%) scale(1.1);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .category-scroll-btn.prev { left: 0; }
+        .category-scroll-btn.next { right: 0; }
+
+        .category-gradient {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            pointer-events: none;
+            z-index: 102;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .category-gradient.active {
+            opacity: 1;
+        }
+
+        .category-gradient.left {
+            left: 30px;
+            background: linear-gradient(to right, white 0%, rgba(255,255,255,0) 100%);
+        }
+
+        .category-gradient.right {
+            right: 30px;
+            background: linear-gradient(to left, white 0%, rgba(255,255,255,0) 100%);
+        }
+
+        @media (max-width: 768px) {
+            .categories {
+                padding: 12px 10px;
+            }
+            .categories-container {
+                gap: 20px;
+                padding: 0 30px;
+            }
+            .category-scroll-btn {
+                width: 28px;
+                height: 28px;
+                font-size: 10px;
+            }
+            .category-gradient.left {
+                left: 26px;
+                width: 40px;
+            }
+            .category-gradient.right {
+                right: 26px;
+                width: 40px;
+            }
         }
 
         /* VENUES GRID SECTION */
@@ -749,6 +840,39 @@
                 top: 12px;
                 border-radius: 20px;
             }
+
+            .navbar .nav-container {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .navbar .nav-center {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                display: flex;
+                align-items: center;
+            }
+
+            .navbar .nav-left, .navbar .nav-right {
+                flex: 1;
+            }
+
+            .navbar .nav-right {
+                justify-content: flex-end;
+            }
+
+            .logo {
+                font-size: 20px;
+                gap: 4px;
+            }
+
+            .logo i {
+                font-size: 20px;
+            }
             .nav-container {
                 gap: 10px;
                 flex-wrap: nowrap;
@@ -1004,12 +1128,13 @@
     <nav class="navbar" id="mainNav">
         <div class="nav-container">
             <div class="nav-left">
+                <!-- Placeholder for back button or empty if on home -->
+            </div>
+            <div class="nav-center">
                 <a href="index.html" class="logo">
                     <i class="fas fa-gem" style="color: #FF5A5F;"></i>
                     <span>Siza</span>
                 </a>
-            </div>
-            <div class="nav-center">
                 <!-- Pop-out Search for sticky nav -->
                 <div class="nav-search" id="navSearch" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" style="display: none;">
                     <span>Where</span>
@@ -1160,38 +1285,50 @@
 
     <!-- CATEGORIES - Updated filters -->
     <section class="categories">
-        <div class="categories-container">
-            <button class="category-item active" onclick="filterCategory('all', this)">
-                <i class="fas fa-star"></i>
-                <span>All</span>
+        <div class="categories-wrapper">
+            <button class="category-scroll-btn prev" id="catPrev" onclick="scrollCategories(-1)">
+                <i class="fas fa-chevron-left"></i>
             </button>
-            <button class="category-item" onclick="filterCategory('Gardens', this)">
-                <i class="fas fa-leaf"></i>
-                <span>Gardens</span>
-            </button>
-            <button class="category-item" onclick="filterCategory('indoor spaces', this)">
-                <i class="fas fa-home"></i>
-                <span>Indoor spaces</span>
-            </button>
-            <button class="category-item" onclick="filterCategory('schools', this)">
-                <i class="fas fa-graduation-cap"></i>
-                <span>Schools</span>
-            </button>
-            <button class="category-item" onclick="filterCategory('hotels', this)">
-                <i class="fas fa-hotel"></i>
-                <span>Hotels</span>
-            </button>
-            <button class="category-item" onclick="filterCategory('unique spots', this)">
-                <i class="fas fa-magic"></i>
-                <span>Unique spots</span>
-            </button>
-            <button class="category-item" onclick="filterCategory('home', this)">
-                <i class="fas fa-house-user"></i>
-                <span>Home</span>
-            </button>
-            <button class="category-item" onclick="filterCategory('rooftop', this)">
-                <i class="fas fa-city"></i>
-                <span>Rooftops</span>
+            <div class="category-gradient left" id="catGradLeft"></div>
+            
+            <div class="categories-container" id="categoriesContainer">
+                <button class="category-item active" onclick="filterCategory('all', this)">
+                    <i class="fas fa-star"></i>
+                    <span>All</span>
+                </button>
+                <button class="category-item" onclick="filterCategory('Gardens', this)">
+                    <i class="fas fa-leaf"></i>
+                    <span>Gardens</span>
+                </button>
+                <button class="category-item" onclick="filterCategory('indoor spaces', this)">
+                    <i class="fas fa-home"></i>
+                    <span>Indoor spaces</span>
+                </button>
+                <button class="category-item" onclick="filterCategory('schools', this)">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>Schools</span>
+                </button>
+                <button class="category-item" onclick="filterCategory('hotels', this)">
+                    <i class="fas fa-hotel"></i>
+                    <span>Hotels</span>
+                </button>
+                <button class="category-item" onclick="filterCategory('unique spots', this)">
+                    <i class="fas fa-magic"></i>
+                    <span>Unique spots</span>
+                </button>
+                <button class="category-item" onclick="filterCategory('home', this)">
+                    <i class="fas fa-house-user"></i>
+                    <span>Home</span>
+                </button>
+                <button class="category-item" onclick="filterCategory('rooftop', this)">
+                    <i class="fas fa-city"></i>
+                    <span>Rooftops</span>
+                </button>
+            </div>
+
+            <div class="category-gradient right" id="catGradRight"></div>
+            <button class="category-scroll-btn next" id="catNext" onclick="scrollCategories(1)">
+                <i class="fas fa-chevron-right"></i>
             </button>
         </div>
     </section>
@@ -1250,6 +1387,60 @@
     <script>
         let allVenues = [];
 
+        // CATEGORY SCROLL LOGIC
+        function scrollCategories(direction) {
+            const container = document.getElementById('categoriesContainer');
+            const items = container.querySelectorAll('.category-item');
+            if (items.length === 0) return;
+            
+            // Calculate one item's width including gap dynamically
+            const style = window.getComputedStyle(container);
+            const gap = parseInt(style.gap) || 0;
+            const itemWidth = items[0].offsetWidth + gap; 
+            
+            container.scrollBy({ left: direction * itemWidth, behavior: 'smooth' });
+        }
+
+        function updateCategoryArrows() {
+            const container = document.getElementById('categoriesContainer');
+            const prevBtn = document.getElementById('catPrev');
+            const nextBtn = document.getElementById('catNext');
+            const gradLeft = document.getElementById('catGradLeft');
+            const gradRight = document.getElementById('catGradRight');
+
+            if (!container || !prevBtn || !nextBtn) return;
+
+            const isScrollable = container.scrollWidth > container.clientWidth;
+            
+            if (!isScrollable) {
+                prevBtn.classList.remove('active');
+                nextBtn.classList.remove('active');
+                gradLeft.classList.remove('active');
+                gradRight.classList.remove('active');
+                return;
+            }
+
+            const scrollLeft = container.scrollLeft;
+            const maxScroll = container.scrollWidth - container.clientWidth;
+
+            // Update Visibility
+            if (scrollLeft <= 5) {
+                prevBtn.classList.remove('active');
+                gradLeft.classList.remove('active');
+            } else {
+                prevBtn.classList.add('active');
+                gradLeft.classList.add('active');
+            }
+
+            if (scrollLeft >= maxScroll - 5) {
+                nextBtn.classList.remove('active');
+                gradRight.classList.remove('active');
+            } else {
+                nextBtn.classList.add('active');
+                gradRight.classList.add('active');
+            }
+        }
+
         // Shuffle array using Fisher-Yates algorithm
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -1294,6 +1485,15 @@
 
                 resetInfiniteScroll();
                 renderNextChunk();
+                
+                // Initialize Category Arrows
+                const catContainer = document.getElementById('categoriesContainer');
+                if (catContainer) {
+                    catContainer.addEventListener('scroll', updateCategoryArrows);
+                    window.addEventListener('resize', updateCategoryArrows);
+                    // Initial check
+                    setTimeout(updateCategoryArrows, 100);
+                }
             } catch (error) {
                 console.error("Error fetching venues:", error);
                 document.getElementById('venuesGrid').innerHTML = '<p>Error loading venues. Please try again later.</p>';
