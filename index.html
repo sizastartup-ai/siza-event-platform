@@ -326,6 +326,26 @@
             border-bottom-color: var(--primary-orange);
         }
 
+        /* CONTENT BLUR LAYER */
+        .content-blur-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100px;
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            pointer-events: none;
+            z-index: 990;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .content-blur-layer.active {
+            opacity: 1;
+        }
+
         /* CATEGORY SCROLLING BUTTONS */
         .category-scroll-btn {
             position: absolute;
@@ -1168,6 +1188,9 @@
             document.write('<style>#navAuth { display: flex !important; } #navUserMenu { display: none !important; }</style>');
         }
     </script>
+    <!-- BLUR LAYER -->
+    <div class="content-blur-layer" id="blurLayer"></div>
+
     <!-- NAVIGATION BAR -->
     <nav class="navbar" id="mainNav">
         <div class="nav-container">
@@ -1987,6 +2010,17 @@
             const hero = document.querySelector('.hero');
             const heroContent = document.querySelector('.hero-content');
             const navSearch = document.getElementById('navSearch');
+            const mainNav = document.getElementById('mainNav');
+            const blurLayer = document.getElementById('blurLayer');
+
+            // Toggle navbar and blur layer states
+            if (scrollY > 50) {
+                mainNav.classList.add('scrolled');
+                blurLayer.classList.add('active');
+            } else {
+                mainNav.classList.remove('scrolled');
+                blurLayer.classList.remove('active');
+            }
 
             // Base values
             const basePadding = 140; 

@@ -204,12 +204,13 @@
             left: 0;
             right: 0;
             height: 100px;
-            background: linear-gradient(to bottom, rgba(255, 212, 196, 0.3) 0%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0) 100%);
             pointer-events: none;
             z-index: 999;
             opacity: 0;
-            transition: opacity 0.3s;
-            backdrop-filter: blur(5px);
+            transition: opacity 0.4s ease;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
         .content-blur-layer.active {
@@ -2550,7 +2551,7 @@
 
         // Setup scroll blur effect
         function setupScrollBlur() {
-            const navbar = document.getElementById('navbar');
+            const navbar = document.getElementById('mainNav');
             const blurLayer = document.getElementById('blurLayer');
 
             window.addEventListener('scroll', () => {
