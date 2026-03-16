@@ -142,6 +142,47 @@
             box-shadow: 0 4px 12px var(--soft-shadow);
         }
 
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 240px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-gray);
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .user-dropdown.active {
+            display: flex;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-item i { font-size: 18px; color: var(--cool-gray); width: 24px; text-align: center; }
+        .dropdown-divider { height: 1px; background: var(--border-gray); margin: 8px; }
+
         .user-avatar {
             width: 32px;
             height: 32px;
@@ -1514,17 +1555,18 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.1);
             display: none;
             flex-direction: column;
-            padding: 8px;
+            padding: 4px;
             z-index: 1000;
             border: 1px solid var(--border-gray);
             animation: fadeIn 0.2s ease;
+            overflow: hidden;
         }
 
         .user-dropdown.active { display: flex; }
 
         .dropdown-item {
-            padding: 12px 16px;
-            border-radius: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             gap: 12px;
@@ -1554,6 +1596,27 @@
 </head>
 
 <body>
+    <script>
+        // Prevent layout shift/flicker for renters
+        (function() {
+            try {
+                const user = JSON.parse(localStorage.getItem('siza_user') || '{}');
+                if (user.role === 'renter' || user.role === 'user') {
+                    // Inject CSS to aggressively hide owner elements
+                    var head = document.head || document.getElementsByTagName('head')[0];
+                    var style = document.createElement('style');
+                    style.type = 'text/css';
+                    var css = '#statsGrid, #venuesSection, .dashboard-header p { display: none !important; }';
+                    if (style.styleSheet){
+                      style.styleSheet.cssText = css;
+                    } else {
+                      style.appendChild(document.createTextNode(css));
+                    }
+                    head.appendChild(style);
+                }
+            } catch(e) {}
+        })();
+    </script>
 
     <!-- BLUR LAYER -->
     <div class="content-blur-layer" id="blurLayer"></div>
@@ -1610,7 +1673,7 @@
         </div>
 
         <!-- Stats Grid (shown when has venues) -->
-        <div class="stats-grid" id="statsGrid">
+        <div class="stats-grid" id="statsGrid" style="display: none;">
             <div class="stat-card">
                 <div class="stat-icon">
                     <i class="fas fa-eye"></i>
@@ -1796,6 +1859,13 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Event Categories Supported *</label>
+                    <div class="checkbox-grid" id="eventCategoriesGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Photos & Videos *</label>
                     <div class="file-upload" onclick="document.getElementById('venueFiles').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
@@ -1823,6 +1893,15 @@
                         </button>
                     </div>
                     <div id="locationTagsList" class="location-tags-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Detailed Presentation (PDF) <small style="font-weight:400; color:var(--cool-gray);">(Optional)</small></label>
+                    <div class="file-upload" onclick="document.getElementById('venuePdf').click()">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="file-upload-text" id="venuePdfLabel">Click to upload PDF</div>
+                    </div>
+                    <input type="file" id="venuePdf" accept="application/pdf" style="display: none;" onchange="document.getElementById('venuePdfLabel').textContent = this.files[0] ? this.files[0].name : 'Click to upload PDF'">
                 </div>
 
                 <div class="form-group">
@@ -1974,6 +2053,13 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Event Categories Supported *</label>
+                    <div class="checkbox-grid" id="editEventCategoriesGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Photos & Videos</label>
                     <div class="file-upload" onclick="document.getElementById('editVenueFiles').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
@@ -2000,6 +2086,15 @@
                         </button>
                     </div>
                     <div id="editLocationTagsList" class="location-tags-list" style="display:flex; flex-wrap:wrap; gap:8px; margin-top:10px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Detailed Presentation (PDF) <small style="font-weight:400; color:var(--cool-gray);">(Optional)</small></label>
+                    <div class="file-upload" onclick="document.getElementById('editVenuePdf').click()">
+                        <i class="fas fa-file-pdf"></i>
+                        <div class="file-upload-text" id="editVenuePdfLabel">Click to upload/replace PDF</div>
+                    </div>
+                    <input type="file" id="editVenuePdf" accept="application/pdf" style="display: none;" onchange="document.getElementById('editVenuePdfLabel').textContent = this.files[0] ? this.files[0].name : 'Click to upload/replace PDF'">
                 </div>
 
                 <div class="form-group">
@@ -2217,6 +2312,12 @@
             'Gardens', 'Indoor Spaces', 'Schools', 'Hotels',
             'Unique Spots', 'Home', 'Rooftop'
         ];
+        
+        const eventCategoriesList = [
+            'Weddings', 'Corporate seminars/workshops', 'Team building', 'Picnics', 
+            'Photoshoots', 'Private celebrations(Birthdays, Graduations, Baby showers, etc)', 
+            'Brunch', 'Concerts', 'Fun social gatherings'
+        ];
 
         // 20 Common amenities list
         const commonAmenities = [
@@ -2232,6 +2333,17 @@
             await checkAuth();
             setupScrollBlur();
             await loadVenues();
+
+            // Populate Event Categories for Add
+            const addEventCatGrid = document.getElementById('eventCategoriesGrid');
+            if (addEventCatGrid) {
+                addEventCatGrid.innerHTML = eventCategoriesList.map((cat, i) => `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="add-event-cat-${i}" value="${cat}">
+                        <label for="add-event-cat-${i}">${cat}</label>
+                    </div>
+                `).join('');
+            }
 
             // Handle Favorites tab from URL
             const urlParams = new URLSearchParams(window.location.search);
@@ -2290,6 +2402,13 @@
             reader.onerror = error => reject(error);
         });
 
+        const getPdfBase64 = (file) => new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => resolve(event.target.result);
+            reader.onerror = error => reject(error);
+        });
+
         // Robust image parser
         function parseVenueImages(imageStr) {
             if (!imageStr) return [];
@@ -2332,7 +2451,7 @@
             currentUser = JSON.parse(userStr);
 
             // Both owners and renters can access dashboard
-            if (currentUser.role !== 'owner' && currentUser.role !== 'user') {
+            if (currentUser.role !== 'owner' && currentUser.role !== 'renter' && currentUser.role !== 'user') {
                 window.location.href = 'index.html';
                 return;
             }
@@ -2364,6 +2483,7 @@
                     avatarBtn.innerHTML = `<span style="font-size: 20px; font-weight: 600;">${initials}</span>`;
                 }
             }
+            if (typeof updateDropdownMenu === 'function') updateDropdownMenu();
         }
 
         // Setup scroll blur effect
@@ -2419,6 +2539,17 @@
                             capacity: v.guests,
                             description: v.description || `${v.title} located in ${v.location}. For up to ${v.guests} guests.`,
                             categories: [v.type],
+                            event_categories: (() => { 
+                                let ec = v.event_categories;
+                                if (typeof ec === 'string') { 
+                                    try { ec = JSON.parse(ec); } 
+                                    catch (e) { 
+                                        if (ec.includes(',')) ec = ec.split(',').map(s => s.trim());
+                                        else ec = [ec];
+                                    } 
+                                }
+                                return Array.isArray(ec) ? ec : (ec ? [ec] : []);
+                            })(),
                             amenities: parsedAmenities,
                             images: venueImages,
                             status: 'active',
@@ -2685,8 +2816,9 @@
             const firstName = booking.users ? booking.users.name.split(' ')[0] : 'Guest';
             const venueName = booking.venues ? booking.venues.title : 'the venue';
             const guests = booking.guests || 0;
+            const eventCategory = booking.event_category || 'event';
             
-            const message = `Yay! <strong>${firstName}</strong> has booked <strong>${venueName}</strong> for <strong>${booking.date}</strong> with <strong>${guests} guests</strong>. A Siza representative will get in touch with you shortly.`;
+            const message = `Yay! <strong>${firstName}</strong> has booked <strong>${venueName}</strong> for <strong>${booking.date}</strong> with <strong>${guests} guests</strong> for a <strong>${eventCategory}</strong>. A Siza representative will get in touch with you shortly.`;
             
             document.getElementById('bookingMessageContent').innerHTML = message;
             document.getElementById('bookingDetailsModal').classList.add('active');
@@ -2770,7 +2902,15 @@
 
         window.addEventListener('mousemove', resetLogoutTimer);
         window.addEventListener('keypress', resetLogoutTimer);
-        window.addEventListener('click', resetLogoutTimer);
+        window.addEventListener('click', (e) => {
+            resetLogoutTimer();
+            if (!e.target.closest('.user-menu')) {
+                const dropdown = document.getElementById('userDropdown');
+                if (dropdown && dropdown.classList.contains('active')) {
+                    dropdown.classList.remove('active');
+                }
+            }
+        });
         window.addEventListener('scroll', resetLogoutTimer);
         resetLogoutTimer();
 
@@ -2808,7 +2948,7 @@
                 return;
             }
 
-            const isRenter = currentUser && currentUser.role === 'user';
+            const isRenter = currentUser && (currentUser.role === 'renter' || currentUser.role === 'user');
 
             grid.innerHTML = venues.map((venue, index) => {
                 const link = `venue.html?id=${venue.id}`;
@@ -2959,6 +3099,12 @@
 
             const typeValue = selectedCategories.length > 0 ? selectedCategories[0] : 'Event Space';
 
+            // Get selected event categories
+            const selectedEventCategories = [];
+            document.querySelectorAll('#eventCategoriesGrid input[type="checkbox"]:checked').forEach(cb => {
+                selectedEventCategories.push(cb.value);
+            });
+
             // Get selected amenities
             const selectedAmenities = [];
             document.querySelectorAll('#amenitiesGrid input[type="checkbox"]:checked').forEach(cb => {
@@ -2986,6 +3132,20 @@
             } else {
                 // Default if no image (User requested no hardcoded Unsplash)
                 imageUrls = [];
+            }            // Handle PDF
+            let pdfBase64 = null;
+            const pdfInput = document.getElementById('venuePdf');
+            if (pdfInput.files && pdfInput.files.length > 0) {
+                try {
+                    pdfBase64 = await getPdfBase64(pdfInput.files[0]);
+                } catch (e) {
+                    showNotification("Failed to upload PDF");
+                    // Assuming submitBtn exists and needs to be handled
+                    // If not, remove these lines or define submitBtn
+                    // const submitBtn = event.target.querySelector('button[type="submit"]');
+                    // if (submitBtn) submitBtn.classList.remove('loading');
+                    return;
+                }
             }
 
             const venuePayload = {
@@ -2999,6 +3159,8 @@
                 rating: 0,
                 image: imageUrls,
                 amenities: selectedAmenities,
+                event_categories: selectedEventCategories,
+                details_pdf: pdfBase64,
                 description: description
             };
 
@@ -3065,6 +3227,15 @@
                 </div>
             `).join('');
 
+            // Render event categories
+            const eventCatGrid = document.getElementById('editEventCategoriesGrid');
+            eventCatGrid.innerHTML = eventCategoriesList.map((cat, i) => `
+                <div class="checkbox-item">
+                    <input type="checkbox" id="edit-event-cat-${i}" value="${cat}" ${venue.event_categories && venue.event_categories.includes(cat) ? 'checked' : ''}>
+                    <label for="edit-event-cat-${i}">${cat}</label>
+                </div>
+            `).join('');
+
             // Render amenities
             const amenGrid = document.getElementById('editAmenitiesGrid');
             amenGrid.innerHTML = commonAmenities.map(amen => `
@@ -3106,6 +3277,8 @@
 
             // Clear new files input and list
             document.getElementById('editVenueFiles').value = '';
+            document.getElementById('editVenuePdf').value = '';
+            document.getElementById('editVenuePdfLabel').textContent = "Click to upload/replace PDF";
             const hint = document.querySelector('#editVenueModal .file-upload-text');
             if (hint) hint.textContent = "Click to upload additional photos/videos";
 
@@ -3120,18 +3293,20 @@
 
                 // Update on server immediately to be safe, or just wait for Save
                 // User requirement says "delete the image from the database", so we update immediately
-                const payload = {
-                    title: venue.name,
-                    location: venue.location,
-                    location_tags: venue.location_tags || [],
-                    type: venue.categories ? venue.categories[0] : 'Event Space',
-                    guests: venue.capacity,
-                    price: venue.price,
-                    image: venue.images,
-                    amenities: venue.amenities,
-                    unavailable_dates: venue.unavailableDates || [],
-                    description: venue.description
-                };
+             const payload = {
+                title: venue.name,
+                location: venue.location,
+                location_tags: venue.location_tags || [],
+                type: venue.categories ? venue.categories[0] : 'Event Space',
+                guests: venue.capacity,
+                price: venue.price,
+                image: venue.images,
+                amenities: venue.amenities,
+                event_categories: venue.event_categories || [],
+                details_pdf: venue.details_pdf,
+                unavailable_dates: venue.unavailableDates || [],
+                description: venue.description
+            };
 
                 try {
                     const response = await fetch(`/api/venues/${venue.id}`, {
@@ -3190,6 +3365,12 @@
             });
             const typeValue = selectedCategories.length > 0 ? selectedCategories[0] : 'Event Space';
 
+            // Event Categories
+            const selectedEventCategories = [];
+            document.querySelectorAll('#editEventCategoriesGrid input[type="checkbox"]:checked').forEach(cb => {
+                selectedEventCategories.push(cb.value);
+            });
+
             // Amenities
             const selectedAmenities = [];
             document.querySelectorAll('#editAmenitiesGrid input[type="checkbox"]:checked').forEach(cb => {
@@ -3215,7 +3396,20 @@
 
             // Clean up any potential corrupt data
             imageUrls = imageUrls.filter(img => typeof img === 'string' && img !== '[object Object]');
-
+            // Handle PDF update
+            let pdfBase64 = originalVenue.details_pdf; // Use originalVenue.details_pdf
+            const pdfInput = document.getElementById('editVenuePdf');
+            if (pdfInput.files && pdfInput.files.length > 0) {
+                try {
+                    pdfBase64 = await getPdfBase64(pdfInput.files[0]);
+                } catch (e) {
+                    showNotification("Failed to parse PDF");
+                    // Assuming submitBtn exists and needs to be handled
+                    // const submitBtn = event.target.querySelector('button[type="submit"]');
+                    // if (submitBtn) submitBtn.classList.remove('loading');
+                    return;
+                }
+            }
 
             const payload = {
                 title: name,
@@ -3226,6 +3420,8 @@
                 price: price,
                 image: imageUrls,
                 amenities: selectedAmenities,
+                event_categories: selectedEventCategories,
+                details_pdf: pdfBase64,
                 unavailable_dates: originalVenue.unavailableDates || [],
                 description: document.getElementById('editVenueDescription').value
             };

@@ -1,21 +1,17 @@
 const supabase = require('./supabaseClient');
 
 async function testQuery() {
-    console.log('Testing simple select...');
-    const { data, error } = await supabase.from('venues').select('*');
+    console.log('Fetching venues with event_categories...');
+    const { data, error } = await supabase.from('venues').select('id, title, event_categories');
+    
     if (error) {
-        console.error('Simple Select Error:', error.message);
+        console.error('Fetch Error:', error);
     } else {
-        console.log('Simple Select Success:', data.length, 'venues found');
-    }
-
-    console.log('Testing count query...');
-    const { data: data2, error: error2 } = await supabase.from('venues').select('*, venue_views(count)');
-    if (error2) {
-        console.error('Count Query Error:', error2.message);
-    } else {
-        console.log('Count Query Success!');
+        console.log('Venues found:', data.length);
+        data.forEach(v => {
+            console.log(`ID: ${v.id}, Title: ${v.title}, Categories: ${v.event_categories}`);
+        });
     }
 }
 
-testQuery().catch(err => console.error('Unhandled:', err));
+testQuery();

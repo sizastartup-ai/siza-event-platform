@@ -963,70 +963,75 @@
             font-size: 16px;
         }
 
-        /* BOOKING FORM */
+        /* BOOKING FORM IMPROVEMENTS */
         .booking-form {
-            border: 2px solid var(--border-gray);
-            border-radius: 16px;
-            overflow: hidden;
-            margin-bottom: 16px;
+            border: none;
+            border-radius: 0;
+            overflow: visible;
+            margin-bottom: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
 
-        .booking-dates {
+        .booking-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            border-bottom: 2px solid var(--border-gray);
+            gap: 12px;
         }
 
-        .booking-input {
-            padding: 16px;
+        .booking-group {
+            background: var(--white);
+            border: 1px solid var(--border-gray);
+            border-radius: 14px;
+            padding: 12px 16px;
+            transition: all 0.2s ease;
+            position: relative;
         }
 
-        .booking-input:first-child {
-            border-right: 2px solid var(--border-gray);
+        .booking-group:hover {
+            border-color: #B0B0B0;
         }
 
-        .booking-input label {
+        .booking-group:focus-within {
+            border-color: var(--dark-gray);
+            box-shadow: 0 0 0 1px var(--dark-gray);
+        }
+
+        .booking-group label {
             display: block;
-            font-size: 11px;
-            font-weight: 700;
+            font-size: 10px;
+            font-weight: 800;
             text-transform: uppercase;
             color: var(--dark-gray);
             margin-bottom: 4px;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
 
-        .booking-input input {
+        .booking-group input, 
+        .booking-group select {
             width: 100%;
             border: none;
-            font-size: 14px;
-            color: var(--dark-gray);
-            outline: none;
-            font-family: inherit;
-        }
-
-        .booking-guests {
-            padding: 16px;
-        }
-
-        .booking-guests label {
-            display: block;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--dark-gray);
-            margin-bottom: 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .booking-guests select {
-            width: 100%;
-            border: none;
-            font-size: 14px;
-            color: var(--dark-gray);
-            outline: none;
             background: transparent;
+            font-size: 15px;
+            color: var(--dark-gray);
+            outline: none;
             font-family: inherit;
+            padding: 0;
             cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+
+        .booking-group select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23222' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right center;
+            padding-right: 20px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
         }
 
         /* BOOK BUTTON */
@@ -1674,6 +1679,23 @@
         </div>
     </div>
 
+    <!-- PDF DETAILS MODAL -->
+    <div class="modal-overlay" id="pdfModal">
+        <div class="modal" style="width: 100%; max-width: 900px; height: 90vh; padding: 0; overflow: hidden; display: flex; flex-direction: column;">
+            <div class="modal-header" style="background: var(--teal); padding: 20px 28px; border-bottom: none; display: flex; justify-content: space-between; align-items: center; border-radius: 20px 20px 0 0;">
+                <h2 style="color: white; margin: 0; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 24px;">Venue Details</h2>
+                <button class="modal-close" onclick="closeModal('pdfModal')" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fas fa-times" style="font-size: 18px;"></i>
+                </button>
+            </div>
+            <div style="flex: 1; background: #333; position: relative;">
+                <!-- We use an iframe or embed but append '#toolbar=0&navpanes=0&scrollbar=0' to hide default download buttons -->
+                <!-- An overlay is placed over top edges to deter right clicks where possible -->
+                <iframe id="pdfViewer" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+                <div style="position: absolute; top:0; left:0; right:0; height: 40px; background: transparent; z-index: 10;"></div>
+            </div>
+        </div>
+    </div>
 
     <!-- PROFILE MODAL (venue page) -->
     <div class="profile-modal-overlay" id="venueProfileModal">
@@ -1788,6 +1810,9 @@
                 <div class="venue-description">
                     <h2>About this venue</h2>
                     <p id="venueDescription"></p>
+                    <button class="show-all-btn" id="moreDetailsBtn" onclick="openPdfModal()" style="display: none; margin-top: 16px;">
+                        More details
+                    </button>
                 </div>
 
                 <!-- Amenities -->
@@ -1811,29 +1836,44 @@
                 </div>
 
                 <div class="booking-form">
-                    <div class="booking-dates">
-                        <div class="booking-input">
+                    <!-- Dates Row -->
+                    <div class="booking-row">
+                        <div class="booking-group">
                             <label>Event Date</label>
                             <input type="date" id="eventDate" onchange="checkAvailability()">
                         </div>
-                        <div class="booking-input">
+                        <div class="booking-group">
                             <label>End Date</label>
                             <input type="date" id="endDate" onchange="checkAvailability()">
                         </div>
                     </div>
-                    <div class="booking-guests">
-                        <label>Guests</label>
-                        <select id="guestCount" onchange="checkAvailability()">
-                            <option value="50">1-50 guests</option>
-                            <option value="100">51-100 guests</option>
-                            <option value="150" selected>101-150 guests</option>
-                            <option value="200">150+ guests</option>
-                        </select>
+
+                    <!-- Guests Row (Full Width) -->
+                    <div class="booking-row">
+                        <div class="booking-group full-width">
+                            <label>Number of Guests</label>
+                            <select id="guestCount" onchange="checkAvailability()">
+                                <option value="50">1-50 guests</option>
+                                <option value="100">51-100 guests</option>
+                                <option value="150" selected>101-150 guests</option>
+                                <option value="200">150+ guests</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Category Row (Full Width) -->
+                    <div class="booking-row">
+                        <div class="booking-group full-width">
+                            <label>Event Category</label>
+                            <select id="eventCategory" onchange="checkAvailability()">
+                                <option value="">Select category...</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
                 <button class="book-btn" onclick="checkAvailability(true)">
-                    Check availability
+                    Reserve now
                 </button>
 
                 <!-- Availability Message -->
@@ -2295,51 +2335,85 @@
                 } else {
                     venueData.unavailableDates = [];
                 }
+            // Get event categories
+            let ec = venueData.event_categories;
+            if (typeof ec === 'string') { 
+                try { 
+                    ec = JSON.parse(ec); 
+                } catch (e) { 
+                    // Fallback: If it's a comma-separated string or just a single string
+                    if (ec.startsWith('[') === false && ec.includes(',')) {
+                        ec = ec.split(',').map(s => s.trim());
+                    } else {
+                        ec = []; 
+                    }
+                } 
+            }
+            venueData.eventCategories = Array.isArray(ec) ? ec : (ec ? [ec] : []);
 
-                // Fire off view analytics asynchronously (Only if not owner)
-                if (!currentUser || currentUser.id !== venueData.owner_id) {
-                    fetch('/api/venues/' + venueId + '/view', { method: 'POST' }).catch(e => console.error(e));
-                }
-
-            } catch (error) {
-                console.error("Error fetching venue:", error);
-                document.getElementById('venueHeader').innerHTML = "<h1>Error loading venue</h1>";
-                return;
+            // Fire off view analytics asynchronously (Only if not owner)
+            if (!currentUser || currentUser.id !== venueData.owner_id) {
+                fetch('/api/venues/' + venueId + '/view', { method: 'POST' }).catch(e => console.error(e));
             }
 
-            // Update page content
-            document.title = `${venueData.title} - Siza`;
-            document.getElementById('venueTitle').textContent = venueData.title;
-            document.getElementById('venueRating').textContent = venueData.rating || "New";
-            document.getElementById('venueLocation').textContent = venueData.location;
-            document.getElementById('venueDescription').textContent = venueData.description;
+        } catch (error) {
+            console.error("Error fetching venue:", error);
+            document.getElementById('venueHeader').innerHTML = "<h1>Error loading venue</h1>";
+            return;
+        }
 
-            // Set host info from real owner data
-            const hostAvatar = document.getElementById('hostAvatar');
-            const hostName = document.getElementById('hostName');
+        // Update page content
+        document.title = `${venueData.title} - Siza`;
+        document.getElementById('venueTitle').textContent = venueData.title;
+        document.getElementById('venueRating').textContent = venueData.rating || "New";
+        document.getElementById('venueLocation').textContent = venueData.location;
+        document.getElementById('venueDescription').textContent = venueData.description;
 
-            if (venueData.owner_image) {
-                hostAvatar.innerHTML = `<img src="${venueData.owner_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-            } else {
-                hostAvatar.textContent = (venueData.owner_name || 'H').charAt(0).toUpperCase();
-            }
-            hostName.textContent = `Venue by ${venueData.owner_name || 'Siza Host'}`;
+        if (venueData.details_pdf) {
+            const pdfBtn = document.getElementById('moreDetailsBtn');
+            pdfBtn.style.display = 'inline-block';
+            // Attach the base64 URL or standard URL to the iframe immediately or on click
+            document.getElementById('pdfViewer').src = venueData.details_pdf + '#toolbar=0&navpanes=0&scrollbar=0';
+        }
 
-            // Render dynamic gallery
-            renderGallery();
+        // Set host info from real owner data
+        const hostAvatar = document.getElementById('hostAvatar');
+        const hostName = document.getElementById('hostName');
 
-            // Update category tags
-            const tagsContainer = document.getElementById('categoryTags');
-            tagsContainer.innerHTML = venueData.categories.map(cat =>
-                `<span class="category-tag">${cat}</span>`
-            ).join('');
+        if (venueData.owner_image) {
+            hostAvatar.innerHTML = `<img src="${venueData.owner_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+        } else {
+            hostAvatar.textContent = (venueData.owner_name || 'H').charAt(0).toUpperCase();
+        }
+        hostName.textContent = `Venue by ${venueData.owner_name || 'Siza Host'}`;
 
-            // Update booking card
-            document.getElementById('bookingPrice').textContent = `KES ${venueData.price}`;
-            document.getElementById('basePrice').textContent = venueData.price;
+        // Render dynamic gallery
+        renderGallery();
 
-            // Render amenities
-            renderAmenities();
+        // Update category tags
+        const tagsContainer = document.getElementById('categoryTags');
+        tagsContainer.innerHTML = (venueData.categories || []).map(cat =>
+            `<span class="category-tag">${cat}</span>`
+        ).join('');
+
+        // Update booking card
+        document.getElementById('bookingPrice').textContent = `KES ${venueData.price}`;
+        document.getElementById('basePrice').textContent = venueData.price;
+
+        // Render amenities
+        renderAmenities();
+
+        // Populate Event Categories
+        const eventCatSelect = document.getElementById('eventCategory');
+        if (venueData.eventCategories && venueData.eventCategories.length > 0) {
+            eventCatSelect.innerHTML = '<option value="">Select event category...</option>' + 
+                venueData.eventCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        } else {
+            // Default categories if none specified for this venue
+            const defaultEventCategories = ['Weddings', 'Corporate Event', 'Birthday Party', 'Photo Shoot', 'Social Gathering'];
+            eventCatSelect.innerHTML = '<option value="">Select event category...</option>' + 
+                defaultEventCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        }
 
             // Set default date to tomorrow
             const tomorrow = new Date();
@@ -2417,10 +2491,26 @@
             document.getElementById('carouselModal').classList.remove('active');
             document.body.style.overflow = '';
         }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.remove('active');
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.getElementById('blurLayer').classList.remove('active');
             document.body.style.overflow = '';
+        }
+
+        function openPdfModal() {
+            document.getElementById('pdfModal').classList.add('active');
+            document.getElementById('blurLayer').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                const activeModals = document.querySelectorAll('.modal.active');
+                activeModals.forEach(modal => {
+                    closeModal(modal.id);
+                });
+            }
         }
 
         function updateCarousel() {
@@ -2467,6 +2557,11 @@
         // Check availability
         function checkAvailability(showPrompt = false) {
             const date = document.getElementById('eventDate').value;
+            const evCat = document.getElementById('eventCategory') ? document.getElementById('eventCategory').value : null;
+
+            const messageDiv = document.getElementById('availabilityMessage');
+            const btn = document.querySelector('.book-btn');
+
             if (!date) {
                 if (showPrompt) {
                     alert('Please select an event date');
@@ -2478,27 +2573,36 @@
             // Check if date is in unavailable dates
             isVenueAvailable = !venueData.unavailableDates.includes(date);
 
-            const messageDiv = document.getElementById('availabilityMessage');
-            const btn = document.querySelector('.book-btn');
-
             if (!isVenueAvailable) {
                 // Venue not available
                 messageDiv.textContent = 'Sorry, Venue is not available on selected date';
+                messageDiv.style.display = 'block';
                 messageDiv.className = 'availability-message unavailable';
-                btn.textContent = 'Check availability';
-                btn.style.background = 'linear-gradient(135deg, var(--cool-gray) 0%, #999 100%)';
+                btn.textContent = 'Fully Booked'; 
+                btn.style.background = 'var(--cool-gray)';
+                btn.style.pointerEvents = 'none';
                 calculateTotal();
                 return;
             }
 
             // Venue available
+            messageDiv.style.display = 'block';
+            messageDiv.textContent = 'Venue is available for booking!';
             messageDiv.className = 'availability-message available';
             btn.textContent = 'Reserve now';
             btn.style.background = 'linear-gradient(135deg, var(--teal) 0%, #44A08D 100%)';
+            btn.style.pointerEvents = 'auto';
             calculateTotal();
 
-            // Only show prompt if explicitly requested (e.g. user clicked button)
+            // Only proceed to reservation if explicitly requested
             if (showPrompt) {
+                // Validation for category ONLY when clicking reserve
+                if (!evCat && venueData.eventCategories && venueData.eventCategories.length > 0) {
+                    alert('Please select an event category before reserving');
+                    document.getElementById('eventCategory').focus();
+                    return;
+                }
+
                 // Check if user is logged in
                 if (!currentUser) {
                     // Show guest info modal
@@ -2533,6 +2637,7 @@
                 end_date: endDateStr,
                 guests: guests,
                 total_price: totalPrice,
+                event_category: document.getElementById('eventCategory') ? document.getElementById('eventCategory').value : null,
                 status: 'pending'
             };
 
