@@ -517,6 +517,10 @@
             box-shadow: 0 8px 25px rgba(255, 90, 95, 0.5); /* Pink Glow */
         }
 
+        #profileForm .btn-owner:hover {
+            background: var(--primary-orange) !important;
+        }
+
         .venues-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -929,23 +933,27 @@
 
         .form-group input[type="text"],
         .form-group input[type="number"],
+        .form-group input[type="email"],
+        .form-group input[type="tel"],
         .form-group textarea,
         .form-group select {
             width: 100%;
             padding: 14px 18px;
-            border: 2px solid var(--border-gray);
+            border: 2px solid #E2E8F0; /* Brighter, corporate border */
             border-radius: 12px;
             font-size: 15px;
             font-family: inherit;
-            transition: all 0.3s ease;
+            color: var(--navy-blue);
+            background: #FFFFFF;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .form-group input:focus,
         .form-group textarea:focus,
         .form-group select:focus {
             outline: none;
-            border-color: var(--primary-orange);
-            box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+            border-color: var(--teal);
+            box-shadow: 0 0 0 4px rgba(64, 224, 208, 0.1);
         }
 
         .form-group textarea {
@@ -2273,8 +2281,7 @@
                 </div>
 
                 <div class="modal-actions" style="margin-top: 32px; display: flex; flex-direction: column; gap: 12px;">
-                    <button type="submit" class="btn-primary" style="width: 100%; justify-content: center;">Save
-                        Profile</button>
+                    <button type="submit" class="btn-owner" style="width: 100%; justify-content: center; background: var(--teal) !important;">Save Profile</button>
                     <button type="button" class="btn-secondary"
                         style="width: 100%; justify-content: center; border-color: var(--primary-orange); color: var(--primary-orange);"
                         onclick="logout()">
@@ -2317,26 +2324,29 @@
 
         // Standardized amenities with consistent values and labels
         const commonAmenities = [
-            { value: 'WiFi', label: 'WiFi' },
-            { value: 'Parking', label: 'Parking Available' },
-            { value: 'AV Equipment', label: 'AV Equipment' },
-            { value: 'Catering', label: 'Catering Services' },
-            { value: 'Bar', label: 'Bar Service' },
-            { value: 'Stage', label: 'Stage' },
-            { value: 'Dance Floor', label: 'Dance Floor' },
-            { value: 'Lighting', label: 'Professional Lighting' },
-            { id: 'sound', value: 'Sound System', label: 'Sound System' },
-            { value: 'Projector', label: 'Projector/Screen' },
-            { value: 'Microphones', label: 'Microphones' },
-            { id: 'furniture', value: 'Furniture', label: 'Tables & Chairs' },
-            { value: 'Climate Control', label: 'Climate Control' },
-            { id: 'accessible', value: 'Accessible', label: 'Wheelchair Accessible' },
-            { id: 'restrooms', value: 'Restrooms', label: 'Private Restrooms' },
-            { id: 'greens', value: 'Green Room', label: 'Green Room' },
-            { value: 'Outdoor Space', label: 'Outdoor Space' },
-            { id: 'kitchen', value: 'Kitchen', label: 'Kitchen Facilities' },
-            { id: 'security', value: 'Security', label: 'Security Service' },
-            { value: 'Coat Check', label: 'Coat Check' }
+            { value: 'WiFi', label: 'WiFi', icon: 'fa-wifi' },
+            { value: 'Parking', label: 'Parking Available', icon: 'fa-parking' },
+            { value: 'AV Equipment', label: 'AV Equipment', icon: 'fa-microphone' },
+            { value: 'Catering', label: 'Catering Services', icon: 'fa-utensils' },
+            { value: 'Bar', label: 'Bar Service', icon: 'fa-glass-martini-alt' },
+            { value: 'Stage', label: 'Stage', icon: 'fa-monument' },
+            { value: 'Dance Floor', label: 'Dance Floor', icon: 'fa-compact-disc' },
+            { value: 'Lighting', label: 'Professional Lighting', icon: 'fa-lightbulb' },
+            { id: 'sound', value: 'Sound System', label: 'Sound System', icon: 'fa-volume-up' },
+            { value: 'Projector', label: 'Projector/Screen', icon: 'fa-video' },
+            { value: 'Microphones', label: 'Microphones', icon: 'fa-microphone-alt' },
+            { id: 'furniture', value: 'Furniture', label: 'Tables & Chairs', icon: 'fa-chair' },
+            { value: 'Climate Control', label: 'Climate Control', icon: 'fa-wind' },
+            { id: 'accessible', value: 'Accessible', label: 'Wheelchair Accessible', icon: 'fa-wheelchair' },
+            { id: 'restrooms', value: 'Restrooms', label: 'Private Restrooms', icon: 'fa-restroom' },
+            { id: 'greens', value: 'Green Room', label: 'Green Room', icon: 'fa-door-open' },
+            { value: 'Outdoor Space', label: 'Outdoor Space', icon: 'fa-tree' },
+            { id: 'kitchen', value: 'Kitchen', label: 'Kitchen Facilities', icon: 'fa-sink' },
+            { id: 'security', value: 'Security', label: 'Security Service', icon: 'fa-shield-alt' },
+            { value: 'Coat Check', label: 'Coat Check', icon: 'fa-tshirt' },
+            { value: 'Backup generator', label: 'Backup generator', icon: 'fa-charging-station' },
+            { value: 'Tents', label: 'Tents', icon: 'fa-campground' },
+            { value: 'Bonfire dinner', label: 'Bonfire dinner', icon: 'fa-fire' }
         ];
 
         // Helper to render amenity checkboxes
@@ -2367,7 +2377,10 @@
                 return `
                     <div class="checkbox-item">
                         <input type="checkbox" id="${safeId}" value="${amen.value}" ${isChecked ? 'checked' : ''}>
-                        <label for="${safeId}">${amen.label}</label>
+                        <label for="${safeId}">
+                            <i class="fas ${amen.icon}" style="margin-right: 8px; color: var(--teal); width: 20px; text-align: center;"></i>
+                            ${amen.label}
+                        </label>
                     </div>
                 `;
             }).join('');

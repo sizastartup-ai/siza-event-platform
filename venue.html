@@ -1965,13 +1965,9 @@
                 <div class="booking-form">
                     <!-- Dates Row -->
                     <div class="booking-row">
-                        <div class="booking-group">
+                        <div class="booking-group full-width">
                             <label>Event Date</label>
                             <input type="date" id="eventDate" onchange="checkAvailability()">
-                        </div>
-                        <div class="booking-group">
-                            <label>End Date</label>
-                            <input type="date" id="endDate" onchange="checkAvailability()">
                         </div>
                     </div>
 
@@ -2425,6 +2421,42 @@
                     const saveBtn = document.getElementById('saveFavBtn');
                     if (saveBtn) saveBtn.style.display = 'none';
                 }
+
+                // Helper for amenity icons
+                function getAmenityIcon(name) {
+                    const n = name.toLowerCase();
+                    // Basic Tech & Comm
+                    if (n.includes('wifi')) return 'fa-wifi';
+                    if (n.includes('parking')) return 'fa-parking';
+                    if (n.includes('av') || n.includes('audio') || n.includes('visual')) return 'fa-microphone';
+                    if (n.includes('projector')) return 'fa-video';
+                    if (n.includes('microphones')) return 'fa-microphone-alt';
+                    if (n.includes('sound system')) return 'fa-volume-up';
+                    
+                    // Food & Bev
+                    if (n.includes('catering')) return 'fa-utensils';
+                    if (n.includes('bar')) return 'fa-glass-martini-alt';
+                    if (n.includes('kitchen')) return 'fa-sink';
+                    if (n.includes('bonfire')) return 'fa-fire';
+                    
+                    // Space Features
+                    if (n.includes('stage')) return 'fa-monument';
+                    if (n.includes('dance floor')) return 'fa-compact-disc';
+                    if (n.includes('lighting')) return 'fa-lightbulb';
+                    if (n.includes('furniture') || n.includes('tables') || n.includes('chairs')) return 'fa-chair';
+                    if (n.includes('climate') || n.includes('ac') || n.includes('air conditioning')) return 'fa-wind';
+                    if (n.includes('outdoor')) return 'fa-tree';
+                    if (n.includes('tents')) return 'fa-campground';
+                    if (n.includes('accessible') || n.includes('wheelchair')) return 'fa-wheelchair';
+                    if (n.includes('restrooms')) return 'fa-restroom';
+                    if (n.includes('green room')) return 'fa-door-open';
+                    if (n.includes('coat check')) return 'fa-tshirt';
+                    if (n.includes('security')) return 'fa-shield-alt';
+                    if (n.includes('generator')) return 'fa-charging-station';
+                    
+                    return 'fa-check-circle';
+                }
+
                 venueData.categories = [venueData.type];
                 venueData.owner_name = data.venue.owner_name || "Siza Host";
                 venueData.owner_image = data.venue.owner_image;
@@ -2440,8 +2472,8 @@
                         const amens = JSON.parse(venueData.amenities);
                         if (Array.isArray(amens)) {
                             venueData.amenities = amens.map(a => {
-                                if (typeof a === 'string') return { icon: "fa-check", name: a };
-                                return a; // already an object
+                                const name = typeof a === 'string' ? a : (a.name || a.value || "");
+                                return { icon: getAmenityIcon(name), name: name };
                             });
                         } else {
                             venueData.amenities = [];
@@ -2454,8 +2486,8 @@
                 } else {
                     // It's an array, ensure items are objects
                     venueData.amenities = venueData.amenities.map(a => {
-                        if (typeof a === 'string') return { icon: "fa-check", name: a };
-                        return a;
+                        const name = typeof a === 'string' ? a : (a.name || a.value || "");
+                        return { icon: getAmenityIcon(name), name: name };
                     });
                 }
 
@@ -2762,25 +2794,16 @@
 
         async function handleReserve(guestInfo = null) {
             const startDateStr = document.getElementById('eventDate').value;
-            const endDateStr = document.getElementById('endDate').value;
             const guestEl = document.getElementById('guestCount');
             const guests = guestEl ? parseInt(guestEl.value) : 1;
 
-            // Calculate total price for payload
+            // Simple total price (single day)
             let totalPrice = venueData.price || 0;
-            if (startDateStr && endDateStr) {
-                const s = new Date(startDateStr);
-                const e = new Date(endDateStr);
-                if (e > s) {
-                    const days = Math.ceil(Math.abs(e - s) / (1000 * 60 * 60 * 24));
-                    totalPrice = venueData.price * days;
-                }
-            }
 
             const payload = {
                 venue_id: venueData.id,
                 start_date: startDateStr,
-                end_date: endDateStr,
+                end_date: startDateStr, // Same as start date to satisfy backend
                 guests: guests,
                 total_price: totalPrice,
                 event_category: document.getElementById('eventCategory') ? document.getElementById('eventCategory').value : null,
@@ -2837,29 +2860,16 @@
             handleReserve(guestInfo);
         }
 
-        // Calculate total price
         function calculateTotal() {
             if (!isVenueAvailable) {
                 document.getElementById('priceBreakdown').style.display = 'none';
                 return;
             }
 
-            const startDate = new Date(document.getElementById('eventDate').value);
-            const endDate = new Date(document.getElementById('endDate').value);
-            const price = venueData.price;
-
-            let days = 1;
-            if (endDate && startDate && endDate > startDate) {
-                const diffTime = Math.abs(endDate - startDate);
-                days = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            }
-
-            const baseTotal = price * days;
-            const grandTotal = baseTotal;
-
-            document.getElementById('daysCount').textContent = days;
-            document.getElementById('baseTotal').textContent = baseTotal;
-            document.getElementById('grandTotal').textContent = grandTotal;
+            const price = venueData.price || 0;
+            document.getElementById('daysCount').textContent = "1";
+            document.getElementById('baseTotal').textContent = price.toLocaleString();
+            document.getElementById('grandTotal').textContent = price.toLocaleString();
             document.getElementById('priceBreakdown').style.display = 'block';
         }
 
