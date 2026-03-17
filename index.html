@@ -1596,6 +1596,8 @@
                     v.displayImage = imgs.length > 0 ? imgs[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available';
                 });
 
+                // Initialize currentFilteredVenues with all venues
+                currentFilteredVenues = [...allVenues];
                 resetInfiniteScroll();
                 renderNextChunk();
                 
@@ -1625,7 +1627,7 @@
 
         function renderNextChunk() {
             const grid = document.getElementById('venuesGrid');
-            const venuesToUse = currentFilteredVenues.length > 0 ? currentFilteredVenues : allVenues;
+            const venuesToUse = currentFilteredVenues;
 
             const nextBatch = venuesToUse.slice(displayedCount, displayedCount + chunkSize);
             if (nextBatch.length === 0) return;
@@ -1665,7 +1667,7 @@
         // Infinite scroll listener
         window.addEventListener('scroll', () => {
             if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight - 500) {
-                const venuesToUse = currentFilteredVenues.length > 0 ? currentFilteredVenues : allVenues;
+                const venuesToUse = currentFilteredVenues;
                 if (displayedCount < venuesToUse.length) {
                     renderNextChunk();
                 }
@@ -1784,6 +1786,7 @@
                 });
                 
                 if (filtered.length === 0) {
+                    currentFilteredVenues = []; // Important: Clear the filtered list
                     resetInfiniteScroll();
                     grid.innerHTML = `
                         <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: var(--cool-gray);">
