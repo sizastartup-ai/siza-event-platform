@@ -1932,35 +1932,8 @@
 
                 <div class="form-group">
                     <label>Categories *</label>
-                    <div class="checkbox-grid">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="cat-gardens" value="Gardens">
-                            <label for="cat-gardens">Gardens</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="cat-indoor" value="Indoor Spaces">
-                            <label for="cat-indoor">Indoor Spaces</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="cat-schools" value="Schools">
-                            <label for="cat-schools">Schools</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="cat-hotels" value="Hotels">
-                            <label for="cat-hotels">Hotels</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="cat-unique" value="Unique Spots">
-                            <label for="cat-unique">Unique Spots</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="cat-home" value="Home">
-                            <label for="cat-home">Home</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="cat-rooftop" value="Rooftop">
-                            <label for="cat-rooftop">Rooftop</label>
-                        </div>
+                    <div class="checkbox-grid" id="categoriesGrid">
+                        <!-- Populated dynamically -->
                     </div>
                 </div>
 
@@ -2013,90 +1986,7 @@
                 <div class="form-group">
                     <label>Amenities</label>
                     <div class="checkbox-grid" id="amenitiesGrid">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-wifi" value="WiFi">
-                            <label for="amen-wifi">WiFi</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-parking" value="Parking">
-                            <label for="amen-parking">Parking Available</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-av" value="AV Equipment">
-                            <label for="amen-av">AV Equipment</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-catering" value="Catering">
-                            <label for="amen-catering">Catering Services</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-bar" value="Bar">
-                            <label for="amen-bar">Bar Service</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-stage" value="Stage">
-                            <label for="amen-stage">Stage</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-dancefloor" value="Dance Floor">
-                            <label for="amen-dancefloor">Dance Floor</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-lighting" value="Lighting">
-                            <label for="amen-lighting">Professional Lighting</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-sound" value="Sound System">
-                            <label for="amen-sound">Sound System</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-projector" value="Projector">
-                            <label for="amen-projector">Projector/Screen</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-mic" value="Microphones">
-                            <label for="amen-mic">Microphones</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-furniture" value="Furniture">
-                            <label for="amen-furniture">Tables & Chairs</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-climate" value="Climate Control">
-                            <label for="amen-climate">Climate Control</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-accessible" value="Accessible">
-                            <label for="amen-accessible">Wheelchair Accessible</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-restrooms" value="Restrooms">
-                            <label for="amen-restrooms">Private Restrooms</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-greens" value="Green Room">
-                            <label for="amen-greens">Green Room</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-outdoor" value="Outdoor Space">
-                            <label for="amen-outdoor">Outdoor Space</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-kitchen" value="Kitchen">
-                            <label for="amen-kitchen">Kitchen Facilities</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-security" value="Security">
-                            <label for="amen-security">Security Service</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-coat" value="Coat Check">
-                            <label for="amen-coat">Coat Check</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="amen-other-check" value="Other" onchange="toggleOtherAmenity()">
-                            <label for="amen-other-check">Other (Specify)</label>
-                        </div>
+                        <!-- Populated dynamically by renderAmenityGrid -->
                     </div>
                     <div class="other-amenity-input" id="otherAmenityInput">
                         <input type="text" id="otherAmenityText"
@@ -2451,27 +2341,46 @@
 
         // Helper to render amenity checkboxes
         function renderAmenityGrid(gridId, selectedList = [], isEdit = false) {
+            console.log(`[renderAmenityGrid] Rendering ${gridId}`, selectedList);
             const grid = document.getElementById(gridId);
-            if (!grid) return;
+            if (!grid) {
+                console.warn(`[renderAmenityGrid] Grid container not found: ${gridId}`);
+                return;
+            }
+            
+            // Ensure selectedList is actually an array of strings
+            const list = (Array.isArray(selectedList) ? selectedList : []).map(a => String(a).trim());
             
             const prefix = isEdit ? 'edit-amen-' : 'add-amen-';
             const onToggle = isEdit ? 'toggleEditOtherAmenity()' : 'toggleOtherAmenity()';
             const otherCheckId = isEdit ? 'edit-amen-other' : 'amen-other-check';
 
             let html = commonAmenities.map(amen => {
-                const isChecked = selectedList.includes(amen.value) || selectedList.includes(amen.label);
+                // Highly robust check: case-insensitive match by value or label
+                const isChecked = list.some(item => {
+                    const normalizedItem = item.toLowerCase();
+                    return normalizedItem === amen.value.trim().toLowerCase() || 
+                           normalizedItem === amen.label.trim().toLowerCase();
+                });
+                
+                const safeId = `${prefix}${amen.value.replace(/[^a-zA-Z0-9]/g, '-')}`;
                 return `
                     <div class="checkbox-item">
-                        <input type="checkbox" id="${prefix}${amen.value.replace(/\s+/g, '-')}" value="${amen.value}" ${isChecked ? 'checked' : ''}>
-                        <label for="${prefix}${amen.value.replace(/\s+/g, '-')}">${amen.label}</label>
+                        <input type="checkbox" id="${safeId}" value="${amen.value}" ${isChecked ? 'checked' : ''}>
+                        <label for="${safeId}">${amen.label}</label>
                     </div>
                 `;
             }).join('');
 
-            // Handle "Other"
-            const otherAmenities = selectedList.filter(a => 
-                !commonAmenities.some(ca => ca.value === a || ca.label === a)
-            );
+            // Handle "Other" category (anything not in commonAmenities)
+            const otherAmenities = list.filter(a => {
+                const val = a.trim();
+                if (val === '') return false;
+                return !commonAmenities.some(ca => 
+                    ca.value.trim().toLowerCase() === val.toLowerCase() || 
+                    ca.label.trim().toLowerCase() === val.toLowerCase()
+                );
+            });
             const hasOther = otherAmenities.length > 0;
 
             html += `
@@ -2483,14 +2392,15 @@
             
             grid.innerHTML = html;
             
-            // Show other input if needed
-            if (isEdit) {
-                const input = document.getElementById('editOtherAmenityInput');
-                const text = document.getElementById('editOtherAmenityText');
-                if (input && text) {
-                    input.classList.toggle('active', hasOther);
-                    text.value = hasOther ? otherAmenities.join(', ') : '';
-                }
+            // Show other input field if there are custom amenities
+            const inputContainerId = isEdit ? 'editOtherAmenityInput' : 'otherAmenityInput';
+            const inputTextId = isEdit ? 'editOtherAmenityText' : 'otherAmenityText';
+            const inputContainer = document.getElementById(inputContainerId);
+            const inputText = document.getElementById(inputTextId);
+            
+            if (inputContainer && inputText) {
+                inputContainer.classList.toggle('active', hasOther);
+                inputText.value = hasOther ? otherAmenities.join(', ') : '';
             }
         }
 
@@ -2500,16 +2410,9 @@
             setupScrollBlur();
             await loadVenues();
 
-            // Populate Event Categories for Add
-            const addEventCatGrid = document.getElementById('eventCategoriesGrid');
-            if (addEventCatGrid) {
-                addEventCatGrid.innerHTML = eventCategoriesList.map((cat, i) => `
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="add-event-cat-${i}" value="${cat}">
-                        <label for="add-event-cat-${i}">${cat}</label>
-                    </div>
-                `).join('');
-            }
+            // Populate grids for Add Modal initially
+            renderCategoryGrid('categoriesGrid', [], false);
+            renderEventCategoryGrid('eventCategoriesGrid', [], false);
 
             // Handle Favorites tab from URL
             const urlParams = new URLSearchParams(window.location.search);
@@ -2517,6 +2420,50 @@
                 showFavoritesTab();
             }
         });
+
+        // Helper to render Category grid
+        function renderCategoryGrid(gridId, selectedList = [], isEdit = false) {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            const prefix = isEdit ? 'edit-cat-' : 'add-cat-';
+            const list = Array.isArray(selectedList) ? selectedList : [];
+            
+            grid.innerHTML = categories.map(cat => {
+                // Case-insensitive match
+                const isChecked = list.some(item => 
+                    String(item).trim().toLowerCase() === cat.trim().toLowerCase()
+                );
+                const safeId = `${prefix}${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+                return `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="${safeId}" value="${cat}" ${isChecked ? 'checked' : ''}>
+                        <label for="${safeId}">${cat}</label>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Helper to render Event Category grid
+        function renderEventCategoryGrid(gridId, selectedList = [], isEdit = false) {
+            const grid = document.getElementById(gridId);
+            if (!grid) return;
+            const prefix = isEdit ? 'edit-event-cat-' : 'add-event-cat-';
+            const list = Array.isArray(selectedList) ? selectedList : [];
+            
+            grid.innerHTML = eventCategoriesList.map(cat => {
+                // Case-insensitive match
+                const isChecked = list.some(item => 
+                    String(item).trim().toLowerCase() === cat.trim().toLowerCase()
+                );
+                const safeId = `${prefix}${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+                return `
+                    <div class="checkbox-item">
+                        <input type="checkbox" id="${safeId}" value="${cat}" ${isChecked ? 'checked' : ''}>
+                        <label for="${safeId}">${cat}</label>
+                    </div>
+                `;
+            }).join('');
+        }
 
         function showFavoritesTab() {
             if (currentUser.role === 'owner') return;
@@ -2688,16 +2635,31 @@
                 if (response.ok && data.venues) {
                     // Map backend schema to frontend expectations
                     venues = data.venues.map(v => {
-                        let parsedAmenities = v.amenities || [];
-                        if (typeof parsedAmenities === 'string') {
-                            try { 
-                                parsedAmenities = JSON.parse(parsedAmenities); 
-                            } catch (e) { 
-                                console.warn("Failed to parse amenities string:", v.amenities);
-                                parsedAmenities = []; 
+                        let parsedAmenities = v.amenities;
+                        
+                        // Robust amenity parsing
+                        if (!parsedAmenities) {
+                            parsedAmenities = [];
+                        } else if (typeof parsedAmenities === 'string') {
+                            try {
+                                // Try JSON parse first
+                                parsedAmenities = JSON.parse(parsedAmenities);
+                            } catch (e) {
+                                // If not JSON, handle as comma-separated or single value
+                                if (parsedAmenities.includes(',')) {
+                                    parsedAmenities = parsedAmenities.split(',').map(s => s.trim());
+                                } else if (parsedAmenities.trim() !== '') {
+                                    parsedAmenities = [parsedAmenities.trim()];
+                                } else {
+                                    parsedAmenities = [];
+                                }
                             }
                         }
-                        if (!Array.isArray(parsedAmenities)) parsedAmenities = [];
+                        
+                        // Final safety check
+                        if (!Array.isArray(parsedAmenities)) {
+                            parsedAmenities = parsedAmenities ? [parsedAmenities] : [];
+                        }
 
                         // Handle multiple images stored as JSON
                         let venueImages = parseVenueImages(v.image);
@@ -3198,8 +3160,11 @@
             document.getElementById('locationTagsList').innerHTML = '';
             document.getElementById('venuePdfLabel').textContent = 'Click to upload PDF';
             
-            // Render default grid
+            // Render default grids
+            renderCategoryGrid('categoriesGrid', [], false);
+            renderEventCategoryGrid('eventCategoriesGrid', [], false);
             renderAmenityGrid('amenitiesGrid', [], false);
+            
             document.getElementById('otherAmenityInput').classList.remove('active');
 
             document.getElementById('addVenueModal').classList.add('active');
@@ -3289,9 +3254,8 @@
 
             // Get selected categories
             const selectedCategories = [];
-            categories.forEach(cat => {
-                const cb = document.getElementById(`cat-${cat.toLowerCase().replace(/\s+/g, '-')}`);
-                if (cb && cb.checked) selectedCategories.push(cb.value);
+            document.querySelectorAll('#categoriesGrid input[type="checkbox"]:checked').forEach(cb => {
+                selectedCategories.push(cb.value);
             });
 
             const typeValue = selectedCategories.length > 0 ? selectedCategories[0] : 'Event Space';
@@ -3416,22 +3380,10 @@
             }
 
             // Render categories
-            const catGrid = document.getElementById('editCategoriesGrid');
-            catGrid.innerHTML = categories.map(cat => `
-                <div class="checkbox-item">
-                    <input type="checkbox" id="edit-cat-${cat.toLowerCase().replace(/\s+/g, '-')}" value="${cat}" ${venue.categories && venue.categories.includes(cat) ? 'checked' : ''}>
-                    <label for="edit-cat-${cat.toLowerCase().replace(/\s+/g, '-')}">${cat}</label>
-                </div>
-            `).join('');
+            renderCategoryGrid('editCategoriesGrid', venue.categories || [], true);
 
             // Render event categories
-            const eventCatGrid = document.getElementById('editEventCategoriesGrid');
-            eventCatGrid.innerHTML = eventCategoriesList.map((cat, i) => `
-                <div class="checkbox-item">
-                    <input type="checkbox" id="edit-event-cat-${i}" value="${cat}" ${venue.event_categories && venue.event_categories.includes(cat) ? 'checked' : ''}>
-                    <label for="edit-event-cat-${i}">${cat}</label>
-                </div>
-            `).join('');
+            renderEventCategoryGrid('editEventCategoriesGrid', venue.event_categories || [], true);
 
             // Render amenities properly
             renderAmenityGrid('editAmenitiesGrid', venue.amenities || [], true);
@@ -3539,9 +3491,8 @@
 
             // Categories
             const selectedCategories = [];
-            categories.forEach(cat => {
-                const cb = document.getElementById(`edit-cat-${cat.toLowerCase().replace(/\s+/g, '-')}`);
-                if (cb && cb.checked) selectedCategories.push(cb.value);
+            document.querySelectorAll('#editCategoriesGrid input[type="checkbox"]:checked').forEach(cb => {
+                selectedCategories.push(cb.value);
             });
             const typeValue = selectedCategories.length > 0 ? selectedCategories[0] : 'Event Space';
 

@@ -175,31 +175,41 @@ app.post('/api/venues', async (req, res) => {
 // Delete a venue by ID
 app.delete('/api/venues/:id', async (req, res) => {
     const venueId = req.params.id;
+    const numericId = parseInt(venueId);
+    
+    if (isNaN(numericId)) {
+        return res.status(400).json({ error: "Invalid venue ID format" });
+    }
+
     try {
-        console.log(`[DELETE /api/venues/${venueId}] Initiating deletion...`);
+        console.log(`[DELETE /api/venues/${numericId}] Initiating robust deletion...`);
         
         // 1. Delete associated venue_views
-        const { error: viewsErr } = await supabase.from('venue_views').delete().eq('venue_id', venueId);
-        if (viewsErr) console.warn(`[DELETE /api/venues/${venueId}] Warning deleting views:`, viewsErr);
+        const { error: viewsErr } = await supabase.from('venue_views').delete().eq('venue_id', numericId);
+        if (viewsErr) console.warn(`[DELETE /api/venues/${numericId}] Warning deleting views:`, viewsErr);
 
         // 2. Delete associated favorites
-        const { error: favsErr } = await supabase.from('favorites').delete().eq('venue_id', venueId);
-        if (favsErr) console.warn(`[DELETE /api/venues/${venueId}] Warning deleting favorites:`, favsErr);
+        const { error: favsErr } = await supabase.from('favorites').delete().eq('venue_id', numericId);
+        if (favsErr) console.warn(`[DELETE /api/venues/${numericId}] Warning deleting favorites:`, favsErr);
 
-        // 2.5 Delete associated bookings
-        const { error: bookingsErr } = await supabase.from('bookings').delete().eq('venue_id', venueId);
-        if (bookingsErr) console.warn(`[DELETE /api/venues/${venueId}] Warning deleting bookings:`, bookingsErr);
+        // 3. Delete associated bookings
+        const { error: bookingsErr } = await supabase.from('bookings').delete().eq('venue_id', numericId);
+        if (bookingsErr) {
+            console.error(`[DELETE /api/venues/${numericId}] ERROR deleting bookings:`, bookingsErr);
+            return res.status(500).json({ error: "Could not clear associated bookings: " + bookingsErr.message });
+        }
 
-        // 3. Finally delete the venue
-        const { error } = await supabase.from('venues').delete().eq('id', parseInt(venueId));
-        if (error) {
-            console.error(`[DELETE /api/venues/${venueId}] Final Delete Error:`, error);
-            return res.status(500).json({ error: error.message, details: error });
+        // 4. Finally delete the venue
+        const { error: venueErr } = await supabase.from('venues').delete().eq('id', numericId);
+        if (venueErr) {
+            console.error(`[DELETE /api/venues/${numericId}] Final Venue Delete Error:`, venueErr);
+            return res.status(500).json({ error: "Failed to delete venue record: " + venueErr.message });
         }
         
-        res.json({ message: "Venue deleted" });
+        console.log(`[DELETE /api/venues/${numericId}] Deletion successful`);
+        res.json({ message: "Venue deleted successfully" });
     } catch (err) {
-        console.error(`[DELETE /api/venues/${venueId}] Catch Error:`, err);
+        console.error(`[DELETE /api/venues/${numericId}] Catch Error:`, err);
         res.status(500).json({ error: err.message });
     }
 });
