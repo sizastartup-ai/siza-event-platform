@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
@@ -518,28 +519,10 @@ app.post('/api/bookings', async (req, res) => {
                     const ownerEmail = venueInfo.users ? venueInfo.users.email : null;
                     const venueTitle = venueInfo.title;
 
-                    // 2. Clear out existing emails (Already commented out)
-                    /* ... (email code removed) ... */
-
-                    // 4. Create internal Notification for Owner
-                    const ownerViewId = venueInfo.users ? venueInfo.users.id : null;
-                    if (ownerViewId) {
-                        const { error: notifErr } = await supabase
-                            .from('notifications')
-                            .insert([{
-                                owner_id: ownerViewId,
-                                message: `New booking request for '${venueTitle}' from ${contact_name || 'Guest'}`,
-                                is_read: false,
-                                booking_id: booking[0].id
-                            }]);
-                        
-                        if (notifErr) {
-                            console.error('[BOOKING NOTIFICATION] Error creating DB alert:', notifErr);
-                        } else {
-                            console.log('[BOOKING NOTIFICATION] Internal alert created for owner', ownerViewId);
-                        }
-                    }
-                    /* ... */
+                    /* 
+                    // 2. Send Email to Owner (Inactive)
+                    // 3. Send Email to Renter (Inactive)
+                    */
                 }
             } catch (emailErr) {
                 console.error('[EMAIL NOTIFICATION CRASH]:', emailErr);

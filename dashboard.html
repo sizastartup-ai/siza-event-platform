@@ -182,7 +182,6 @@
 
         .dropdown-item i { font-size: 18px; color: var(--cool-gray); width: 24px; text-align: center; }
         .dropdown-divider { height: 1px; background: var(--border-gray); margin: 8px; }
-
         .user-avatar {
             width: 32px;
             height: 32px;
@@ -2439,6 +2438,8 @@
             setupScrollBlur();
             await loadVenues();
 
+            await loadVenues();
+
             // Populate grids for Add Modal initially
             renderCategoryGrid('categoriesGrid', [], false);
             renderEventCategoryGrid('eventCategoriesGrid', [], false);
@@ -2450,6 +2451,7 @@
                 showFavoritesTab();
             }
         });
+
 
         // Helper to render Category grid
         function renderCategoryGrid(gridId, selectedList = [], isEdit = false) {

@@ -1,5 +1,18 @@
 const { Resend } = require('resend');
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+let resendClient = null;
+
+function getResendClient() {
+    if (!resendClient) {
+        const apiKey = process.env.RESEND_API_KEY;
+        if (!apiKey) {
+            console.warn('[EMAIL SERVICE] Missing RESEND_API_KEY. Emails will not be sent.');
+            return null;
+        }
+        resendClient = new Resend(apiKey);
+    }
+    return resendClient;
+}
 
 const SIZA_LOGO_URL = 'https://siza.co.ke/assets/logo.png'; // Update with actual URL if available
 const SIZA_PRIMARY_COLOR = '#0ea5e9'; // Siza blue
@@ -9,6 +22,9 @@ const SIZA_PRIMARY_COLOR = '#0ea5e9'; // Siza blue
  */
 async function sendOwnerBookingNotification(ownerEmail, bookingDetails, venueTitle) {
     try {
+        const resend = getResendClient();
+        if (!resend) return false;
+
         const { data, error } = await resend.emails.send({
             from: 'Siza <onboarding@resend.dev>',
             to: ownerEmail,
@@ -51,6 +67,9 @@ async function sendOwnerBookingNotification(ownerEmail, bookingDetails, venueTit
  */
 async function sendRenterConfirmation(renterEmail, renterName, venueTitle) {
     try {
+        const resend = getResendClient();
+        if (!resend) return false;
+
         const { data, error } = await resend.emails.send({
             from: 'Siza <onboarding@resend.dev>',
             to: renterEmail,
