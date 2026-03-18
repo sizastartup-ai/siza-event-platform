@@ -3,6 +3,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const path = require('path');
 const supabase = require('./supabaseClient');
+const emailService = require('./emailService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -501,6 +502,49 @@ app.post('/api/bookings', async (req, res) => {
         }
 
         res.status(201).json({ message: "Booking created", bookingId: booking[0].id });
+
+        // --- ASYNC EMAIL NOTIFICATIONS ---
+        // (Don't await these to prevent delaying the HTTP response)
+        (async () => {
+            try {
+                // 1. Get Venue and Owner Info
+                const { data: venueInfo, error: veErr } = await supabase
+                    .from('venues')
+                    .select('title, users:owner_id(email, name)')
+                    .eq('id', venue_id)
+                    .single();
+
+                if (!veErr && venueInfo) {
+                    const ownerEmail = venueInfo.users ? venueInfo.users.email : null;
+                    const venueTitle = venueInfo.title;
+
+                    // 2. Clear out existing emails (Already commented out)
+                    /* ... (email code removed) ... */
+
+                    // 4. Create internal Notification for Owner
+                    const ownerViewId = venueInfo.users ? venueInfo.users.id : null;
+                    if (ownerViewId) {
+                        const { error: notifErr } = await supabase
+                            .from('notifications')
+                            .insert([{
+                                owner_id: ownerViewId,
+                                message: `New booking request for '${venueTitle}' from ${contact_name || 'Guest'}`,
+                                is_read: false,
+                                booking_id: booking[0].id
+                            }]);
+                        
+                        if (notifErr) {
+                            console.error('[BOOKING NOTIFICATION] Error creating DB alert:', notifErr);
+                        } else {
+                            console.log('[BOOKING NOTIFICATION] Internal alert created for owner', ownerViewId);
+                        }
+                    }
+                    /* ... */
+                }
+            } catch (emailErr) {
+                console.error('[EMAIL NOTIFICATION CRASH]:', emailErr);
+            }
+        })();
     } catch (err) {
         console.error("Booking err:", err);
         res.status(500).json({ error: err.message });
