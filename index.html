@@ -1652,8 +1652,8 @@
                         <p class="venue-location">${venue.location}</p>
                         <p class="venue-details">Up to ${venue.guests} guests • ${venue.type}</p>
                         <div class="venue-price">
-                            <span class="price">KES ${venue.price}</span>
-                            <span class="period">/event</span>
+                            <span class="price">${venue.price > 0 ? `KES ${venue.price.toLocaleString()}` : 'Price on selection'}</span>
+                            <span class="period">${venue.price > 0 ? '/ event' : ''}</span>
                         </div>
                     </div>
                 </a>

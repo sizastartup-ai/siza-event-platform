@@ -66,7 +66,7 @@ app.get('/api/venues', async (req, res) => {
     try {
         // Select fields needed for the venue cards
         let query = supabase.from('venues').select(`
-            id, title, location, location_tags, type, event_categories, guests, price, rating, reviews, image, views, bookings_count, amenities, description, unavailable_dates, details_pdf
+            id, title, location, location_tags, type, event_categories, guests, price, category_pricing, rating, reviews, image, views, bookings_count, amenities, description, unavailable_dates, details_pdf
         `);
 
         if (req.query.location) {
@@ -125,7 +125,7 @@ app.get('/api/venues/:id', async (req, res) => {
 
 // Create a new venue
 app.post('/api/venues', async (req, res) => {
-    const { owner_id, title, location, location_tags, type, event_categories, guests, price, rating, image, amenities, details_pdf, description } = req.body;
+    const { owner_id, title, location, location_tags, type, event_categories, guests, price, category_pricing, rating, image, amenities, details_pdf, description } = req.body;
     console.log('[POST /api/venues] Body:', { ...req.body, image: '...', details_pdf: '...' });
     console.log('[POST /api/venues] event_categories:', event_categories);
 
@@ -141,9 +141,7 @@ app.post('/api/venues', async (req, res) => {
         // Handle PDF upload to storage
         const uploadedPdf = await uploadBase64ToStorage(details_pdf, 'documents');
 
-        const { data, error } = await supabase
-            .from('venues')
-            .insert([{
+        const venueData = {
                 owner_id: owner_id,
                 title: title || "New Venue",
                 location,
@@ -151,6 +149,7 @@ app.post('/api/venues', async (req, res) => {
                 type,
                 guests: guests || 50,
                 price: price || 0,
+                category_pricing: JSON.stringify(category_pricing || {}),
                 rating: rating || 0.0,
                 reviews: 0,
                 image: JSON.stringify(uploadedImages),
@@ -158,8 +157,13 @@ app.post('/api/venues', async (req, res) => {
                 event_categories: (Array.isArray(event_categories) && event_categories.length > 0) ? JSON.stringify(event_categories) : (typeof event_categories === 'string' && event_categories.length > 2 ? event_categories : null),
                 details_pdf: uploadedPdf || null,
                 description: description || ""
-            }])
+        };
+
+        const { data, error } = await supabase
+            .from('venues')
+            .insert([venueData])
             .select();
+        
 
         if (error) {
             console.error(`[POST /api/venues] Supabase Error:`, error);
@@ -236,7 +240,7 @@ app.put('/api/venues/:id/availability', async (req, res) => {
 
 // Update a venue by ID
 app.put('/api/venues/:id', async (req, res) => {
-    const { title, location, location_tags, type, event_categories, guests, price, image, amenities, details_pdf, unavailable_dates, description } = req.body;
+    const { title, location, location_tags, type, event_categories, guests, price, category_pricing, image, amenities, details_pdf, unavailable_dates, description } = req.body;
     console.log('[PUT /api/venues] Body:', { ...req.body, image: '...', details_pdf: '...' });
     console.log('[PUT /api/venues] event_categories:', event_categories);
 
@@ -257,6 +261,7 @@ app.put('/api/venues/:id', async (req, res) => {
             type,
             guests,
             price,
+            category_pricing: category_pricing !== undefined ? JSON.stringify(category_pricing || {}) : undefined, // Force stringification
             image: image !== undefined ? (typeof uploadedImages === 'string' ? uploadedImages : JSON.stringify(uploadedImages)) : undefined,
             amenities: amenities !== undefined ? JSON.stringify(amenities || []) : undefined,
             event_categories: event_categories !== undefined ? (Array.isArray(event_categories) ? JSON.stringify(event_categories) : event_categories) : undefined,
@@ -269,10 +274,12 @@ app.put('/api/venues/:id', async (req, res) => {
 
         if (uploadedPdf !== undefined) updatePayload.details_pdf = uploadedPdf;
 
-        const { error } = await supabase
+        const { data, error } = await supabase
             .from('venues')
             .update(updatePayload)
-            .eq('id', req.params.id);
+            .eq('id', req.params.id)
+            .select();
+
 
         if (error) {
             console.error(`[PUT /api/venues/${req.params.id}] Error:`, error);

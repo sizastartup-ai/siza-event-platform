@@ -1015,6 +1015,10 @@
             gap: 12px;
         }
 
+        .checkbox-block {
+            display: block;
+        }
+
         .checkbox-item {
             display: flex;
             align-items: center;
@@ -1922,11 +1926,11 @@
                         <label for="venueLocation">Location *</label>
                         <input type="text" id="venueLocation" required placeholder="e.g., Kilimani, Nairobi">
                     </div>
-                    <div class="form-group">
-                        <label for="venuePrice">Price per Day (KES) *</label>
+                    <div class="form-group" style="display: none;">
+                        <label for="venuePrice">Default Base Price (KES) *</label>
                         <div class="price-input-wrapper">
                             <span class="price-prefix">KES</span>
-                            <input type="number" id="venuePrice" required placeholder="15000" min="0">
+                            <input type="number" id="venuePrice" value="0" placeholder="15000" min="0">
                         </div>
                     </div>
                     <div class="form-group">
@@ -1947,7 +1951,7 @@
 
                 <div class="form-group">
                     <label>Event Categories Supported *</label>
-                    <div class="checkbox-grid" id="eventCategoriesGrid">
+                    <div class="checkbox-block" id="eventCategoriesGrid">
                         <!-- Populated by JS -->
                     </div>
                 </div>
@@ -2033,11 +2037,11 @@
                         <label for="editVenueLocation">Location *</label>
                         <input type="text" id="editVenueLocation" required>
                     </div>
-                    <div class="form-group">
-                        <label for="editVenuePrice">Price per Day (KES) *</label>
+                    <div class="form-group" style="display: none;">
+                        <label for="editVenuePrice">Default Base Price (KES) *</label>
                         <div class="price-input-wrapper">
                             <span class="price-prefix">KES</span>
-                            <input type="number" id="editVenuePrice" required min="0">
+                            <input type="number" id="editVenuePrice" value="0" min="0">
                         </div>
                     </div>
                     <div class="form-group">
@@ -2058,7 +2062,7 @@
 
                 <div class="form-group">
                     <label>Event Categories Supported *</label>
-                    <div class="checkbox-grid" id="editEventCategoriesGrid">
+                    <div class="checkbox-block" id="editEventCategoriesGrid">
                         <!-- Populated by JS -->
                     </div>
                 </div>
@@ -2318,9 +2322,21 @@
         
         const eventCategoriesList = [
             'Weddings', 'Corporate seminars/workshops', 'Team building', 'Picnics', 
-            'Photoshoots', 'Private celebrations(Birthdays, Graduations, Baby showers, etc)', 
+            'Photoshoot', 'Private celebrations(Birthdays, Graduations, Baby showers, etc)', 
             'Brunch', 'Concerts', 'Fun social gatherings'
         ];
+
+        const categoryPricingRules = {
+            'Weddings': { unit: 'day', editable: false },
+            'Team building': { units: ['person', 'event'], editable: true },
+            'Photoshoot': { unit: 'half day', editable: false },
+            'Brunch': { unit: 'person', editable: false },
+            'Fun social gatherings': { units: ['person', 'event'], editable: true },
+            'Corporate seminars/workshops': { unit: 'person', editable: false },
+            'Picnics': { unit: 'person', editable: false },
+            'Private celebrations(Birthdays, Graduations, Baby showers, etc)': { units: ['person', 'event'], editable: true },
+            'Concerts': { unit: 'day', editable: false }
+        };
 
         // Standardized amenities with consistent values and labels
         const commonAmenities = [
@@ -2426,6 +2442,7 @@
             // Populate grids for Add Modal initially
             renderCategoryGrid('categoriesGrid', [], false);
             renderEventCategoryGrid('eventCategoriesGrid', [], false);
+            renderAmenityGrid('amenitiesGrid', [], false);
 
             // Handle Favorites tab from URL
             const urlParams = new URLSearchParams(window.location.search);
@@ -2456,26 +2473,59 @@
             }).join('');
         }
 
-        // Helper to render Event Category grid
-        function renderEventCategoryGrid(gridId, selectedList = [], isEdit = false) {
+        // Helper to render Event Category grid with pricing inputs
+        function renderEventCategoryGrid(gridId, selectedList = [], isEdit = false, pricingData = {}) {
             const grid = document.getElementById(gridId);
             if (!grid) return;
             const prefix = isEdit ? 'edit-event-cat-' : 'add-event-cat-';
             const list = Array.isArray(selectedList) ? selectedList : [];
             
             grid.innerHTML = eventCategoriesList.map(cat => {
-                // Case-insensitive match
                 const isChecked = list.some(item => 
                     String(item).trim().toLowerCase() === cat.trim().toLowerCase()
                 );
                 const safeId = `${prefix}${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
+                const rule = categoryPricingRules[cat] || { unit: 'event', editable: false };
+                const savedPricing = pricingData[cat] || { price: '', unit: rule.unit || (rule.units ? rule.units[0] : 'event') };
+
                 return `
-                    <div class="checkbox-item">
-                        <input type="checkbox" id="${safeId}" value="${cat}" ${isChecked ? 'checked' : ''}>
-                        <label for="${safeId}">${cat}</label>
+                    <div class="event-pricing-item" data-category="${cat}" style="border: 1px solid var(--border-gray); border-radius: 12px; padding: 16px; margin-bottom: 12px; background: #fff;">
+                        <div class="checkbox-item" style="padding: 0; margin-bottom: 12px; display: flex; align-items: center; width: 100%;">
+                            <input type="checkbox" id="${safeId}" class="cat-checkbox" value="${cat}" ${isChecked ? 'checked' : ''} onchange="toggleCategoryPricing('${safeId}-inputs')" style="margin-right: 12px; width: 22px; height: 22px;">
+                            <label for="${safeId}" style="font-weight: 600; font-size: 15px; flex: 1; cursor: pointer;">${cat}</label>
+                        </div>
+                        <div id="${safeId}-inputs" class="category-pricing-inputs" style="display: ${isChecked ? 'flex' : 'none'}; gap: 15px; align-items: center; padding-top: 12px; border-top: 1px solid #f3f4f6; flex-wrap: wrap;">
+                            <div class="price-input-wrapper" style="flex: 1; min-width: 150px; position: relative;">
+                                <span class="price-prefix" style="font-size: 13px; left: 12px; top: 50%; transform: translateY(-50%); position: absolute; font-weight: 700; color: var(--cool-gray);">KES</span>
+                                <input type="number" class="cat-price" value="${savedPricing.price}" placeholder="Enter rate" style="padding: 10px 10px 10px 48px !important; font-size: 14px; height: 44px; width: 100%; border: 1px solid #e1e4e8; border-radius: 8px;">
+                            </div>
+                            <div style="flex: 0.8; min-width: 130px;">
+                                ${rule.editable ? `
+                                    <select class="cat-unit" style="padding: 8px 12px !important; font-size: 14px; height: 44px; width: 100%; border: 1px solid #e1e4e8; border-radius: 8px; background: #f9fafb;">
+                                        ${rule.units.map(u => `<option value="${u}" ${savedPricing.unit === u ? 'selected' : ''}>per ${u}</option>`).join('')}
+                                    </select>
+                                ` : `
+                                    <div style="padding: 10px 14px; background: #f3f4f6; border-radius: 8px; font-size: 14px; color: var(--cool-gray); font-weight: 600; text-align: center; height: 44px; display: flex; align-items: center; justify-content: center;">
+                                        / ${rule.unit}
+                                    </div>
+                                    <input type="hidden" class="cat-unit" value="${rule.unit}">
+                                `}
+                            </div>
+                        </div>
                     </div>
                 `;
             }).join('');
+        }
+
+        function toggleCategoryPricing(containerId) {
+            const container = document.getElementById(containerId);
+            if (container) {
+                const baseId = containerId.replace('-inputs', '');
+                const checkbox = document.getElementById(baseId);
+                if (checkbox) {
+                    container.style.display = checkbox.checked ? 'flex' : 'none';
+                }
+            }
         }
 
         function showFavoritesTab() {
@@ -2716,6 +2766,7 @@
                             bookings_last_week: v.bookings_last_week || 0,
                             rating: v.rating || 0.0,
                             availability: {},
+                            category_pricing: v.category_pricing || {},
                             unavailableDates: (() => {
                                 if (typeof v.unavailable_dates === 'string') {
                                     try { return JSON.parse(v.unavailable_dates); } catch (e) { return []; }
@@ -2812,7 +2863,7 @@
                             <p class="venue-location" style="font-size: 14px; color: var(--cool-gray); margin-bottom: 4px;">
                                 <i class="fas fa-map-marker-alt"></i> ${venue.location}
                             </p>
-                            <div class="venue-price" style="font-weight: 700; color: var(--dark-gray); margin-top: 8px;">KES ${(venue.price || 0).toLocaleString()} / day</div>
+                            <div class="venue-price" style="font-weight: 700; color: var(--dark-gray); margin-top: 8px;">From ${venue.price > 0 ? `KES ${venue.price.toLocaleString()}` : 'Price on selection'}</div>
                             <div class="btn-primary" style="margin-top: 12px; display: block; text-align: center; text-decoration: none; padding: 10px; border-radius: 8px; font-weight: 600; background: #FF5A5F;">View Details</div>
                         </div>
                     </div>
@@ -3144,7 +3195,7 @@
                             <i class="fas fa-users"></i>
                             Up to ${venue.capacity || 0} guests
                         </div>
-                        <div class="venue-price" style="font-weight: 700; color: var(--dark-gray); margin-top: 8px;">KES ${venue.price ? venue.price.toLocaleString() : '0'} / day</div>
+                        <div class="venue-price" style="font-weight: 700; color: var(--dark-gray); margin-top: 8px;">${venue.price > 0 ? `KES ${venue.price.toLocaleString()} / day` : 'Price on selection'}</div>
                         <div class="venue-stats" style="display: flex; gap: 16px; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-gray);">
                             <div class="venue-stat">
                                 <div class="venue-stat-value" style="font-weight: 700; color: var(--dark-gray);">${venue.views || 0}</div>
@@ -3260,7 +3311,7 @@
 
             const name = document.getElementById('venueName').value;
             const location = document.getElementById('venueLocation').value;
-            const price = parseInt(document.getElementById('venuePrice').value);
+            const price = 0; // Removing base rate requirement
             const capacity = parseInt(document.getElementById('venueCapacity').value);
             const description = document.getElementById('venueDescription').value;
             const locationTags = getLocationTags('locationTagsList');
@@ -3273,26 +3324,28 @@
 
             const typeValue = selectedCategories.length > 0 ? selectedCategories[0] : 'Event Space';
 
-            // Get selected event categories
-            const selectedEventCategories = [];
-            document.querySelectorAll('#eventCategoriesGrid input[type="checkbox"]:checked').forEach(cb => {
-                selectedEventCategories.push(cb.value);
-            });
-
-            // Get selected amenities
-            const selectedAmenities = [];
-            document.querySelectorAll('#amenitiesGrid input[type="checkbox"]:checked').forEach(cb => {
-                if (cb.id !== 'amen-other-check') {
-                    selectedAmenities.push(cb.value);
+            // Collect category pricing robustly using data attributes
+            const categoryPricing = {};
+            const eventCats = [];
+            document.querySelectorAll('#eventCategoriesGrid .event-pricing-item').forEach(item => {
+                const category = item.getAttribute('data-category');
+                const checkbox = item.querySelector('.cat-checkbox');
+                if (checkbox && checkbox.checked) {
+                    eventCats.push(category);
+                    const priceVal = item.querySelector('.cat-price').value;
+                    const unitVal = item.querySelector('.cat-unit').value || (categoryPricingRules[category] ? (categoryPricingRules[category].unit || categoryPricingRules[category].units[0]) : 'event');
+                    categoryPricing[category] = { price: parseFloat(priceVal) || 0, unit: unitVal };
                 }
             });
 
-            // Add other amenities
-            const otherAmenities = document.getElementById('otherAmenityText').value;
-            if (otherAmenities && document.getElementById('amen-other-check').checked) {
-                otherAmenities.split(',').forEach(a => {
-                    if (a.trim()) selectedAmenities.push(a.trim());
-                });
+            // Get selected amenities
+            const amenities = Array.from(document.querySelectorAll('#amenitiesGrid input[type="checkbox"]:checked'))
+                .map(cb => cb.value)
+                .filter(val => val !== 'Other'); // Filter out the 'Other' checkbox value itself
+            
+            if (document.getElementById('amen-other-check').checked) {
+                const others = document.getElementById('otherAmenityText').value.split(',').map(s => s.trim()).filter(s => s !== '');
+                amenities.push(...others);
             }
 
             // Image payload processing - Multi-file support
@@ -3332,8 +3385,9 @@
                 price: price,
                 rating: 0,
                 image: imageUrls,
-                amenities: selectedAmenities,
-                event_categories: selectedEventCategories,
+                amenities: amenities,
+                event_categories: eventCats,
+                category_pricing: categoryPricing,
                 details_pdf: pdfBase64,
                 description: description
             };
@@ -3394,9 +3448,30 @@
 
             // Render categories
             renderCategoryGrid('editCategoriesGrid', venue.categories || [], true);
+            
+            // Render event categories with pricing
+            let eventCategories = [];
+            if (venue.event_categories) {
+                try {
+                    eventCategories = typeof venue.event_categories === 'string' 
+                        ? JSON.parse(venue.event_categories) 
+                        : venue.event_categories;
+                } catch(e) { 
+                    if (typeof venue.event_categories === 'string') eventCategories = [venue.event_categories];
+                }
+            }
+            if (!Array.isArray(eventCategories)) eventCategories = [];
 
-            // Render event categories
-            renderEventCategoryGrid('editEventCategoriesGrid', venue.event_categories || [], true);
+            let pricingData = {};
+            if (venue.category_pricing) {
+                try {
+                    pricingData = typeof venue.category_pricing === 'string' 
+                        ? JSON.parse(venue.category_pricing) 
+                        : venue.category_pricing;
+                } catch (e) { console.error("Error parsing pricing data", e); }
+            }
+
+            renderEventCategoryGrid('editEventCategoriesGrid', eventCategories, true, pricingData);
 
             // Render amenities properly
             renderAmenityGrid('editAmenitiesGrid', venue.amenities || [], true);
@@ -3498,7 +3573,7 @@
 
             const name = document.getElementById('editVenueName').value;
             const location = document.getElementById('editVenueLocation').value;
-            const price = parseInt(document.getElementById('editVenuePrice').value);
+            const price = 0; // Removing base rate requirement
             const capacity = parseInt(document.getElementById('editVenueCapacity').value);
             const locationTags = getLocationTags('editLocationTagsList');
 
@@ -3509,48 +3584,48 @@
             });
             const typeValue = selectedCategories.length > 0 ? selectedCategories[0] : 'Event Space';
 
-            // Event Categories
-            const selectedEventCategories = [];
-            document.querySelectorAll('#editEventCategoriesGrid input[type="checkbox"]:checked').forEach(cb => {
-                selectedEventCategories.push(cb.value);
+            // Collect category pricing robustly using data attributes
+            const categoryPricing = {};
+            const eventCats = [];
+            document.querySelectorAll('#editEventCategoriesGrid .event-pricing-item').forEach(item => {
+                const category = item.getAttribute('data-category');
+                const checkbox = item.querySelector('.cat-checkbox');
+                if (checkbox && checkbox.checked) {
+                    eventCats.push(category);
+                    const priceVal = item.querySelector('.cat-price').value;
+                    const unitVal = item.querySelector('.cat-unit').value || (categoryPricingRules[category] ? (categoryPricingRules[category].unit || categoryPricingRules[category].units[0]) : 'event');
+                    categoryPricing[category] = { price: parseFloat(priceVal) || 0, unit: unitVal };
+                }
             });
 
             // Amenities
-            const selectedAmenities = [];
-            document.querySelectorAll('#editAmenitiesGrid input[type="checkbox"]:checked').forEach(cb => {
-                if (cb.id !== 'edit-amen-other') selectedAmenities.push(cb.value);
-            });
-            const otherAmenities = document.getElementById('editOtherAmenityText') ? document.getElementById('editOtherAmenityText').value : '';
-            if (otherAmenities && document.getElementById('edit-amen-other').checked) {
-                otherAmenities.split(',').forEach(a => {
-                    if (a.trim()) selectedAmenities.push(a.trim());
-                });
+            const amenities = Array.from(document.querySelectorAll('#editAmenitiesGrid input[type="checkbox"]:checked'))
+                .map(cb => cb.value)
+                .filter(val => val !== 'Other');
+            
+            if (document.getElementById('edit-amen-other').checked) {
+                const others = document.getElementById('editOtherAmenityText').value.split(',').map(s => s.trim()).filter(s => s !== '');
+                amenities.push(...others);
             }
 
             // Read image if new one provided
             let imageUrls = Array.isArray(originalVenue.images) ? [...originalVenue.images] : [];
             const fileInput = document.getElementById('editVenueFiles');
             if (fileInput && fileInput.files.length > 0) {
-                // User requirement says "upload additional", so we append
                 for (let file of fileInput.files) {
                     const b64 = await getBase64(file);
                     imageUrls.push(b64);
                 }
             }
 
-            // Clean up any potential corrupt data
             imageUrls = imageUrls.filter(img => typeof img === 'string' && img !== '[object Object]');
-            // Handle PDF update
-            let pdfBase64 = originalVenue.details_pdf; // Use originalVenue.details_pdf
+            let pdfBase64 = originalVenue.details_pdf;
             const pdfInput = document.getElementById('editVenuePdf');
             if (pdfInput.files && pdfInput.files.length > 0) {
                 try {
                     pdfBase64 = await getPdfBase64(pdfInput.files[0]);
                 } catch (e) {
                     showNotification("Failed to parse PDF");
-                    // Assuming submitBtn exists and needs to be handled
-                    // const submitBtn = event.target.querySelector('button[type="submit"]');
-                    // if (submitBtn) submitBtn.classList.remove('loading');
                     return;
                 }
             }
@@ -3562,9 +3637,10 @@
                 type: typeValue,
                 guests: capacity,
                 price: price,
+                category_pricing: categoryPricing,
                 image: imageUrls,
-                amenities: selectedAmenities,
-                event_categories: selectedEventCategories,
+                amenities: amenities,
+                event_categories: eventCats,
                 details_pdf: pdfBase64,
                 unavailable_dates: originalVenue.unavailableDates || [],
                 description: document.getElementById('editVenueDescription').value

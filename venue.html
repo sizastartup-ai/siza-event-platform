@@ -1958,8 +1958,8 @@
             <!-- Right Column - Booking Card -->
             <div class="booking-card">
                 <div class="booking-header">
-                    <span class="booking-price" id="bookingPrice">KES 0</span>
-                    <span class="booking-unit">/event</span>
+                    <span class="booking-price" id="bookingPrice">---</span>
+                    <span class="booking-unit" style="margin-left: 4px;"></span>
                 </div>
 
                 <div class="booking-form">
@@ -2004,8 +2004,8 @@
 
                 <div class="price-breakdown" id="priceBreakdown" style="display: none;">
                     <div class="price-row">
-                        <span>KES <span id="basePrice">450</span> x <span id="daysCount">1</span> day</span>
-                        <span>KES <span id="baseTotal">450</span></span>
+                        <span id="priceBreakdownLabel">Base Price</span>
+                        <span>KES <span id="baseTotal">0</span></span>
                     </div>
                     <div class="price-row total">
                         <span>Total before taxes</span>
@@ -2519,15 +2519,19 @@
                 try { 
                     ec = JSON.parse(ec); 
                 } catch (e) { 
-                    // Fallback: If it's a comma-separated string or just a single string
                     if (ec.startsWith('[') === false && ec.includes(',')) {
                         ec = ec.split(',').map(s => s.trim());
+                    } else if (ec.length > 2) {
+                        ec = [ec];
                     } else {
                         ec = []; 
                     }
                 } 
             }
             venueData.eventCategories = Array.isArray(ec) ? ec : (ec ? [ec] : []);
+
+            // Trigger UI updates
+            updateUI();
 
             // Fire off view analytics asynchronously (Only if not owner)
             if (!currentUser || currentUser.id !== venueData.owner_id) {
@@ -2539,6 +2543,10 @@
             document.getElementById('venueHeader').innerHTML = "<h1>Error loading venue</h1>";
             return;
         }
+    }
+
+    function updateUI() {
+        if (!venueData) return;
 
         // Update page content
         document.title = `${venueData.title} - Siza`;
@@ -2549,9 +2557,10 @@
 
         if (venueData.details_pdf) {
             const pdfBtn = document.getElementById('moreDetailsBtn');
-            pdfBtn.style.display = 'inline-block';
-            // Attach the base64 URL or standard URL to the iframe immediately or on click
-            document.getElementById('pdfViewer').src = venueData.details_pdf + '#toolbar=0&navpanes=0&scrollbar=0';
+            if (pdfBtn) {
+                pdfBtn.style.display = 'inline-block';
+                document.getElementById('pdfViewer').src = venueData.details_pdf + '#toolbar=0&navpanes=0&scrollbar=0';
+            }
         }
 
         // Set host info from real owner data
@@ -2570,37 +2579,43 @@
 
         // Update category tags
         const tagsContainer = document.getElementById('categoryTags');
-        tagsContainer.innerHTML = (venueData.categories || []).map(cat =>
-            `<span class="category-tag">${cat}</span>`
-        ).join('');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = (venueData.categories || []).map(cat =>
+                `<span class="category-tag">${cat}</span>`
+            ).join('');
+        }
 
         // Update booking card
-        document.getElementById('bookingPrice').textContent = `KES ${venueData.price}`;
-        document.getElementById('basePrice').textContent = venueData.price;
+        document.getElementById('bookingPrice').textContent = `---`;
+        const unitDisplay = document.querySelector('.booking-unit');
+        if (unitDisplay) unitDisplay.textContent = '';
+        if (document.getElementById('basePrice')) document.getElementById('basePrice').textContent = '';
 
         // Render amenities
         renderAmenities();
 
         // Populate Event Categories
         const eventCatSelect = document.getElementById('eventCategory');
-        if (venueData.eventCategories && venueData.eventCategories.length > 0) {
-            eventCatSelect.innerHTML = '<option value="">Select event category...</option>' + 
-                venueData.eventCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-        } else {
-            // Default categories if none specified for this venue
-            const defaultEventCategories = ['Weddings', 'Corporate Event', 'Birthday Party', 'Photo Shoot', 'Social Gathering'];
-            eventCatSelect.innerHTML = '<option value="">Select event category...</option>' + 
-                defaultEventCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        if (eventCatSelect) {
+            if (venueData.eventCategories && venueData.eventCategories.length > 0) {
+                eventCatSelect.innerHTML = '<option value="">Select event category...</option>' + 
+                    venueData.eventCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            } else {
+                const defaultEventCategories = ['Weddings', 'Corporate seminars/workshops', 'Team building', 'Picnics', 'Photoshoot', 'Private celebrations(Birthdays, Graduations, Baby showers, etc)', 'Brunch', 'Concerts', 'Fun social gatherings'];
+                eventCatSelect.innerHTML = '<option value="">Select event category...</option>' + 
+                    defaultEventCategories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+            }
         }
 
-            // Set default date to tomorrow
-            const tomorrow = new Date();
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            document.getElementById('eventDate').valueAsDate = tomorrow;
-
-            // Trigger availability check to show initial price (without popup)
+        // Set default date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const dateInput = document.getElementById('eventDate');
+        if (dateInput) {
+            dateInput.valueAsDate = tomorrow;
             checkAvailability(false);
         }
+    }
 
         // Render dynamic gallery
         function renderGallery() {
@@ -2645,14 +2660,15 @@
         // Render amenities (first 6)
         function renderAmenities() {
             const grid = document.getElementById('amenitiesGrid');
-            if (!venueData.amenities || !Array.isArray(venueData.amenities)) {
-                grid.innerHTML = '<p>No amenities listed.</p>';
+            if (!grid) return;
+            if (!venueData.amenities || !Array.isArray(venueData.amenities) || venueData.amenities.length === 0) {
+                grid.innerHTML = '<p style="color:var(--cool-gray); font-style:italic;">No specific amenities listed.</p>';
                 return;
             }
             grid.innerHTML = venueData.amenities.slice(0, 6).map(amenity => `
                 <div class="amenity-item">
                     <i class="fas ${amenity.icon || 'fa-check'}"></i>
-                    <span>${amenity.name || amenity}</span>
+                    <span>${amenity.name || (typeof amenity === 'string' ? amenity : 'Amenity')}</span>
                 </div>
             `).join('');
         }
@@ -2717,10 +2733,11 @@
         // AMENITIES MODAL
         function openAmenitiesModal() {
             const list = document.getElementById('amenitiesList');
+            if (!list) return;
             list.innerHTML = venueData.amenities.map(amenity => `
                 <div class="amenity-item">
-                    <i class="fas ${amenity.icon}"></i>
-                    <span>${amenity.name}</span>
+                    <i class="fas ${amenity.icon || 'fa-check'}"></i>
+                    <span>${amenity.name || (typeof amenity === 'string' ? amenity : 'Amenity')}</span>
                 </div>
             `).join('');
             document.getElementById('amenitiesModal').classList.add('active');
@@ -2797,16 +2814,36 @@
             const guestEl = document.getElementById('guestCount');
             const guests = guestEl ? parseInt(guestEl.value) : 1;
 
-            // Simple total price (single day)
-            let totalPrice = venueData.price || 0;
+            // Get selected category pricing
+            const evCat = document.getElementById('eventCategory') ? document.getElementById('eventCategory').value : null;
+            let currentPrice = venueData.price || 0;
+            let currentUnit = 'event';
+
+            if (evCat && venueData.category_pricing) {
+                try {
+                    const pricing = typeof venueData.category_pricing === 'string' ? JSON.parse(venueData.category_pricing) : venueData.category_pricing;
+                    const normalizedEvCat = evCat.trim().toLowerCase();
+                    const key = Object.keys(pricing).find(k => k.trim().toLowerCase() === normalizedEvCat);
+                    if (key && pricing[key]) {
+                        currentPrice = pricing[key].price;
+                        currentUnit = pricing[key].unit;
+                    }
+                } catch(e) { console.error("Pricing parse error in handleReserve", e); }
+            }
+
+            // Calculate total based on unit
+            let totalPrice = currentPrice;
+            if (currentUnit === 'person') {
+                totalPrice = currentPrice * guests;
+            }
 
             const payload = {
                 venue_id: venueData.id,
                 start_date: startDateStr,
-                end_date: startDateStr, // Same as start date to satisfy backend
+                end_date: startDateStr, 
                 guests: guests,
                 total_price: totalPrice,
-                event_category: document.getElementById('eventCategory') ? document.getElementById('eventCategory').value : null,
+                event_category: evCat,
                 status: 'pending'
             };
 
@@ -2866,10 +2903,61 @@
                 return;
             }
 
-            const price = venueData.price || 0;
-            document.getElementById('daysCount').textContent = "1";
-            document.getElementById('baseTotal').textContent = price.toLocaleString();
-            document.getElementById('grandTotal').textContent = price.toLocaleString();
+            const evCat = document.getElementById('eventCategory').value;
+            const guestEl = document.getElementById('guestCount');
+            const guests = guestEl ? parseInt(guestEl.value) : 1;
+            
+            if (!evCat) {
+                document.getElementById('bookingPrice').textContent = '---';
+                const unitDisplay = document.querySelector('.booking-unit');
+                if (unitDisplay) unitDisplay.textContent = '';
+                document.getElementById('priceBreakdown').style.display = 'none';
+                return;
+            }
+
+            let price = null;
+            let unit = 'event';
+
+            if (evCat && venueData.category_pricing) {
+                try {
+                    const pricing = typeof venueData.category_pricing === 'string' ? JSON.parse(venueData.category_pricing) : venueData.category_pricing;
+                    
+                    // Case-insensitive lookup with trimming for maximum robustness
+                    const normalizedEvCat = evCat.trim().toLowerCase();
+                    const key = Object.keys(pricing).find(k => k.trim().toLowerCase() === normalizedEvCat);
+                    
+                    if (key && pricing[key]) {
+                        price = pricing[key].price;
+                        unit = pricing[key].unit;
+                    }
+                } catch(e) { console.error("Pricing parse error", e); }
+            }
+
+            if (price === null) {
+                document.getElementById('bookingPrice').textContent = '---';
+                const ud = document.querySelector('.booking-unit');
+                if (ud) ud.textContent = '';
+                document.getElementById('priceBreakdown').style.display = 'none';
+                return;
+            }
+
+            // Update display price and unit
+            document.getElementById('bookingPrice').textContent = `KES ${price.toLocaleString()}`;
+            const unitDisplay = document.querySelector('.booking-unit');
+            if (unitDisplay) {
+                unitDisplay.textContent = `/ ${unit}`;
+            }
+
+            let finalTotal = price;
+            if (unit === 'person') {
+                finalTotal = price * guests;
+                document.getElementById('priceBreakdownLabel').textContent = `KES ${price.toLocaleString()} x ${guests} guests`;
+            } else {
+                document.getElementById('priceBreakdownLabel').textContent = `KES ${price.toLocaleString()} x 1 ${unit}`;
+            }
+
+            document.getElementById('baseTotal').textContent = finalTotal.toLocaleString();
+            document.getElementById('grandTotal').textContent = finalTotal.toLocaleString();
             document.getElementById('priceBreakdown').style.display = 'block';
         }
 
