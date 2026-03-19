@@ -1057,17 +1057,28 @@
             .logo i { font-size: 24px; }
 
             .desktop-only { display: none !important; }
-            .hamburger-btn { display: flex; }
+            .hamburger-btn { display: flex !important; margin-left: auto; }
+
+            #navAuth, #navAuth.desktop-only, #navUserMenu, #navUserMenu.desktop-only {
+                display: none !important;
+            }
+
+            .nav-container {
+                height: 60px; /* Fixed height for the logo/hamburger row */
+                border-bottom: 1px solid rgba(0,0,0,0.05); /* Modern separation */
+                margin-bottom: 12px;
+            }
 
             .mini-search {
                 position: absolute;
-                top: 70px;
+                top: 90px; /* Refined from 85px to ensure no overlap with the new 60px border row */
                 left: 0;
                 right: 0;
                 width: 100%;
                 max-width: 100%;
                 padding: 0 20px;
                 margin: 0;
+                z-index: 1001;
             }
 
             .mini-search-bar {
@@ -1121,8 +1132,10 @@
             }
 
             #mainNav {
-                padding-bottom: 200px; /* Space for the search bar */
+                padding-bottom: 240px; /* Increased to accommodate the taller stacked search bar */
                 height: auto;
+                display: flex;
+                flex-direction: column;
             }
 
             .navbar {
@@ -1131,12 +1144,19 @@
             }
 
             .search-layout {
-                padding-top: 240px; /* Space for the new larger nav + search */
+                padding-top: 280px; /* Accommodate the lower search bar positioning */
             }
 
             .venues-grid {
+                padding: 0 20px;
                 grid-template-columns: 1fr;
                 gap: 24px;
+            }
+
+            /* Push sticky filter chips down on mobile to avoid fixed search card overlap */
+            .results-header-wrapper {
+                top: 310px !important;
+                padding-top: 20px !important;
             }
 
             .footer {
