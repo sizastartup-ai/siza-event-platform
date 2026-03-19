@@ -136,6 +136,124 @@
             margin: 0 auto;
         }
 
+        .mobile-search-trigger {
+            display: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .mobile-search-pill {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            border: 1px solid var(--border-gray);
+            border-radius: 40px;
+            padding: 10px 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-search-pill:active { transform: scale(0.97); }
+
+        .pill-left, .pill-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .pill-left i { color: var(--primary-orange); }
+
+        .pill-divider {
+            width: 1px;
+            height: 18px;
+            background: #eee;
+            margin: 0 12px;
+        }
+
+        /* SEARCH OVERLAY */
+        .search-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .search-overlay.active { display: block; opacity: 1; }
+
+        .search-overlay-content {
+            background: white;
+            width: 100%;
+            height: 100%;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.4s cubic-bezier(0, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .overlay-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+
+        .overlay-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light-gray);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .overlay-body { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+
+        .overlay-field-group { display: flex; flex-direction: column; gap: 8px; }
+        .overlay-field-group label { font-weight: 600; font-size: 14px; color: var(--navy-blue); }
+
+        .overlay-input-wrap {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--light-gray);
+            padding: 14px 18px;
+            border-radius: 16px;
+        }
+
+        .overlay-input-wrap i { color: var(--primary-orange); width: 16px; }
+        .overlay-input-wrap input, .overlay-input-wrap select { background: transparent; border: none; outline: none; flex: 1; font-size: 15px; width: 100%; }
+
+        .overlay-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+        .search-submit-btn {
+            background: var(--primary-orange);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            margin-top: auto;
+            margin-bottom: 24px;
+            box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
+        }
+
         .mini-search-inner {
             display: flex;
             align-items: center;
@@ -1070,81 +1188,28 @@
             }
 
             .mini-search {
-                position: absolute;
-                top: 90px; /* Refined from 85px to ensure no overlap with the new 60px border row */
-                left: 0;
-                right: 0;
-                width: 100%;
-                max-width: 100%;
-                padding: 0 20px;
-                margin: 0;
-                z-index: 1001;
-            }
-
-            .mini-search-bar {
-                border-radius: 20px;
-                padding: 12px;
-                flex-direction: column;
-                align-items: stretch;
-                background: white;
-                box-shadow: 0 8px 30px rgba(0,0,0,0.1);
-            }
-
-            .mini-search-inner {
-                flex-direction: column;
-                align-items: stretch;
-                width: 100%;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 8px;
-            }
-
-            .search-field {
-                display: flex;
-                align-items: center;
-                background: var(--light-gray);
-                border-radius: 12px;
-                padding: 10px 12px;
-                width: 100% !important;
-            }
-
-            .field-icon { display: block; }
-
-            .search-field.location { grid-column: 1 / -1; }
-            
-            .search-field input, .search-field select {
-                padding: 0 8px;
-                font-size: 13px;
-                width: 100%;
-            }
-
-            .search-divider { display: none; }
-
-            .search-btn-container {
-                margin-top: 12px;
+                position: relative;
+                top: 0;
                 padding: 0;
+                flex: 1;
+                margin: 0 12px;
             }
 
-            .mini-search-btn {
-                width: 100%;
-                height: 48px;
-                border-radius: 12px;
+            .mini-search-bar { display: none; }
+            .mobile-search-trigger { display: block; }
+
+            .search-layout {
+                padding-top: 140px; /* Reset to more normal height since bar is compact */
+            }
+
+            .results-header-wrapper {
+                top: 90px !important;
+                padding-top: 20px !important;
             }
 
             #mainNav {
-                padding-bottom: 240px; /* Increased to accommodate the taller stacked search bar */
+                padding-bottom: 0;
                 height: auto;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .navbar {
-                padding: 12px 20px;
-                top: 8px;
-            }
-
-            .search-layout {
-                padding-top: 280px; /* Accommodate the lower search bar positioning */
             }
 
             .venues-grid {
@@ -1244,6 +1309,7 @@
             </div>
 
             <div class="mini-search">
+                <!-- DESKTOP SEARCH BAR -->
                 <div class="mini-search-bar" id="miniSearchBar">
                     <div class="mini-search-inner">
                         <div class="search-field location">
@@ -1275,10 +1341,24 @@
                             </select>
                         </div>
                     </div>
-                    <div class="search-btn-container">
+                    <div class="search-btn-container desktop-only">
                         <button class="mini-search-btn" onclick="performSearch()">
                             <i class="fas fa-search"></i>
                         </button>
+                    </div>
+                </div>
+
+                <!-- COMPACT MOBILE TRIGGER -->
+                <div class="mobile-search-trigger" onclick="toggleSearchOverlay()">
+                    <div class="mobile-search-pill">
+                        <div class="pill-left">
+                            <i class="fas fa-search"></i>
+                            <span id="mobilePillLocation">Where</span>
+                        </div>
+                        <div class="pill-divider"></div>
+                        <div class="pill-right">
+                            <span id="mobilePillCategory">Category</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1545,7 +1625,13 @@
             if (guestsQuery) document.getElementById('searchGuests').value = guestsQuery;
             if (categoryQuery) document.getElementById('searchCategory').value = categoryQuery;
 
-            await fetchVenues(); // Call the new fetchVenues function
+            // Sync main input to mobile pill labels on load
+            const loc = params.get('location');
+            const cat = params.get('event_category');
+            if (loc) document.getElementById('mobilePillLocation').textContent = loc;
+            if (cat) document.getElementById('mobilePillCategory').textContent = cat;
+
+            await fetchVenues(); 
 
             // Check saved favorites
             checkSavedFavorites();
@@ -1866,6 +1952,36 @@
         // Check authentication for Nav
         let currentUser = null;
         let pendingProfileBase64 = null;
+
+        function toggleSearchOverlay() {
+            const overlay = document.getElementById('searchOverlay');
+            overlay.classList.toggle('active');
+            
+            if (overlay.classList.contains('active')) {
+                // Sync current values to overlay
+                document.getElementById('mobSearchInput').value = document.getElementById('searchInput').value;
+                document.getElementById('mobSearchCategory').value = document.getElementById('searchCategory').value;
+                document.getElementById('mobSearchDate').value = document.getElementById('searchDate').value;
+                document.getElementById('mobSearchGuests').value = document.getElementById('searchGuests').value;
+            }
+        }
+
+        function executeMobileSearch() {
+            // Copy values from overlay back to hidden main search inputs
+            document.getElementById('searchInput').value = document.getElementById('mobSearchInput').value;
+            document.getElementById('searchCategory').value = document.getElementById('mobSearchCategory').value;
+            document.getElementById('searchDate').value = document.getElementById('mobSearchDate').value;
+            document.getElementById('searchGuests').value = document.getElementById('mobSearchGuests').value;
+            
+            // Update labels on the trigger pill
+            const locationText = document.getElementById('mobSearchInput').value || 'Where';
+            const categoryText = document.getElementById('mobSearchCategory').value || 'Category';
+            document.getElementById('mobilePillLocation').textContent = locationText;
+            document.getElementById('mobilePillCategory').textContent = categoryText;
+            
+            toggleSearchOverlay();
+            performSearch();
+        }
 
         function toggleMobileMenu() {
             document.getElementById('mobileNavMenu').classList.toggle('active');
