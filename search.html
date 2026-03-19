@@ -140,6 +140,9 @@
             display: none;
             cursor: pointer;
             width: 100%;
+            position: relative;
+            z-index: 1010;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .mobile-search-pill {
@@ -149,9 +152,10 @@
             background: white;
             border: 1px solid var(--border-gray);
             border-radius: 40px;
-            padding: 10px 18px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
+            padding: 12px 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            pointer-events: auto !important;
         }
 
         .mobile-search-pill:active { transform: scale(0.97); }
@@ -1193,6 +1197,7 @@
                 padding: 0;
                 flex: 1;
                 margin: 0 12px;
+                z-index: 1005;
             }
 
             .mini-search-bar { display: none; }
@@ -1203,8 +1208,11 @@
             }
 
             .results-header-wrapper {
-                top: 90px !important;
-                padding-top: 20px !important;
+                top: 80px !important; /* Adjusted for the new compact navbar */
+                padding: 16px 20px !important;
+                background: white !important;
+                z-index: 1001 !important;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             }
 
             #mainNav {
@@ -1218,10 +1226,8 @@
                 gap: 24px;
             }
 
-            /* Push sticky filter chips down on mobile to avoid fixed search card overlap */
-            .results-header-wrapper {
-                top: 310px !important;
-                padding-top: 20px !important;
+            .search-layout {
+                padding-top: 100px; /* Reduced from 140px since navbar is compact */
             }
 
             .footer {
@@ -1958,11 +1964,14 @@
             overlay.classList.toggle('active');
             
             if (overlay.classList.contains('active')) {
+                document.body.style.overflow = 'hidden'; // Lock scroll
                 // Sync current values to overlay
                 document.getElementById('mobSearchInput').value = document.getElementById('searchInput').value;
                 document.getElementById('mobSearchCategory').value = document.getElementById('searchCategory').value;
                 document.getElementById('mobSearchDate').value = document.getElementById('searchDate').value;
                 document.getElementById('mobSearchGuests').value = document.getElementById('searchGuests').value;
+            } else {
+                document.body.style.overflow = ''; // Unlock scroll
             }
         }
 

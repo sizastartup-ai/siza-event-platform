@@ -229,11 +229,26 @@
 
         .search-item {
             flex: 1;
-            padding: 14px 24px;
+            padding: 14px 20px;
             cursor: pointer;
             border-radius: 50px;
             transition: background 0.2s;
             text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .search-item i {
+            color: var(--primary-orange);
+            font-size: 16px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .search-item-content {
+            flex: 1;
+            min-width: 0;
         }
 
         .search-item:hover {
@@ -242,13 +257,15 @@
 
         .search-item label {
             display: block;
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 700;
             color: var(--dark-gray);
-            margin-bottom: 2px;
+            margin-bottom: 1px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .search-item input {
+        .search-item input, .search-item select {
             border: none;
             background: transparent;
             font-size: 14px;
@@ -256,6 +273,7 @@
             width: 100%;
             outline: none;
             font-family: inherit;
+            padding: 0;
         }
 
         .divider {
@@ -1374,33 +1392,45 @@
             <div class="search-container">
                 <div class="search-bar">
                     <div class="search-item location">
-                        <label>Where</label>
-                        <input type="text" placeholder="Search destinations" id="locationInput">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div class="search-item-content">
+                            <label>Where</label>
+                            <input type="text" placeholder="Search destinations" id="locationInput">
+                        </div>
                     </div>
                     <div class="divider"></div>
                     <div class="search-item date">
-                        <label>When</label>
-                        <input type="text" placeholder="Add date" onfocus="(this.type='date')"
-                            onblur="if(!this.value)this.type='text'">
+                        <i class="fas fa-calendar-alt"></i>
+                        <div class="search-item-content">
+                            <label>When</label>
+                            <input type="text" placeholder="Add date" onfocus="(this.type='date')"
+                                onblur="if(!this.value)this.type='text'">
+                        </div>
                     </div>
                     <div class="divider"></div>
                     <div class="search-item guests">
-                        <label>Who</label>
-                        <input type="number" placeholder="Add guests" min="1" id="guestsInput">
+                        <i class="fas fa-users"></i>
+                        <div class="search-item-content">
+                            <label>Who</label>
+                            <input type="number" placeholder="Add guests" min="1" id="guestsInput">
+                        </div>
                     </div>
                     <div class="divider"></div>
                     <div class="search-item category">
-                        <label>Event Category</label>
-                        <select id="eventCategoryInput" style="border: none; background: transparent; font-size: 14px; color: var(--cool-gray); width: 100%; outline: none; font-family: inherit; cursor: pointer; appearance: none; -webkit-appearance: none;">
-                            <option value="">Any category</option>
-                            <option value="Wedding">Wedding</option>
-                            <option value="Birthday">Birthday</option>
-                            <option value="Corporate">Corporate</option>
-                            <option value="Graduation">Graduation</option>
-                            <option value="Picnic">Picnic</option>
-                            <option value="Photoshoot">Photoshoot</option>
-                            <option value="Party">Party</option>
-                        </select>
+                        <i class="fas fa-tags"></i>
+                        <div class="search-item-content">
+                            <label>Event Category</label>
+                            <select id="eventCategoryInput" style="border: none; background: transparent; font-size: 14px; color: var(--cool-gray); width: 100%; outline: none; font-family: inherit; cursor: pointer; appearance: none; -webkit-appearance: none;">
+                                <option value="">Any category</option>
+                                <option value="Wedding">Wedding</option>
+                                <option value="Birthday">Birthday</option>
+                                <option value="Corporate">Corporate</option>
+                                <option value="Graduation">Graduation</option>
+                                <option value="Picnic">Picnic</option>
+                                <option value="Photoshoot">Photoshoot</option>
+                                <option value="Party">Party</option>
+                            </select>
+                        </div>
                     </div>
                     <button class="search-btn" onclick="handleSearch()">
                         <i class="fas fa-search"></i>
