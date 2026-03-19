@@ -136,10 +136,154 @@
             margin: 0 auto;
         }
 
+        .mini-search-inner {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .search-field {
+            padding: 8px 0;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-field.location { flex: 1; min-width: 100px; }
+        .search-field.date { width: 90px; }
+        .search-field.guests { width: 60px; }
+        .search-field.category { width: 110px; }
+
+        .search-field input, .search-field select {
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 13px;
+            color: var(--cool-gray);
+            background: transparent;
+            padding: 0 12px;
+        }
+
+        .search-field select { cursor: pointer; }
+
+        .field-icon {
+            display: none;
+            color: var(--primary-orange);
+            font-size: 14px;
+            margin-right: -4px;
+        }
+
+        .search-divider {
+            width: 1px;
+            height: 20px;
+            background: #eee;
+            margin: 0 4px;
+            flex-shrink: 0;
+        }
+
+        .search-btn-container {
+            padding-right: 4px;
+            flex-shrink: 0;
+        }
+
         .mini-search-bar:focus-within {
             border-color: var(--primary-orange);
             box-shadow: 0 8px 24px rgba(255, 107, 107, 0.2);
             background: var(--white);
+        }
+
+        .desktop-only { display: flex; }
+
+        .hamburger-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 1px solid var(--border-gray);
+            color: var(--dark-gray);
+            font-size: 18px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .hamburger-btn:hover { background: var(--light-gray); }
+
+        .mobile-nav-menu {
+            position: absolute;
+            top: calc(100% + 12px);
+            right: 0;
+            width: 250px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            border: 1px solid var(--border-gray);
+            padding: 8px;
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .mobile-nav-menu.active { display: flex; }
+
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 500;
+            border-radius: 12px;
+            transition: all 0.2s;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .mobile-nav-item:hover { background: var(--light-gray); color: var(--primary-orange); }
+
+        .mobile-user-info {
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-auth-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-auth-btn {
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-auth-btn.login {
+            color: var(--navy-blue);
+        }
+
+        .nav-auth-btn.signup {
+            background: var(--primary-orange);
+            color: white;
+            padding: 10px 24px;
+            border-radius: 20px;
+            box-shadow: 0 4px 12px rgba(255, 90, 95, 0.2);
+        }
+
+        .nav-auth-btn.signup:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(255, 90, 95, 0.3);
         }
 
         .mini-search-input {
@@ -909,59 +1053,85 @@
                 justify-content: space-between;
             }
 
-            .logo {
-                font-size: 20px;
-                gap: 4px;
-            }
+            .logo span { display: none; }
+            .logo i { font-size: 24px; }
 
-            .logo i {
-                font-size: 20px;
-            }
+            .desktop-only { display: none !important; }
+            .hamburger-btn { display: flex; }
 
             .mini-search {
-                flex: none;
-                width: 140px;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                width: 100%;
+                max-width: 100%;
+                padding: 0 20px;
+                margin: 0;
             }
 
-            .mini-search-input {
+            .mini-search-bar {
+                border-radius: 20px;
+                padding: 12px;
+                flex-direction: column;
+                align-items: stretch;
+                background: white;
+                box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            }
+
+            .mini-search-inner {
+                flex-direction: column;
+                align-items: stretch;
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .search-field {
+                display: flex;
+                align-items: center;
+                background: var(--light-gray);
+                border-radius: 12px;
+                padding: 10px 12px;
+                width: 100% !important;
+            }
+
+            .field-icon { display: block; }
+
+            .search-field.location { grid-column: 1 / -1; }
+            
+            .search-field input, .search-field select {
+                padding: 0 8px;
                 font-size: 13px;
                 width: 100%;
             }
 
-            .mini-search-bar {
-                padding: 6px 6px 6px 12px;
+            .search-divider { display: none; }
+
+            .search-btn-container {
+                margin-top: 12px;
+                padding: 0;
             }
 
             .mini-search-btn {
-                width: 32px;
-                height: 32px;
+                width: 100%;
+                height: 48px;
+                border-radius: 12px;
             }
 
-            #navAuth {
-                gap: 6px !important;
+            #mainNav {
+                padding-bottom: 200px; /* Space for the search bar */
+                height: auto;
             }
 
-            #navAuth a {
-                font-size: 13px !important;
-                padding: 6px 10px !important;
+            .navbar {
+                padding: 12px 20px;
+                top: 8px;
             }
 
             .search-layout {
-                padding: 120px 20px 20px;
-            }
-
-            .filter-chips {
-                overflow-x: auto;
-                flex-wrap: nowrap;
-                padding-bottom: 16px;
-                -webkit-overflow-scrolling: touch;
-                gap: 10px;
-            }
-
-            .filter-chip {
-                flex-shrink: 0;
-                padding: 10px 18px;
-                font-size: 13px;
+                padding-top: 240px; /* Space for the new larger nav + search */
             }
 
             .venues-grid {
@@ -1054,26 +1224,38 @@
             </div>
 
             <div class="mini-search">
-                <div class="mini-search-bar">
-                    <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
-                        <input type="text" class="mini-search-input" id="searchInput" placeholder="Where" style="flex: 1; min-width: 100px; padding: 8px 12px; border: none; outline: none; font-size: 13px;">
-                        <div style="width: 1px; height: 20px; background: #eee; margin: 0 8px; flex-shrink: 0;"></div>
-                        <input type="text" id="searchDate" placeholder="When" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" style="width: 90px; border: none; outline: none; font-size: 13px; color: var(--cool-gray); flex-shrink: 0;">
-                        <div style="width: 1px; height: 20px; background: #eee; margin: 0 8px; flex-shrink: 0;"></div>
-                        <input type="number" id="searchGuests" placeholder="Who" min="1" style="width: 55px; border: none; outline: none; font-size: 13px; color: var(--cool-gray); flex-shrink: 0;">
-                        <div style="width: 1px; height: 20px; background: #eee; margin: 0 8px; flex-shrink: 0;"></div>
-                        <select id="searchCategory" onchange="renderVenues()" style="border: none; outline: none; font-size: 13px; color: var(--cool-gray); background: transparent; cursor: pointer; width: 110px;">
-                            <option value="">Any category</option>
-                            <option value="Wedding">Wedding</option>
-                            <option value="Birthday">Birthday</option>
-                            <option value="Corporate">Corporate</option>
-                            <option value="Graduation">Graduation</option>
-                            <option value="Picnic">Picnic</option>
-                            <option value="Photoshoot">Photoshoot</option>
-                            <option value="Party">Party</option>
-                        </select>
+                <div class="mini-search-bar" id="miniSearchBar">
+                    <div class="mini-search-inner">
+                        <div class="search-field location">
+                            <i class="fas fa-map-marker-alt field-icon"></i>
+                            <input type="text" class="mini-search-input" id="searchInput" placeholder="Where">
+                        </div>
+                        <div class="search-divider"></div>
+                        <div class="search-field date">
+                            <i class="fas fa-calendar-alt field-icon"></i>
+                            <input type="text" id="searchDate" placeholder="When" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
+                        </div>
+                        <div class="search-divider"></div>
+                        <div class="search-field guests">
+                            <i class="fas fa-users field-icon"></i>
+                            <input type="number" id="searchGuests" placeholder="Who" min="1">
+                        </div>
+                        <div class="search-divider"></div>
+                        <div class="search-field category">
+                            <i class="fas fa-tags field-icon"></i>
+                            <select id="searchCategory" onchange="renderVenues()">
+                                <option value="">Category</option>
+                                <option value="Wedding">Wedding</option>
+                                <option value="Birthday">Birthday</option>
+                                <option value="Corporate">Corporate</option>
+                                <option value="Graduation">Graduation</option>
+                                <option value="Picnic">Picnic</option>
+                                <option value="Photoshoot">Photoshoot</option>
+                                <option value="Party">Party</option>
+                            </select>
+                        </div>
                     </div>
-                    <div style="padding-right: 4px; flex-shrink: 0;">
+                    <div class="search-btn-container">
                         <button class="mini-search-btn" onclick="performSearch()">
                             <i class="fas fa-search"></i>
                         </button>
@@ -1081,14 +1263,13 @@
                 </div>
             </div>
 
-            <div id="navAuth" style="display: none; align-items: center; gap: 8px;">
-                <a href="login.html" style="text-decoration: none; color: var(--navy-blue); font-weight: 600;">Log In</a>
-                <span class="auth-separator">|</span>
-                <a href="register.html" style="text-decoration: none; background: #FF5A5F; color: white; padding: 10px 24px; border-radius: 20px; font-weight: 600;">Sign Up</a>
-            </div>
+            <div class="nav-right">
+                <div id="navAuth" class="nav-auth-group desktop-only">
+                    <a href="login.html" class="nav-auth-btn login">Log In</a>
+                    <a href="register.html" class="nav-auth-btn signup">Sign Up</a>
+                </div>
 
-            <div id="navUserMenu" style="display: none; margin-left: 16px;">
-                <div class="user-menu">
+                <div id="navUserMenu" class="user-menu desktop-only" style="display: none;">
                     <button class="user-btn" onclick="toggleUserDropdown()">
                         <div class="user-avatar" id="navUserAvatar">U</div>
                         <span id="navUserName">User</span>
@@ -1104,8 +1285,7 @@
                         <button class="dropdown-item" onclick="openProfileModal()">
                             <i class="fas fa-user-edit"></i> Edit Profile
                         </button>
-                        <a href="dashboard.html?tab=favorites" class="dropdown-item" id="renterFavoritesLink"
-                            style="display: none;">
+                        <a href="dashboard.html?tab=favorites" class="dropdown-item" id="renterFavoritesLink" style="display: none;">
                             <i class="fas fa-heart"></i> My Favorites
                         </a>
                         <div class="dropdown-divider"></div>
@@ -1114,7 +1294,47 @@
                         </button>
                     </div>
                 </div>
+
+                <!-- HAMBURGER MENU FOR MOBILE -->
+                <button class="hamburger-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars"></i>
+                </button>
             </div>
+        </div>
+
+        <!-- MOBILE MENU DROPDOWN -->
+        <div class="mobile-nav-menu" id="mobileNavMenu">
+            <div id="mobileAuthLinks" style="display: none;">
+                <a href="login.html" class="mobile-nav-item">
+                    <i class="fas fa-sign-in-alt"></i> Log In
+                </a>
+                <a href="register.html" class="mobile-nav-item" style="color: var(--primary-orange);">
+                    <i class="fas fa-user-plus"></i> Sign Up
+                </a>
+            </div>
+            <div id="mobileUserLinks" style="display: none;">
+                <div class="mobile-user-info">
+                    <div class="user-avatar" id="mobileUserAvatar" style="width: 40px; height: 40px;">U</div>
+                    <span id="mobileUserName" style="font-weight: 600;">User Name</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <div id="mobileOwnerDashboard" style="display: none;">
+                    <a href="dashboard.html" class="mobile-nav-item">
+                        <i class="fas fa-chart-line"></i> Dashboard
+                    </a>
+                </div>
+                <button class="mobile-nav-item" onclick="openProfileModal(); toggleMobileMenu();">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </button>
+                <a href="dashboard.html?tab=favorites" class="mobile-nav-item" id="mobileRenterFavorites" style="display: none;">
+                    <i class="fas fa-heart"></i> My Favorites
+                </a>
+                <div class="dropdown-divider"></div>
+                <button class="mobile-nav-item" onclick="logout()" style="color: #FF5A5F;">
+                    <i class="fas fa-sign-out-alt"></i> Log Out
+                </button>
+            </div>
+        </div>
         </div>
     </nav>
 
@@ -1627,29 +1847,51 @@
         let currentUser = null;
         let pendingProfileBase64 = null;
 
+        function toggleMobileMenu() {
+            document.getElementById('mobileNavMenu').classList.toggle('active');
+        }
+
         function checkAuthNav() {
             const userStr = localStorage.getItem('siza_user');
+            const navAuth = document.getElementById('navAuth');
+            const navUserMenu = document.getElementById('navUserMenu');
+            const mobAuth = document.getElementById('mobileAuthLinks');
+            const mobUser = document.getElementById('mobileUserLinks');
+
             if (userStr) {
                 currentUser = JSON.parse(userStr);
-                document.getElementById('navAuth').style.display = 'none';
-                document.getElementById('navUserMenu').style.display = 'block';
-
+                
+                // Desktop
+                if (navAuth) navAuth.style.display = 'none';
+                if (navUserMenu) navUserMenu.style.display = 'block';
                 document.getElementById('navUserName').textContent = currentUser.name.split(' ')[0];
                 const navAvatar = document.getElementById('navUserAvatar');
-                if (currentUser.profile_image) {
-                    navAvatar.innerHTML = `<img src="${currentUser.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
-                } else {
-                    navAvatar.innerHTML = (currentUser.name || 'U').charAt(0).toUpperCase();
-                }
+                
+                // Mobile
+                if (mobAuth) mobAuth.style.display = 'none';
+                if (mobUser) mobUser.style.display = 'block';
+                document.getElementById('mobileUserName').textContent = currentUser.name;
+                const mobAvatar = document.getElementById('mobileUserAvatar');
+
+                const avatarHtml = currentUser.profile_image ? 
+                    `<img src="${currentUser.profile_image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">` : 
+                    (currentUser.name || 'U').charAt(0).toUpperCase();
+                
+                navAvatar.innerHTML = avatarHtml;
+                mobAvatar.innerHTML = avatarHtml;
 
                 if (currentUser.role === 'owner') {
                     document.getElementById('ownerDashboardLink').style.display = 'block';
+                    document.getElementById('mobileOwnerDashboard').style.display = 'block';
                 } else {
                     document.getElementById('renterFavoritesLink').style.display = 'flex';
+                    document.getElementById('mobileRenterFavorites').style.display = 'flex';
                 }
             } else {
-                document.getElementById('navAuth').style.display = 'flex';
-                document.getElementById('navUserMenu').style.display = 'none';
+                if (navAuth) navAuth.style.display = 'flex';
+                if (navUserMenu) navUserMenu.style.display = 'none';
+                if (mobAuth) mobAuth.style.display = 'block';
+                if (mobUser) mobUser.style.display = 'none';
             }
         }
 
@@ -1659,7 +1901,12 @@
 
         window.addEventListener('click', (e) => {
             if (!e.target.closest('.user-menu')) {
-                document.getElementById('userDropdown').classList.remove('active');
+                const drop = document.getElementById('userDropdown');
+                if (drop) drop.classList.remove('active');
+            }
+            if (!e.target.closest('.nav-right')) {
+                const mobDrop = document.getElementById('mobileNavMenu');
+                if (mobDrop) mobDrop.classList.remove('active');
             }
         });
 
