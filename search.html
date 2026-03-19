@@ -12,7 +12,8 @@
     <style>
         /* CSS VARIABLES - Same warm palette */
         :root {
-            --primary-orange: #40E0D0;
+            --primary-orange: #FF5A5F;
+            --primary-coral: #FF7E67;
             --primary-dark: #20B2AA;
             --navy-blue: #2C3E50;
             --teal: #40E0D0;
@@ -127,10 +128,12 @@
             align-items: center;
             background: rgba(255, 255, 255, 0.9);
             border: 2px solid transparent;
-            border-radius: 40px;
-            padding: 10px 10px 10px 24px;
+            border-radius: 50px;
+            padding: 4px 4px 4px 20px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
             transition: all 0.3s ease;
+            max-width: 850px;
+            margin: 0 auto;
         }
 
         .mini-search-bar:focus-within {
@@ -156,8 +159,9 @@
         .mini-search-btn {
             width: 40px;
             height: 40px;
+            min-width: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            background: var(--primary-orange);
             border: none;
             color: var(--white);
             cursor: pointer;
@@ -166,11 +170,13 @@
             justify-content: center;
             transition: all 0.3s ease;
             font-size: 16px;
+            box-shadow: 0 4px 12px rgba(255, 90, 95, 0.3);
+            margin-right: 4px;
         }
 
         .mini-search-btn:hover {
             transform: scale(1.1) rotate(10deg);
-            box-shadow: 0 4px 16px var(--warm-shadow);
+            background: #E04850;
         }
 
         /* BLUR LAYER for content passing under navbar */
@@ -194,14 +200,37 @@
 
         /* MAIN SEARCH LAYOUT - Adjusted for fixed navbar */
         .search-layout {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 140px 40px 40px;
+            padding-top: 180px;
+        }
+        /* RESULTS HEADER & FILTERS STICKY */
+        .results-header-wrapper {
+            position: sticky;
+            top: 80px;
+            background: var(--white);
+            z-index: 900;
+            padding: 60px 0 15px; /* Increased top padding from 30px to 60px */
+            margin-bottom: 24px;
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s ease;
         }
 
-        /* RESULTS HEADER */
+        .results-header-wrapper.scrolled {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+            border-bottom-color: var(--border-gray);
+            padding-top: 15px;
+            padding-bottom: 15px;
+        }
+
+        .results-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 0 40px;
+        }
+
         .results-header {
-            margin-bottom: 24px;
+            margin-bottom: 16px;
+            text-align: left;
         }
 
         .results-header h1 {
@@ -217,21 +246,60 @@
             font-size: 15px;
         }
 
-        /* FILTER CHIPS */
-        .filter-chips {
+        /* FILTER CHIPS CONTAINER */
+        .filter-nav-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
+            padding: 8px 0;
+        }
+
+        .filter-chips-scroll {
             display: flex;
             gap: 12px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-            padding-bottom: 8px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 4px 10px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            flex: 1;
+        }
+
+        .filter-chips-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .filter-scroll-btn {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            border-radius: 50%;
+            background: var(--white);
+            border: 1px solid var(--border-gray);
+            color: var(--dark-gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .filter-scroll-btn:hover {
+            background: var(--primary-orange);
+            background: var(--primary-orange);
+            color: var(--white);
+            border-color: transparent;
         }
 
         .filter-chip {
-            padding: 12px 24px;
-            border: 2px solid var(--border-gray);
+            padding: 10px 18px;
+            border: 1px solid var(--border-gray);
             background: var(--white);
             border-radius: 30px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 500;
             color: var(--dark-gray);
             cursor: pointer;
@@ -239,6 +307,8 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
         .filter-chip:hover {
@@ -249,10 +319,10 @@
         }
 
         .filter-chip.active {
-            background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+            background: var(--primary-orange);
             border-color: transparent;
             color: var(--white);
-            box-shadow: 0 6px 20px var(--warm-shadow);
+            box-shadow: 0 6px 20px rgba(255, 90, 95, 0.3);
             transform: translateY(-3px);
         }
 
@@ -985,10 +1055,29 @@
 
             <div class="mini-search">
                 <div class="mini-search-bar">
-                    <input type="text" class="mini-search-input" id="searchInput" placeholder="Where are you going?">
-                    <button class="mini-search-btn" onclick="performSearch()">
-                        <i class="fas fa-search"></i>
-                    </button>
+                    <div style="display: flex; align-items: center; flex: 1; min-width: 0;">
+                        <input type="text" class="mini-search-input" id="searchInput" placeholder="Where" style="flex: 1; min-width: 100px; padding: 8px 12px; border: none; outline: none; font-size: 13px;">
+                        <div style="width: 1px; height: 20px; background: #eee; margin: 0 8px; flex-shrink: 0;"></div>
+                        <input type="text" id="searchDate" placeholder="When" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'" style="width: 90px; border: none; outline: none; font-size: 13px; color: var(--cool-gray); flex-shrink: 0;">
+                        <div style="width: 1px; height: 20px; background: #eee; margin: 0 8px; flex-shrink: 0;"></div>
+                        <input type="number" id="searchGuests" placeholder="Who" min="1" style="width: 55px; border: none; outline: none; font-size: 13px; color: var(--cool-gray); flex-shrink: 0;">
+                        <div style="width: 1px; height: 20px; background: #eee; margin: 0 8px; flex-shrink: 0;"></div>
+                        <select id="searchCategory" onchange="renderVenues()" style="border: none; outline: none; font-size: 13px; color: var(--cool-gray); background: transparent; cursor: pointer; width: 110px;">
+                            <option value="">Any category</option>
+                            <option value="Wedding">Wedding</option>
+                            <option value="Birthday">Birthday</option>
+                            <option value="Corporate">Corporate</option>
+                            <option value="Graduation">Graduation</option>
+                            <option value="Picnic">Picnic</option>
+                            <option value="Photo Shoot">Photo Shoot</option>
+                            <option value="Party">Party</option>
+                        </select>
+                    </div>
+                    <div style="padding-right: 4px; flex-shrink: 0;">
+                        <button class="mini-search-btn" onclick="performSearch()">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -1091,53 +1180,71 @@
 
     <!-- MAIN SEARCH LAYOUT -->
     <div class="search-layout">
+        <div class="results-header-wrapper" id="stickyHeader">
+            <div class="results-container">
+                <div class="results-header">
+                    <h1 id="resultsTitle">Searching...</h1>
+                    <p id="resultsCount"></p>
+                </div>
 
-        <div class="results-header">
-            <h1 id="resultsTitle">Searching...</h1>
-            <p id="resultsCount"></p>
+                <!-- FILTER CHIPS -->
+                <div class="filter-nav-container">
+                    <button class="filter-scroll-btn prev" onclick="scrollFilters(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    
+                    <div class="filter-chips-scroll" id="filterScroll">
+                        <button class="filter-chip active" onclick="toggleFilter(this, 'all')">
+                            <i class="fas fa-star"></i>
+                            All
+                        </button>
+                        <button class="filter-chip" onclick="toggleFilter(this, 'Gardens')">
+                            <i class="fas fa-leaf"></i>
+                            Gardens
+                        </button>
+                        <button class="filter-chip" onclick="toggleFilter(this, 'Indoor')">
+                            <i class="fas fa-home"></i>
+                            Indoor
+                        </button>
+                        <button class="filter-chip" onclick="toggleFilter(this, 'Schools')">
+                            <i class="fas fa-graduation-cap"></i>
+                            Schools
+                        </button>
+                        <button class="filter-chip" onclick="toggleFilter(this, 'Hotels')">
+                            <i class="fas fa-hotel"></i>
+                            Hotels
+                        </button>
+                        <button class="filter-chip" onclick="toggleFilter(this, 'Unique')">
+                            <i class="fas fa-magic"></i>
+                            Unique
+                        </button>
+                        <button class="filter-chip" onclick="toggleFilter(this, 'Home')">
+                            <i class="fas fa-house-user"></i>
+                            Home
+                        </button>
+                        <button class="filter-chip" onclick="toggleFilter(this, 'Rooftops')">
+                            <i class="fas fa-city"></i>
+                            Rooftops
+                        </button>
+                        <button class="filter-chip" onclick="toggleFilter(this, 'Private Clubs')">
+                            <i class="fas fa-glass-cheers"></i>
+                            Private Clubs
+                        </button>
+                    </div>
+
+                    <button class="filter-scroll-btn next" onclick="scrollFilters(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
         </div>
 
-        <!-- FILTER CHIPS -->
-        <div class="filter-chips">
-            <button class="filter-chip active" onclick="toggleFilter(this, 'all')">
-                <i class="fas fa-star"></i>
-                All
-            </button>
-            <button class="filter-chip" onclick="toggleFilter(this, 'Gardens')">
-                <i class="fas fa-leaf"></i>
-                Gardens
-            </button>
-            <button class="filter-chip" onclick="toggleFilter(this, 'Indoor')">
-                <i class="fas fa-home"></i>
-                Indoor
-            </button>
-            <button class="filter-chip" onclick="toggleFilter(this, 'Schools')">
-                <i class="fas fa-graduation-cap"></i>
-                Schools
-            </button>
-            <button class="filter-chip" onclick="toggleFilter(this, 'Hotels')">
-                <i class="fas fa-hotel"></i>
-                Hotels
-            </button>
-            <button class="filter-chip" onclick="toggleFilter(this, 'Unique')">
-                <i class="fas fa-magic"></i>
-                Unique
-            </button>
-            <button class="filter-chip" onclick="toggleFilter(this, 'Home')">
-                <i class="fas fa-house-user"></i>
-                Home
-            </button>
-            <button class="filter-chip" onclick="toggleFilter(this, 'Rooftops')">
-                <i class="fas fa-city"></i>
-                Rooftops
-            </button>
+        <div class="results-container">
+            <!-- VENUES GRID -->
+            <div class="venues-grid" id="venuesGrid">
+                <!-- Venues populated by JS -->
+            </div>
         </div>
-
-        <!-- VENUES GRID -->
-        <div class="venues-grid" id="venuesGrid">
-            <!-- Venues populated by JS -->
-        </div>
-
     </div>
 
     <!-- PASTEL ORANGE FOOTER -->
@@ -1147,15 +1254,12 @@
         <div class="footer-content">
             <div class="footer-section">
                 <h3>Support</h3>
-                <a href="#">Help Center</a>
-                <a href="#">Safety Information</a>
-                <a href="#">Cancellation Options</a>
+                <a href="safety.html">Safety Information</a>
             </div>
             <div class="footer-section">
                 <h3>About</h3>
-                <a href="#">How Siza Works</a>
-                <a href="#">Careers</a>
-                <a href="#">Investors</a>
+                <a href="how-it-works.html">How Siza Works</a>
+                <a href="careers.html">Careers</a>
             </div>
         </div>
         <div class="footer-bottom">
@@ -1181,15 +1285,25 @@
             // Get search params from URL
             const params = new URLSearchParams(window.location.search);
             searchQuery = params.get('location') || '';
+            const dateQuery = params.get('date') || '';
             const guestsQuery = params.get('guests') || '';
+            const categoryQuery = params.get('event_category') || '';
 
-            // Update header
+            // Update header and inputs
             if (searchQuery) {
-                document.getElementById('resultsTitle').textContent = `Venues in ${searchQuery}`;
+                let titleText = `Venues in ${searchQuery}`;
+                if (categoryQuery) titleText = `${categoryQuery} Venues in ${searchQuery}`;
+                document.getElementById('resultsTitle').textContent = titleText;
                 document.getElementById('searchInput').value = searchQuery;
+            } else if (categoryQuery) {
+                document.getElementById('resultsTitle').textContent = `${categoryQuery} Venues`;
             } else {
                 document.getElementById('resultsTitle').textContent = `All Venues`;
             }
+
+            if (dateQuery) document.getElementById('searchDate').value = dateQuery;
+            if (guestsQuery) document.getElementById('searchGuests').value = guestsQuery;
+            if (categoryQuery) document.getElementById('searchCategory').value = categoryQuery;
 
             await fetchVenues(); // Call the new fetchVenues function
 
@@ -1205,11 +1319,13 @@
             const params = new URLSearchParams(window.location.search);
             const currentSearchQuery = params.get('location') || '';
             const currentGuestsQuery = params.get('guests') || '';
+            const currentCategoryQuery = params.get('event_category') || '';
 
             // Build API URL
             let apiUrl = '/api/venues?';
             if (currentSearchQuery) apiUrl += `location=${encodeURIComponent(currentSearchQuery)}&`;
-            if (currentGuestsQuery) apiUrl += `guests=${encodeURIComponent(currentGuestsQuery)}`;
+            if (currentGuestsQuery) apiUrl += `guests=${encodeURIComponent(currentGuestsQuery)}&`;
+            if (currentCategoryQuery) apiUrl += `event_category=${encodeURIComponent(currentCategoryQuery)}`;
 
             try {
                 const response = await fetch(apiUrl);
@@ -1232,11 +1348,28 @@
                     return [];
                 }
 
-                // Parse amenities and image from JSON string if needed
+                // Parse amenities, images, and event categories
                 allVenues.forEach(v => {
                     if (typeof v.amenities === 'string') {
                         try { v.amenities = JSON.parse(v.amenities); } catch (e) { /* ignore parse error */ }
                     }
+                    if (typeof v.event_categories === 'string' && v.event_categories.length > 0) {
+                        try { 
+                            let parsed = JSON.parse(v.event_categories); 
+                            v.eventCategories = Array.isArray(parsed) ? parsed : [parsed];
+                        } catch (e) { 
+                            if (v.event_categories.includes(',')) {
+                                v.eventCategories = v.event_categories.split(',').map(s => s.trim());
+                            } else {
+                                v.eventCategories = [v.event_categories];
+                            }
+                        }
+                    } else if (Array.isArray(v.event_categories)) {
+                        v.eventCategories = v.event_categories;
+                    } else {
+                        v.eventCategories = [];
+                    }
+                    
                     const imgs = parseVenueImages(v.image).filter(img => typeof img === 'string' && img !== '[object Object]');
                     v.displayImage = imgs.length > 0 ? imgs[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available';
                 });
@@ -1252,6 +1385,7 @@
         function setupScrollBlur() {
             const navbar = document.getElementById('mainNav');
             const blurLayer = document.getElementById('blurLayer');
+            const stickyHeader = document.getElementById('stickyHeader');
 
             window.addEventListener('scroll', () => {
                 const scrollY = window.scrollY;
@@ -1263,6 +1397,12 @@
                     navbar.classList.remove('scrolled');
                     blurLayer.classList.remove('active');
                 }
+
+                if (scrollY > 60) {
+                    stickyHeader.classList.add('scrolled');
+                } else {
+                    stickyHeader.classList.remove('scrolled');
+                }
             });
         }
 
@@ -1272,8 +1412,35 @@
 
             // Filter venues
             let filtered = allVenues;
+            
+            // 1. Filter by Venue Type Chip
             if (currentFilter !== 'all') {
-                filtered = allVenues.filter(v => v.type === currentFilter);
+                const filterLower = currentFilter.toLowerCase();
+                filtered = filtered.filter(v => (v.type || '').toLowerCase().includes(filterLower));
+            }
+
+            // 2. Filter by Event Category (from search bar)
+            const eventCat = document.getElementById('searchCategory').value;
+            if (eventCat) {
+                // Normalize search term: lowercase, remove spaces/hyphens for fuzzy match
+                const normalize = (str) => (str || '').toLowerCase().replace(/[\s\-\/]/g, '');
+                const normalizedSearch = normalize(eventCat);
+                
+                filtered = filtered.filter(v => {
+                    // Normalize venue type
+                    const normalizedVenueType = normalize(v.type);
+                    const typeMatch = normalizedVenueType.includes(normalizedSearch);
+                    
+                    // Normalize and check individual supported event categories
+                    const supportedMatch = v.eventCategories && v.eventCategories.some(cat => {
+                        if (typeof cat !== 'string') return false;
+                        const normalizedCat = normalize(cat);
+                        // Deep match: check if search term is in category OR category is in search term
+                        return normalizedCat.includes(normalizedSearch) || normalizedSearch.includes(normalizedCat);
+                    });
+
+                    return typeMatch || supportedMatch;
+                });
             }
 
             // Update count
@@ -1309,7 +1476,10 @@
                             </div>
                         </div>
                         <p class="venue-location">${venue.location}</p>
-                        <p class="venue-details">Up to ${venue.guests} guests • ${venue.type}</p>
+                        <p class="venue-details">
+                            Up to ${venue.guests} guests • ${venue.type}
+                            ${venue.eventCategories && venue.eventCategories.length > 0 ? `<br><span style="font-size: 11px; color: var(--cool-gray);">For: ${venue.eventCategories.slice(0, 3).join(', ')}</span>` : ''}
+                        </p>
                         <div class="venue-price">
                             <span class="amount">KES ${venue.price}</span>
                             <span class="period">/event</span>
@@ -1319,6 +1489,16 @@
             `).join('');
 
             checkSavedFavorites();
+        }
+
+        // Scroll filters
+        function scrollFilters(direction) {
+            const container = document.getElementById('filterScroll');
+            const scrollAmount = 200;
+            container.scrollBy({
+                left: direction * scrollAmount,
+                behavior: 'smooth'
+            });
         }
 
         // Toggle filter
@@ -1336,15 +1516,18 @@
 
         // Perform search
         function performSearch() {
-            const query = document.getElementById('searchInput').value;
-            const params = new URLSearchParams(window.location.search);
-            const guests = params.get('guests');
-            
-            let newUrl = `search.html?location=${encodeURIComponent(query)}`;
-            if (guests) {
-                newUrl += `&guests=${encodeURIComponent(guests)}`;
-            }
-            window.location.href = newUrl;
+            const query = document.getElementById('searchInput').value.trim();
+            const date = document.getElementById('searchDate').value;
+            const guests = document.getElementById('searchGuests').value;
+            const category = document.getElementById('searchCategory').value;
+
+            const params = new URLSearchParams();
+            if (query) params.append('location', query);
+            if (date) params.append('date', date);
+            if (guests) params.append('guests', guests);
+            if (category) params.append('event_category', category);
+
+            window.location.href = `search.html?${params.toString()}`;
         }
 
         let userFavorites = [];

@@ -79,6 +79,11 @@ app.get('/api/venues', async (req, res) => {
         if (req.query.guests) {
             query = query.gte('guests', parseInt(req.query.guests));
         }
+        if (req.query.event_category) {
+            const cat = req.query.event_category;
+            // Filter where category is in main 'type' OR 'event_categories' blob
+            query = query.or(`type.ilike.%${cat}%,event_categories.ilike.%${cat}%`);
+        }
         if (req.query.owner_id) {
             query = query.eq('owner_id', req.query.owner_id);
         }

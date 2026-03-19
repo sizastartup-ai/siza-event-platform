@@ -286,10 +286,10 @@
 
         /* CATEGORIES SECTION */
         .categories {
-            padding: 24px;
+            padding: 24px 24px 12px;
             border-bottom: 1px solid var(--border-gray);
             position: sticky;
-            top: 80px;
+            top: 90px;
             background: var(--white);
             z-index: 100;
         }
@@ -1388,6 +1388,20 @@
                         <label>Who</label>
                         <input type="number" placeholder="Add guests" min="1" id="guestsInput">
                     </div>
+                    <div class="divider"></div>
+                    <div class="search-item category">
+                        <label>Event Category</label>
+                        <select id="eventCategoryInput" style="border: none; background: transparent; font-size: 14px; color: var(--cool-gray); width: 100%; outline: none; font-family: inherit; cursor: pointer; appearance: none; -webkit-appearance: none;">
+                            <option value="">Any category</option>
+                            <option value="Wedding">Wedding</option>
+                            <option value="Birthday">Birthday</option>
+                            <option value="Corporate">Corporate</option>
+                            <option value="Graduation">Graduation</option>
+                            <option value="Picnic">Picnic</option>
+                            <option value="Photo Shoot">Photo Shoot</option>
+                            <option value="Party">Party</option>
+                        </select>
+                    </div>
                     <button class="search-btn" onclick="handleSearch()">
                         <i class="fas fa-search"></i>
                     </button>
@@ -1436,6 +1450,10 @@
                 <button class="category-item" onclick="filterCategory('rooftop', this)">
                     <i class="fas fa-city"></i>
                     <span>Rooftops</span>
+                </button>
+                <button class="category-item" onclick="filterCategory('Private Clubs', this)">
+                    <i class="fas fa-glass-cheers"></i>
+                    <span>Private Clubs</span>
                 </button>
             </div>
 
@@ -1591,6 +1609,22 @@
                 allVenues.forEach(v => {
                     if (typeof v.amenities === 'string') {
                         try { v.amenities = JSON.parse(v.amenities); } catch (e) { }
+                    }
+                    if (typeof v.event_categories === 'string' && v.event_categories.length > 0) {
+                        try { 
+                            let parsed = JSON.parse(v.event_categories); 
+                            v.eventCategories = Array.isArray(parsed) ? parsed : [parsed];
+                        } catch (e) { 
+                            if (v.event_categories.includes(',')) {
+                                v.eventCategories = v.event_categories.split(',').map(s => s.trim());
+                            } else {
+                                v.eventCategories = [v.event_categories];
+                            }
+                        }
+                    } else if (Array.isArray(v.event_categories)) {
+                        v.eventCategories = v.event_categories;
+                    } else {
+                        v.eventCategories = [];
                     }
                     const imgs = parseVenueImages(v.image).filter(img => typeof img === 'string' && img !== '[object Object]');
                     v.displayImage = imgs.length > 0 ? imgs[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available';
@@ -1808,12 +1842,16 @@
         // Handle search button click
         function handleSearch() {
             const location = document.getElementById('locationInput').value.trim();
+            const date = document.querySelector('.search-item.date input').value;
             const guests = document.getElementById('guestsInput').value;
+            const eventCategory = document.getElementById('eventCategoryInput').value;
 
             // Build the URL with search parameters
             const params = new URLSearchParams();
             if (location) params.append('location', location);
+            if (date) params.append('date', date);
             if (guests) params.append('guests', guests);
+            if (eventCategory) params.append('event_category', eventCategory);
 
             // Go to search results page
             window.location.href = `search.html?${params.toString()}`;
