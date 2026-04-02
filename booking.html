@@ -516,6 +516,10 @@
                 <i class="fas fa-star"></i>
                 <span>All</span>
             </button>
+            <button class="category-item" onclick="filterCategory('Siza Boutique', this)">
+                <i class="fas fa-gem"></i>
+                <span>Siza Boutique</span>
+            </button>
             <button class="category-item" onclick="filterCategory('Gardens', this)">
                 <i class="fas fa-leaf"></i>
                 <span>Gardens</span>
@@ -610,6 +614,7 @@
                     <div class="venue-image">
                         <img src="${venue.image}" alt="${venue.title}" loading="lazy">
                         <span class="venue-badge">Hot</span>
+                        ${venue.type && venue.type.toLowerCase().includes('siza boutique') ? '<div class="boutique-badge" title="Siza Boutique"><i class="fas fa-gem"></i></div>' : ''}
                         <button class="venue-favorite" onclick="event.preventDefault(); toggleHeart(this)">
                             <i class="far fa-heart"></i>
                         </button>

@@ -600,10 +600,27 @@
         }
 
         .venue-favorite:hover,
-        .venue-favorite.active {
+        .venue-favorite:hover {
+            transform: scale(1.1);
+            color: #FF5A5F;
+        }
+
+        .boutique-badge {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
             background: white;
             color: #FF5A5F;
-            transform: scale(1.1);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 90, 95, 0.1);
+            z-index: 10;
         }
 
         .venue-favorite.active i {
@@ -2315,7 +2332,7 @@
 
         // Updated categories list
         const categories = [
-            'Gardens', 'Indoor Spaces', 'Schools', 'Hotels',
+            'Siza Boutique', 'Gardens', 'Indoor Spaces', 'Schools', 'Hotels',
             'Unique Spots', 'Home', 'Rooftop', 'Private Clubs'
         ];
         
@@ -2461,18 +2478,35 @@
             const list = Array.isArray(selectedList) ? selectedList : [];
             
             grid.innerHTML = categories.map(cat => {
-                // Case-insensitive match
                 const isChecked = list.some(item => 
                     String(item).trim().toLowerCase() === cat.trim().toLowerCase()
                 );
                 const safeId = `${prefix}${cat.toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
                 return `
                     <div class="checkbox-item">
-                        <input type="checkbox" id="${safeId}" value="${cat}" ${isChecked ? 'checked' : ''}>
+                        <input type="checkbox" id="${safeId}" value="${cat}" ${isChecked ? 'checked' : ''} onchange="handleCategorySelection(this, '${gridId}')">
                         <label for="${safeId}">${cat}</label>
                     </div>
                 `;
             }).join('');
+        }
+
+        // Logic to handle category selection limits
+        function handleCategorySelection(checkbox, gridId) {
+            const grid = document.getElementById(gridId);
+            const checkboxes = Array.from(grid.querySelectorAll('input[type="checkbox"]'));
+            const selected = checkboxes.filter(cb => cb.checked);
+            
+            if (checkbox.checked && checkbox.value !== 'Siza Boutique') {
+                // If a non-Boutique is checked, uncheck all other non-Boutique ones
+                checkboxes.forEach(cb => {
+                    if (cb !== checkbox && cb.value !== 'Siza Boutique') {
+                        cb.checked = false;
+                    }
+                });
+            } else if (checkbox.checked && checkbox.value === 'Siza Boutique') {
+                // Siza Boutique can coexist with any single other type
+            }
         }
 
         // Helper to render Event Category grid with pricing inputs
@@ -2747,7 +2781,7 @@
                                 return v.location_tags;
                             })(),
                             details_pdf: v.details_pdf || null,
-                            categories: [v.type],
+                            categories: v.type ? v.type.split(',').map(s => s.trim()) : ['Event Space'],
                             event_categories: (() => { 
                                 let ec = v.event_categories;
                                 if (typeof ec === 'string') { 
@@ -2856,6 +2890,8 @@
                         <a href="venue.html?id=${venue.id}" target="_blank" style="position:absolute; inset:0; z-index:2;"></a>
                         <div class="venue-image">
                             <img src="${venue.images && venue.images.length > 0 ? venue.images[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available'}" alt="${venue.name}">
+                            ${venue.views >= 100 ? '<span class="venue-badge">Hot</span>' : ''}
+                            ${venue.type && venue.type.toLowerCase().includes('siza boutique') ? '<div class="boutique-badge" title="Siza Boutique"><i class="fas fa-gem"></i></div>' : ''}
                             <button class="venue-favorite active" onclick="event.preventDefault(); event.stopPropagation(); toggleFavorite(${venue.id}, this)" title="Remove from favorites" style="z-index: 3;">
                                 <i class="fas fa-heart" style="color: #FF5A5F;"></i>
                             </button>
@@ -3170,6 +3206,7 @@
                     ${isRenter ? `<a href="${link}" ${target} style="position:absolute; inset:0; z-index:2;"></a>` : ''}
                     <div class="venue-image">
                         <img src="${venue.images && venue.images.length > 0 ? venue.images[0] : 'https://via.placeholder.com/800x450?text=No+Image+Available'}" alt="${venue.name}">
+                        ${venue.type && venue.type.toLowerCase().includes('siza boutique') ? '<div class="boutique-badge" title="Siza Boutique" style="bottom: 12px; left: 12px;"><i class="fas fa-gem"></i></div>' : ''}
                         <span class="venue-status ${venue.status || 'active'}">${venue.status === 'pending' ? 'Pending' : 'Active'}</span>
                         <div class="venue-actions" style="z-index: 3;">
                             ${!isRenter ? `
@@ -3324,7 +3361,17 @@
                 selectedCategories.push(cb.value);
             });
 
-            const typeValue = selectedCategories.length > 0 ? selectedCategories[0] : 'Event Space';
+            // Join categories: regular type first, then Siza Boutique
+            let typeValue = 'Event Space';
+            if (selectedCategories.length > 0) {
+                const boutiqueIdx = selectedCategories.indexOf('Siza Boutique');
+                if (boutiqueIdx !== -1 && selectedCategories.length > 1) {
+                    const other = selectedCategories.filter(c => c !== 'Siza Boutique')[0];
+                    typeValue = `${other}, Siza Boutique`;
+                } else {
+                    typeValue = selectedCategories[0];
+                }
+            }
 
             // Collect category pricing robustly using data attributes
             const categoryPricing = {};
@@ -3519,7 +3566,7 @@
                 title: venue.name,
                 location: venue.location,
                 location_tags: venue.location_tags || [],
-                type: venue.categories ? venue.categories[0] : 'Event Space',
+                type: Array.isArray(venue.categories) ? venue.categories.join(', ') : (venue.categories || 'Event Space'),
                 guests: venue.capacity,
                 price: venue.price,
                 image: venue.images,
@@ -3572,7 +3619,6 @@
                 showNotification('Venue not found');
                 return;
             }
-
             const name = document.getElementById('editVenueName').value;
             const location = document.getElementById('editVenueLocation').value;
             const price = 0; // Removing base rate requirement
@@ -3584,7 +3630,18 @@
             document.querySelectorAll('#editCategoriesGrid input[type="checkbox"]:checked').forEach(cb => {
                 selectedCategories.push(cb.value);
             });
-            const typeValue = selectedCategories.length > 0 ? selectedCategories[0] : 'Event Space';
+            
+            let typeValue = 'Event Space';
+            if (selectedCategories.length > 0) {
+                const boutiqueIdx = selectedCategories.indexOf('Siza Boutique');
+                if (boutiqueIdx !== -1 && selectedCategories.length > 1) {
+                    const other = selectedCategories.filter(c => c !== 'Siza Boutique')[0];
+                    typeValue = `${other}, Siza Boutique`;
+                } else {
+                    typeValue = selectedCategories[0];
+                }
+            }
+            const type = typeValue;
 
             // Collect category pricing robustly using data attributes
             const categoryPricing = {};

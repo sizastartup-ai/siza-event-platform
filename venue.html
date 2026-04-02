@@ -1431,6 +1431,30 @@
             font-size: 18px;
         }
 
+        .boutique-badge-large {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            background: white;
+            color: #FF5A5F;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 90, 95, 0.1);
+            z-index: 10;
+            animation: badgeFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes badgeFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
         /* PASTEL ORANGE FOOTER WITH PATTERNS */
         .footer {
             background: linear-gradient(135deg, #FFD4C4 0%, #FFE4D6 50%, #FFD4C4 100%);
@@ -2639,6 +2663,7 @@
             let gridHtml = `
                 <div class="gallery-main">
                     <img src="${imgs[0]}" alt="${venueData.title}" id="mainImage" onclick="openCarousel(0)">
+                    ${venueData.type && venueData.type.toLowerCase().includes('siza boutique') ? '<div class="boutique-badge-large" title="Siza Boutique"><i class="fas fa-gem"></i></div>' : ''}
                     <button class="gallery-btn" onclick="openCarousel()">
                         <i class="fas fa-th"></i>
                         Show all ${imgs.length} photos
